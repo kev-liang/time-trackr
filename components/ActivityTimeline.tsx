@@ -4,9 +4,11 @@ import {
   CalendarProvider,
   CalendarUtils,
   ExpandableCalendar,
+  Timeline,
   TimelineList,
   type TimelineProps,
 } from "react-native-calendars";
+import type { TimelineListRenderItemInfo } from "react-native-calendars/src/timeline-list";
 
 import { AppText } from "@/components/ux/AppText";
 import { useActivityStore, type Activity } from "@/stores/useActivityStore";
@@ -145,6 +147,16 @@ export function ActivityTimeline() {
     [theme, renderEvent],
   );
 
+  // Workaround: react-native-calendars spreads `key` via props object
+  // which React 19 forbids. Extract it and pass as a direct JSX prop.
+  const renderTimelineItem = useCallback(
+    (props: TimelineProps, _info: TimelineListRenderItemInfo) => {
+      const { key, ...rest } = props as TimelineProps & { key?: string };
+      return <Timeline key={key} {...rest} />;
+    },
+    [],
+  );
+
   return (
     <CalendarProvider
       date={today}
@@ -172,6 +184,7 @@ export function ActivityTimeline() {
       <TimelineList
         events={eventsByDate}
         timelineProps={timelineProps}
+        renderItem={renderTimelineItem}
         showNowIndicator
         scrollToFirst
         initialTime={INITIAL_TIME}
