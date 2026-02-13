@@ -5,6 +5,7 @@ import { CalendarUtils } from "react-native-calendars";
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { ThemedView } from "@/components/themed-view";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function todayISO() {
   return CalendarUtils.getCalendarDateString(new Date());
@@ -43,7 +44,9 @@ export function ActivityScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <ActivityTimeline />
+      <SafeAreaView style={styles.container}>
+        <ActivityTimeline />
+      </SafeAreaView>
     </ThemedView>
   );
 }
