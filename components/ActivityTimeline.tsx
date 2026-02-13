@@ -1,63 +1,193 @@
-import { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { Timeline } from 'react-native-calendars';
+import { useCallback, useMemo } from "react";
+import { StyleSheet, View } from "react-native";
+import {
+  CalendarProvider,
+  CalendarUtils,
+  ExpandableCalendar,
+  TimelineList,
+  type TimelineProps,
+} from "react-native-calendars";
 
-import { useActivityStore } from '@/stores/useActivityStore';
-import { colors } from '@/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AppText } from "@/components/ux/AppText";
+import { useActivityStore, type Activity } from "@/stores/useActivityStore";
+import { colors, fonts } from "@/theme";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
-type ActivityTimelineProps = {
-  date: string; // "YYYY-MM-DD"
+const INITIAL_TIME = { hour: 9, minutes: 0 };
+
+/** Group activities by date key ("YYYY-MM-DD") */
+function groupByDate(activities: Activity[]) {
+  const grouped: { [date: string]: TimelineProps["events"] } = {};
+  for (const a of activities) {
+    const dateKey = CalendarUtils.getCalendarDateString(a.start);
+    const event = {
+      id: a.id,
+      start: a.start,
+      end: a.end,
+      title: a.title,
+      color: a.color,
+    };
+    if (grouped[dateKey]) {
+      grouped[dateKey].push(event);
+    } else {
+      grouped[dateKey] = [event];
+    }
+  }
+  return grouped;
+}
+
+/** Turn "#4A90D9" into "rgba(74,144,217,0.12)" */
+function toFadedBg(hex: string, opacity = 0.12): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${opacity})`;
+}
+
+function formatTime(isoish: string): string {
+  const timePart = isoish.split(" ")[1] ?? "";
+  return timePart.replace(":", ".");
+}
+
+type PackedEvent = {
+  id?: string;
+  start: string;
+  end: string;
+  title: string;
+  color?: string;
+  height: number;
 };
 
-export function ActivityTimeline({ date }: ActivityTimelineProps) {
-  const colorScheme = useColorScheme() ?? 'light';
+export function ActivityTimeline() {
+  const colorScheme = useColorScheme() ?? "light";
   const theme = colors[colorScheme];
   const activities = useActivityStore((s) => s.activities);
 
-  const events = useMemo(
-    () =>
-      activities
-        .filter((a) => a.start.startsWith(date))
-        .map((a) => ({
-          id: a.id,
-          start: a.start,
-          end: a.end,
-          title: a.title,
-          color: a.color,
-        })),
-    [activities, date]
+  const today = CalendarUtils.getCalendarDateString(new Date());
+
+  const eventsByDate = useMemo(() => groupByDate(activities), [activities]);
+
+  const markedDates = useMemo(() => {
+    const marks: { [date: string]: { marked: boolean } } = {};
+    for (const date of Object.keys(eventsByDate)) {
+      marks[date] = { marked: true };
+    }
+    return marks;
+  }, [eventsByDate]);
+
+  const renderEvent = useCallback(
+    (event: PackedEvent) => {
+      const accent = event.color ?? theme.tint;
+      const showTime = event.height > 40;
+
+      return (
+        <View
+          style={[
+            styles.eventBlock,
+            {
+              backgroundColor: toFadedBg(accent),
+              borderLeftColor: accent,
+            },
+          ]}
+        >
+          {showTime && (
+            <AppText
+              variant="caption"
+              color={theme.textSecondary}
+            >
+              {formatTime(event.start)}
+            </AppText>
+          )}
+          <AppText
+            variant="bodySemiBold"
+            color={theme.text}
+            style={styles.eventTitle}
+            numberOfLines={1}
+          >
+            {event.title}
+          </AppText>
+        </View>
+      );
+    },
+    [theme],
+  );
+
+  const timelineProps: Partial<TimelineProps> = useMemo(
+    () => ({
+      format24h: true,
+      unavailableHours: [
+        { start: 0, end: 6 },
+        { start: 22, end: 24 },
+      ],
+      overlapEventsSpacing: 8,
+      rightEdgeSpacing: 24,
+      renderEvent,
+      theme: {
+        calendarBackground: theme.background,
+        timeLabel: {
+          color: theme.textSecondary,
+          fontFamily: fonts.regular,
+          fontSize: 11,
+        },
+        line: { backgroundColor: theme.border },
+        nowIndicatorLine: { backgroundColor: "#EF4444" },
+        nowIndicatorKnob: { backgroundColor: "#EF4444" },
+        event: {
+          borderRadius: 0,
+          borderWidth: 0,
+          backgroundColor: "transparent",
+          paddingLeft: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+        },
+      },
+    }),
+    [theme, renderEvent],
   );
 
   return (
-    <View style={styles.container}>
-      <Timeline
-        date={date}
-        events={events}
-        start={6}
-        end={23}
-        format24h
-        scrollToNow
-        showNowIndicator
-        overlapEventsSpacing={4}
+    <CalendarProvider
+      date={today}
+      showTodayButton
+      disabledOpacity={0.6}
+    >
+      <ExpandableCalendar
+        firstDay={1}
+        markedDates={markedDates}
         theme={{
           calendarBackground: theme.background,
-          timeLabel: { color: theme.textSecondary },
-          nowIndicatorLine: { backgroundColor: theme.tint },
-          nowIndicatorKnob: { backgroundColor: theme.tint },
-          event: {
-            borderRadius: 8,
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-          },
+          dayTextColor: theme.text,
+          monthTextColor: theme.text,
+          textSectionTitleColor: theme.textSecondary,
+          todayTextColor: theme.tint,
+          selectedDayBackgroundColor: theme.tint,
+          selectedDayTextColor: theme.background,
+          dotColor: theme.tint,
+          arrowColor: theme.tint,
+          textDayFontFamily: fonts.regular,
+          textMonthFontFamily: fonts.semiBold,
+          textDayHeaderFontFamily: fonts.medium,
         }}
       />
-    </View>
+      <TimelineList
+        events={eventsByDate}
+        timelineProps={timelineProps}
+        showNowIndicator
+        scrollToFirst
+        initialTime={INITIAL_TIME}
+      />
+    </CalendarProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  eventBlock: {
     flex: 1,
+    borderLeftWidth: 3,
+    paddingLeft: 8,
+    paddingVertical: 4,
+  },
+  eventTitle: {
+    fontSize: 14,
   },
 });

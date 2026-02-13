@@ -1,15 +1,13 @@
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
+import { CalendarUtils } from "react-native-calendars";
 
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { ThemedView } from "@/components/themed-view";
-import { AppText } from "@/components/ux/AppText";
 import { useActivityStore } from "@/stores/useActivityStore";
-import { spacing } from "@/theme";
 
 function todayISO() {
-  const d = new Date();
-  return d.toISOString().split("T")[0];
+  return CalendarUtils.getCalendarDateString(new Date());
 }
 
 export function ActivityScreen() {
@@ -45,10 +43,7 @@ export function ActivityScreen() {
 
   return (
     <ThemedView style={styles.container}>
-      <AppText variant="title" style={styles.heading}>
-        Today
-      </AppText>
-      <ActivityTimeline date={todayISO()} />
+      <ActivityTimeline />
     </ThemedView>
   );
 }
@@ -56,10 +51,5 @@ export function ActivityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: spacing.xxl,
-  },
-  heading: {
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
   },
 });
