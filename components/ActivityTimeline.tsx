@@ -7,6 +7,7 @@ import {
 
 import { ActivityTimelineEvent } from "@/components/ActivityTimelineEvent";
 import { useActivityTimeline } from "@/hooks/useActivityTimeline";
+import { colors } from "@/theme";
 
 const INITIAL_TIME = { hour: 9, minutes: 0 };
 
@@ -22,7 +23,6 @@ type PackedEvent = {
 export function ActivityTimeline() {
   const {
     today,
-    theme,
     eventsByDate,
     markedDates,
     calendarTheme,
@@ -35,13 +35,13 @@ export function ActivityTimeline() {
       <ActivityTimelineEvent
         title={event.title}
         start={event.start}
-        color={event.color ?? theme.tint}
+        color={event.color ?? colors.tint}
         height={event.height}
-        textColor={theme.text}
-        secondaryTextColor={theme.textSecondary}
+        textColor={colors.text}
+        secondaryTextColor={colors.textSecondary}
       />
     ),
-    [theme],
+    [],
   );
 
   const mergedTimelineProps = {

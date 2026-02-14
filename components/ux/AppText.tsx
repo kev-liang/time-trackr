@@ -1,6 +1,6 @@
 import { Text, type TextProps } from 'react-native';
 
-import { useThemeColor } from '@/hooks/use-theme-color';
+import { colors } from '@/theme';
 import { textStyles, type TextVariant } from '@/theme';
 
 type AppTextProps = TextProps & {
@@ -9,7 +9,5 @@ type AppTextProps = TextProps & {
 };
 
 export function AppText({ variant = 'body', color, style, ...rest }: AppTextProps) {
-  const themeColor = useThemeColor({}, 'text');
-
-  return <Text style={[textStyles[variant], { color: color ?? themeColor }, style]} {...rest} />;
+  return <Text style={[textStyles[variant], { color: color ?? colors.text }, style]} {...rest} />;
 }

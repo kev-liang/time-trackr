@@ -6,7 +6,6 @@ import {
 } from "react-native-calendars";
 import type { TimelineListRenderItemInfo } from "react-native-calendars/src/timeline-list";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useActivityStore, type Activity } from "@/stores/useActivityStore";
 import { colors, fonts } from "@/theme";
 
@@ -34,8 +33,6 @@ function groupByDate(activities: Activity[]) {
 }
 
 export function useActivityTimeline() {
-  const colorScheme = useColorScheme() ?? "light";
-  const theme = colors[colorScheme];
   const activities = useActivityStore((s) => s.activities);
 
   const today = CalendarUtils.getCalendarDateString(new Date());
@@ -52,15 +49,15 @@ export function useActivityTimeline() {
 
   const calendarTheme = useMemo(
     () => ({
-      calendarBackground: theme.background,
-      dayTextColor: theme.text,
-      monthTextColor: theme.text,
-      textSectionTitleColor: theme.textSecondary,
-      todayTextColor: theme.tint,
-      selectedDayBackgroundColor: theme.tint,
-      selectedDayTextColor: theme.background,
-      dotColor: theme.tint,
-      arrowColor: theme.tint,
+      calendarBackground: colors.background,
+      dayTextColor: colors.text,
+      monthTextColor: colors.text,
+      textSectionTitleColor: colors.textSecondary,
+      todayTextColor: colors.tint,
+      selectedDayBackgroundColor: colors.tint,
+      selectedDayTextColor: colors.background,
+      dotColor: colors.tint,
+      arrowColor: colors.tint,
       textDayFontFamily: fonts.regular,
       textMonthFontFamily: fonts.semiBold,
       textDayHeaderFontFamily: fonts.medium,
@@ -74,11 +71,11 @@ export function useActivityTimeline() {
         },
         selected: {
           borderRadius: 16,
-          backgroundColor: theme.tint,
+          backgroundColor: colors.tint,
         },
       },
     }),
-    [theme],
+    [],
   );
 
   const timelineProps: Partial<TimelineProps> = useMemo(
@@ -91,13 +88,13 @@ export function useActivityTimeline() {
       overlapEventsSpacing: 8,
       rightEdgeSpacing: 24,
       theme: {
-        calendarBackground: theme.background,
+        calendarBackground: colors.background,
         timeLabel: {
-          color: theme.textSecondary,
+          color: colors.textSecondary,
           fontFamily: fonts.regular,
           fontSize: 11,
         },
-        line: { backgroundColor: theme.border },
+        line: { backgroundColor: colors.border },
         nowIndicatorLine: { backgroundColor: NOW_COLOR },
         nowIndicatorKnob: { backgroundColor: NOW_COLOR },
         event: {
@@ -110,7 +107,7 @@ export function useActivityTimeline() {
         },
       },
     }),
-    [theme],
+    [],
   );
 
   // Workaround: react-native-calendars spreads `key` via props object
@@ -125,7 +122,6 @@ export function useActivityTimeline() {
 
   return {
     today,
-    theme,
     eventsByDate,
     markedDates,
     calendarTheme,
