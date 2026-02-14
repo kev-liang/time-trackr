@@ -3,10 +3,11 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AlarmFrequencyInput } from "@/components/AlarmFrequencyInput";
 import { AlarmMuteDropdown } from "@/components/AlarmMuteDropdown";
-import { AlarmScheduleRow } from "@/components/AlarmScheduleRow";
+import { AlarmScheduleCard } from "@/components/AlarmScheduleCard";
 import { ThemedView } from "@/components/themed-view";
 import { AppText } from "@/components/ux/AppText";
-import { useAlarmStore, WEEKDAYS } from "@/stores/useAlarmStore";
+import { Card } from "@/components/ux/Card";
+import { useAlarmStore } from "@/stores/useAlarmStore";
 import { colors, spacing } from "@/theme";
 
 export function AlarmsScreen() {
@@ -17,33 +18,26 @@ export function AlarmsScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.section}>
+          <AppText variant="title">Alarm</AppText>
+
+          <Card>
             <View style={styles.row}>
-              <AppText variant="bodySemiBold">Alarm</AppText>
+              <AppText variant="bodySemiBold">Enabled</AppText>
               <Switch
                 value={enabled}
                 onValueChange={setEnabled}
                 trackColor={{ true: colors.tint }}
               />
             </View>
-          </View>
-
-          <View style={styles.section}>
+            <View style={styles.divider} />
             <AlarmMuteDropdown />
-          </View>
+          </Card>
 
-          <View style={styles.section}>
+          <Card title="Frequency">
             <AlarmFrequencyInput />
-          </View>
+          </Card>
 
-          <View style={styles.section}>
-            <AppText variant="subtitle" style={styles.sectionTitle}>
-              Schedule
-            </AppText>
-            {WEEKDAYS.map((day) => (
-              <AlarmScheduleRow key={day} day={day} />
-            ))}
-          </View>
+          <AlarmScheduleCard />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>
@@ -55,18 +49,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    padding: spacing.md,
+    padding: spacing.xl,
     gap: spacing.lg,
-  },
-  section: {
-    gap: spacing.xs,
-  },
-  sectionTitle: {
-    marginBottom: spacing.xs,
   },
   row: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  divider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+    marginVertical: spacing.md,
   },
 });
