@@ -2,7 +2,7 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
-import { desaturate } from "@/utils/colors";
+import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
 
 type ActivityTimelineEventProps = {
@@ -29,7 +29,7 @@ export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
       style={[
         styles.container,
         {
-          backgroundColor: desaturate(color),
+          backgroundColor: lighten(color),
           borderLeftColor: color,
         },
       ]}
@@ -53,7 +53,8 @@ export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    height: "100%",
+    width: "100%",
     borderLeftWidth: 3,
     paddingLeft: 8,
     paddingVertical: 4,

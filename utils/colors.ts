@@ -6,13 +6,8 @@ export function toFadedBg(hex: string, opacity = 0.12): string {
   return `rgba(${r},${g},${b},${opacity})`;
 }
 
-/** Convert a saturated hex color to a soft pastel version.
- *  Keeps the hue, reduces saturation, and pushes lightness up. */
-export function desaturate(
-  hex: string,
-  saturation = 0.25,
-  lightness = 0.92,
-): string {
+/** Lighten a hex color by keeping its hue and saturation but pushing lightness up. */
+export function lighten(hex: string, lightness = 0.92): string {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
   const g = parseInt(hex.slice(3, 5), 16) / 255;
   const b = parseInt(hex.slice(5, 7), 16) / 255;
@@ -30,8 +25,13 @@ export function desaturate(
     if (h < 0) h += 360;
   }
 
-  // HSL → RGB with overridden S and L
-  const c = (1 - Math.abs(2 * lightness - 1)) * saturation;
+  // Original saturation (HSL)
+  const origL = (max + min) / 2;
+  const s =
+    d === 0 ? 0 : d / (1 - Math.abs(2 * origL - 1));
+
+  // HSL → RGB with original H & S, overridden L
+  const c = (1 - Math.abs(2 * lightness - 1)) * s;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
   const m = lightness - c / 2;
 

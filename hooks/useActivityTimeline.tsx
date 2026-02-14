@@ -86,7 +86,7 @@ export function useActivityTimeline() {
         { start: 22, end: 24 },
       ],
       overlapEventsSpacing: 8,
-      rightEdgeSpacing: 24,
+      rightEdgeSpacing: 0,
       theme: {
         calendarBackground: colors.background,
         timeLabel: {
