@@ -2,7 +2,7 @@ import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
-import { toFadedBg } from "@/utils/colors";
+import { desaturate } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
 
 type ActivityTimelineEventProps = {
@@ -29,7 +29,7 @@ export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
       style={[
         styles.container,
         {
-          backgroundColor: toFadedBg(color),
+          backgroundColor: desaturate(color),
           borderLeftColor: color,
         },
       ]}
