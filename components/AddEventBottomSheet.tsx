@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo } from "react";
+import { forwardRef, useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import {
   BottomSheetBackdrop,
@@ -8,6 +8,9 @@ import {
 } from "@gorhom/bottom-sheet";
 
 import { AppText } from "@/components/ux/AppText";
+import { AutocompleteTextInput } from "@/components/ux/AutocompleteTextInput";
+import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
+import { useShallow } from "zustand/react/shallow";
 import { colors, spacing } from "@/theme";
 
 type AddEventBottomSheetProps = {
@@ -19,6 +22,10 @@ export const AddEventBottomSheet = forwardRef<
   AddEventBottomSheetProps
 >(function AddEventBottomSheet({ onSave }, ref) {
   const snapPoints = useMemo(() => ["60%"], []);
+  const [title, setTitle] = useState("");
+  const historyItems = useActivityHistoryStore(
+    useShallow((s) => s.items.map((i) => ({ id: i.id, label: i.name }))),
+  );
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -60,6 +67,15 @@ export const AddEventBottomSheet = forwardRef<
             </AppText>
           </Pressable>
         </View>
+        <View style={styles.form}>
+          <AutocompleteTextInput
+            items={historyItems}
+            value={title}
+            onChangeText={setTitle}
+            onSelect={(item) => setTitle(item.label)}
+            placeholder="Add Title"
+          />
+        </View>
       </BottomSheetView>
     </BottomSheetModal>
   );
@@ -83,5 +99,8 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+  },
+  form: {
+    paddingTop: spacing.md,
   },
 });

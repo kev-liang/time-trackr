@@ -1,0 +1,127 @@
+import { useCallback, useMemo, useState } from "react";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
+
+import { AppText } from "@/components/ux/AppText";
+import { colors, fonts, spacing } from "@/theme";
+import { fuzzyMatch } from "@/utils/fuzzyMatch";
+
+export type AutocompleteItem = {
+  id: string;
+  label: string;
+};
+
+type AutocompleteTextInputProps = {
+  items: AutocompleteItem[];
+  value: string;
+  onChangeText: (text: string) => void;
+  onSelect: (item: AutocompleteItem) => void;
+  placeholder?: string;
+};
+
+export function AutocompleteTextInput({
+  items,
+  value,
+  onChangeText,
+  onSelect,
+  placeholder,
+}: AutocompleteTextInputProps) {
+  const [open, setOpen] = useState(false);
+
+  const filtered = useMemo(() => {
+    if (!value) return items;
+    return items.filter((item) => fuzzyMatch(value, item.label));
+  }, [value, items]);
+
+  const handleSelect = useCallback(
+    (item: AutocompleteItem) => {
+      onSelect(item);
+      onChangeText(item.label);
+      setOpen(false);
+    },
+    [onSelect, onChangeText],
+  );
+
+  const handleFocus = useCallback(() => setOpen(true), []);
+
+  const handleBlur = useCallback(() => {
+    // Small delay so onPress on items fires before blur hides the list
+    setTimeout(() => setOpen(false), 150);
+  }, []);
+
+  return (
+    <View>
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        placeholderTextColor={colors.textSecondary}
+      />
+      {open && filtered.length > 0 && (
+        <FlatList
+          data={filtered}
+          keyExtractor={(item) => item.id}
+          keyboardShouldPersistTaps="handled"
+          style={styles.dropdown}
+          ItemSeparatorComponent={Separator}
+          renderItem={({ item }) => (
+            <Pressable
+              style={({ pressed }) => [
+                styles.row,
+                pressed && styles.rowPressed,
+              ]}
+              onPress={() => handleSelect(item)}
+            >
+              <AppText variant="body">{item.label}</AppText>
+            </Pressable>
+          )}
+        />
+      )}
+    </View>
+  );
+}
+
+function Separator() {
+  return <View style={styles.separator} />;
+}
+
+const styles = StyleSheet.create({
+  input: {
+    fontFamily: fonts.regular,
+    fontSize: 16,
+    color: colors.text,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm + 2,
+  },
+  dropdown: {
+    maxHeight: 200,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: colors.border,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    backgroundColor: colors.background,
+  },
+  row: {
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm + 2,
+  },
+  rowPressed: {
+    backgroundColor: colors.surface,
+  },
+  separator: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
+  },
+});
