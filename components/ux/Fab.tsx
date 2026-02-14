@@ -12,7 +12,7 @@ type FabProps = {
 export function Fab({ label, onPress }: FabProps) {
   return (
     <Pressable style={styles.fab} onPress={onPress}>
-      <Ionicons name="add" size={20} color={colors.background} />
+      <Ionicons name="add" size={28} color={colors.background} />
       {label && (
         <AppText variant="bodySemiBold" color={colors.background}>
           {label}
@@ -27,12 +27,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: spacing.lg,
     right: spacing.lg,
-    flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
+    justifyContent: "center",
+    width: 56,
+    height: 56,
     backgroundColor: colors.tint,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 4,
     borderRadius: 28,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
