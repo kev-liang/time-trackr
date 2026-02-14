@@ -36,6 +36,7 @@ export default function RootLayout() {
     <ThemeProvider value={DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="add-event" options={{ title: "Add Event" }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

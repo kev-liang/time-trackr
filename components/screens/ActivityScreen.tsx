@@ -2,8 +2,11 @@ import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { CalendarUtils } from "react-native-calendars";
 
+import { useRouter } from "expo-router";
+
 import { ActivityTimeline } from "@/components/ActivityTimeline";
 import { ThemedView } from "@/components/themed-view";
+import { Fab } from "@/components/ux/Fab";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -42,10 +45,13 @@ export function ActivityScreen() {
     });
   }, []);
 
+  const router = useRouter();
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
         <ActivityTimeline />
+        <Fab label="Add Event" onPress={() => router.push("/add-event")} />
       </SafeAreaView>
     </ThemedView>
   );
