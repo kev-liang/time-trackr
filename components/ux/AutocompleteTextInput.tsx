@@ -1,11 +1,5 @@
 import { type ReactNode, useCallback, useMemo, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  TextInput,
-  View,
-} from "react-native";
+import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { colors, fonts, spacing } from "@/theme";
@@ -56,13 +50,21 @@ export function AutocompleteTextInput({
     setTimeout(() => setOpen(false), 150);
   }, []);
 
+  const onChangeTextLocal = useCallback((text: string) => {
+    setOpen(true);
+    onChangeText(text);
+  }, []);
+
   return (
     <View>
       <View style={styles.inputRow}>
         <TextInput
-          style={[styles.input, rightComponent ? styles.inputWithRight : undefined]}
+          style={[
+            styles.input,
+            rightComponent ? styles.inputWithRight : undefined,
+          ]}
           value={value}
-          onChangeText={onChangeText}
+          onChangeText={onChangeTextLocal}
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
