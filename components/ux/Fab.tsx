@@ -1,12 +1,11 @@
-import { Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Pressable, StyleSheet } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
-import { colors } from "@/theme";
-import { spacing } from "@/theme";
+import { colors, spacing } from "@/theme";
 
 type FabProps = {
-  label: string;
+  label?: string;
   onPress: () => void;
 };
 
@@ -14,9 +13,11 @@ export function Fab({ label, onPress }: FabProps) {
   return (
     <Pressable style={styles.fab} onPress={onPress}>
       <Ionicons name="add" size={20} color={colors.background} />
-      <AppText variant="bodySemiBold" color={colors.background}>
-        {label}
-      </AppText>
+      {label && (
+        <AppText variant="bodySemiBold" color={colors.background}>
+          {label}
+        </AppText>
+      )}
     </Pressable>
   );
 }
