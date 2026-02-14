@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { type ReactNode, useCallback, useMemo, useState } from "react";
 import {
   FlatList,
   Pressable,
@@ -22,6 +22,7 @@ type AutocompleteTextInputProps = {
   onChangeText: (text: string) => void;
   onSelect: (item: AutocompleteItem) => void;
   placeholder?: string;
+  rightComponent?: ReactNode;
 };
 
 export function AutocompleteTextInput({
@@ -30,6 +31,7 @@ export function AutocompleteTextInput({
   onChangeText,
   onSelect,
   placeholder,
+  rightComponent,
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
 
@@ -56,15 +58,18 @@ export function AutocompleteTextInput({
 
   return (
     <View>
-      <TextInput
-        style={styles.input}
-        value={value}
-        onChangeText={onChangeText}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder={placeholder}
-        placeholderTextColor={colors.textSecondary}
-      />
+      <View style={styles.inputRow}>
+        <TextInput
+          style={[styles.input, rightComponent ? styles.inputWithRight : undefined]}
+          value={value}
+          onChangeText={onChangeText}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          placeholderTextColor={colors.textSecondary}
+        />
+        {rightComponent}
+      </View>
       {open && filtered.length > 0 && (
         <FlatList
           data={filtered}
@@ -94,7 +99,12 @@ function Separator() {
 }
 
 const styles = StyleSheet.create({
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
   input: {
+    flex: 1,
     fontFamily: fonts.regular,
     fontSize: 16,
     color: colors.text,
@@ -103,6 +113,11 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: spacing.sm + 4,
     paddingVertical: spacing.sm + 2,
+  },
+  inputWithRight: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderRightWidth: 0,
   },
   dropdown: {
     maxHeight: 200,

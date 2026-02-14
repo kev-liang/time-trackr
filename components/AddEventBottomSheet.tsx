@@ -7,10 +7,8 @@ import {
   type BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
 
+import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
-import { AutocompleteTextInput } from "@/components/ux/AutocompleteTextInput";
-import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
-import { useShallow } from "zustand/react/shallow";
 import { colors, spacing } from "@/theme";
 
 type AddEventBottomSheetProps = {
@@ -23,9 +21,6 @@ export const AddEventBottomSheet = forwardRef<
 >(function AddEventBottomSheet({ onSave }, ref) {
   const snapPoints = useMemo(() => ["60%"], []);
   const [title, setTitle] = useState("");
-  const historyItems = useActivityHistoryStore(
-    useShallow((s) => s.items.map((i) => ({ id: i.id, label: i.name }))),
-  );
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -68,12 +63,10 @@ export const AddEventBottomSheet = forwardRef<
           </Pressable>
         </View>
         <View style={styles.form}>
-          <AutocompleteTextInput
-            items={historyItems}
+          <AddEventAutocompleteInput
             value={title}
             onChangeText={setTitle}
             onSelect={(item) => setTitle(item.label)}
-            placeholder="Add Title"
           />
         </View>
       </BottomSheetView>
