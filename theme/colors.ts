@@ -1,12 +1,12 @@
 const palette = {
-  white: '#FFFFFF',
-  black: '#000000',
-  gray100: '#F5F5F5',
-  gray300: '#D1D5DB',
-  gray500: '#6B7280',
-  gray700: '#374151',
-  gray900: '#111827',
-  blue500: '#0A7EA4',
+  white: "#FFFFFF",
+  black: "#000000",
+  gray100: "#F5F5F5",
+  gray300: "#D1D5DB",
+  gray500: "#6B7280",
+  gray700: "#374151",
+  gray900: "#111827",
+  blue500: "#4293ff",
 } as const;
 
 export const colors = {
@@ -20,13 +20,13 @@ export const colors = {
     icon: palette.gray500,
   },
   dark: {
-    text: '#ECEDEE',
-    textSecondary: '#9BA1A6',
-    background: '#151718',
-    surface: '#1E2022',
+    text: "#ECEDEE",
+    textSecondary: "#9BA1A6",
+    background: "#151718",
+    surface: "#1E2022",
     tint: palette.white,
-    border: '#2E3234',
-    icon: '#9BA1A6',
+    border: "#2E3234",
+    icon: "#9BA1A6",
   },
 } as const;
 

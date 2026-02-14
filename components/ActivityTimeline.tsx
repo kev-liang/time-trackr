@@ -11,9 +11,9 @@ import {
 import type { TimelineListRenderItemInfo } from "react-native-calendars/src/timeline-list";
 
 import { AppText } from "@/components/ux/AppText";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useActivityStore, type Activity } from "@/stores/useActivityStore";
 import { colors, fonts } from "@/theme";
-import { useColorScheme } from "@/hooks/use-color-scheme";
 
 const INITIAL_TIME = { hour: 9, minutes: 0 };
 
@@ -93,10 +93,7 @@ export function ActivityTimeline() {
           ]}
         >
           {showTime && (
-            <AppText
-              variant="caption"
-              color={theme.textSecondary}
-            >
+            <AppText variant="caption" color={theme.textSecondary}>
               {formatTime(event.start)}
             </AppText>
           )}
@@ -158,11 +155,7 @@ export function ActivityTimeline() {
   );
 
   return (
-    <CalendarProvider
-      date={today}
-      showTodayButton
-      disabledOpacity={0.6}
-    >
+    <CalendarProvider date={today} showTodayButton disabledOpacity={0.6}>
       <ExpandableCalendar
         firstDay={1}
         markedDates={markedDates}
@@ -179,6 +172,20 @@ export function ActivityTimeline() {
           textDayFontFamily: fonts.regular,
           textMonthFontFamily: fonts.semiBold,
           textDayHeaderFontFamily: fonts.medium,
+          // @ts-expect-error -- stylesheet keys accepted by the calendar
+          "stylesheet.day.basic": {
+            base: {
+              width: 36,
+              height: 36,
+              alignItems: "center",
+              justifyContent: "center",
+              paddingBottom: 8,
+            },
+            selected: {
+              borderRadius: 16,
+              backgroundColor: theme.tint,
+            },
+          },
         }}
       />
       <TimelineList
