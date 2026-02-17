@@ -24,9 +24,14 @@ export function Card({ title, children }: CardProps) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: spacing.lg,
+    shadowColor: colors.text,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   divider: {
     height: StyleSheet.hairlineWidth,

@@ -22,8 +22,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="alarms"
         options={{
-          title: 'Alarms',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="alarm.fill" color={color} />,
+          title: 'Notifications',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bell.fill" color={color} />,
         }}
       />
     </Tabs>
