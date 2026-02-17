@@ -35,7 +35,6 @@ export function AddEventAutocompleteInput({
     );
     if (exists) return;
     addItem({
-      id: Date.now().toString(),
       name: trimmed,
       pinned: false,
     });
