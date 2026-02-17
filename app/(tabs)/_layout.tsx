@@ -23,7 +23,14 @@ export default function TabLayout() {
         name="alarms"
         options={{
           title: 'Notifications',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bell.fill" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bell" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: 'Account',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
         }}
       />
     </Tabs>

@@ -1,15 +1,7 @@
 import * as AppleAuthentication from "expo-apple-authentication";
 import * as Crypto from "expo-crypto";
-import {
-  GoogleAuthProvider,
-  makeRedirectUri,
-  useAuthRequest,
-} from "expo-auth-session";
-import * as WebBrowser from "expo-web-browser";
 
 import { supabase } from "@/lib/supabase";
-
-WebBrowser.maybeCompleteAuthSession();
 
 export async function signInWithApple() {
   const nonce = Math.random().toString(36).substring(2, 10);

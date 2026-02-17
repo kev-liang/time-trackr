@@ -6,7 +6,7 @@ import {
   Raleway_700Bold,
 } from '@expo-google-fonts/raleway';
 import { useFonts } from 'expo-font';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -25,12 +25,7 @@ export default function RootLayout() {
     Raleway_700Bold,
   });
 
-  const session = useAuthStore((s) => s.session);
-  const loading = useAuthStore((s) => s.loading);
   const initialize = useAuthStore((s) => s.initialize);
-
-  const segments = useSegments();
-  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -38,24 +33,12 @@ export default function RootLayout() {
   }, [initialize]);
 
   useEffect(() => {
-    if (fontsLoaded && !loading) {
+    if (fontsLoaded) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, loading]);
+  }, [fontsLoaded]);
 
-  useEffect(() => {
-    if (loading || !fontsLoaded) return;
-
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (!session && !inAuthGroup) {
-      router.replace("/(auth)/sign-in");
-    } else if (session && inAuthGroup) {
-      router.replace("/(tabs)");
-    }
-  }, [session, loading, fontsLoaded, segments]);
-
-  if (!fontsLoaded || loading) {
+  if (!fontsLoaded) {
     return null;
   }
 
@@ -63,7 +46,6 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={DefaultTheme}>
         <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
         </Stack>
         <StatusBar style="auto" />
