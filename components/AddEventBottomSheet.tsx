@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useMemo, useState } from "react";
+import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import {
   BottomSheetBackdrop,
@@ -9,18 +9,29 @@ import {
 
 import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
+import type { Activity } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
 
 type AddEventBottomSheetProps = {
-  onSave: () => void;
+  editingEvent?: Activity | null;
+  onSave: (title: string) => void;
+  onCancel: () => void;
 };
 
 export const AddEventBottomSheet = forwardRef<
   BottomSheetModal,
   AddEventBottomSheetProps
->(function AddEventBottomSheet({ onSave }, ref) {
+>(function AddEventBottomSheet({ editingEvent, onSave, onCancel }, ref) {
   const snapPoints = useMemo(() => ["60%"], []);
   const [title, setTitle] = useState("");
+
+  useEffect(() => {
+    if (editingEvent) {
+      setTitle(editingEvent.title);
+    } else {
+      setTitle("");
+    }
+  }, [editingEvent]);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -33,12 +44,17 @@ export const AddEventBottomSheet = forwardRef<
     if (ref && "current" in ref) {
       ref.current?.dismiss();
     }
-  }, [ref]);
+    onCancel();
+  }, [ref, onCancel]);
 
   const handleSave = useCallback(() => {
-    onSave();
-    handleDismiss();
-  }, [onSave, handleDismiss]);
+    onSave(title);
+    if (ref && "current" in ref) {
+      ref.current?.dismiss();
+    }
+  }, [onSave, title, ref]);
+
+  const isEditing = !!editingEvent;
 
   return (
     <BottomSheetModal
@@ -47,6 +63,7 @@ export const AddEventBottomSheet = forwardRef<
       backdropComponent={renderBackdrop}
       handleIndicatorStyle={styles.indicator}
       backgroundStyle={styles.background}
+      onDismiss={onCancel}
     >
       <BottomSheetView style={styles.content}>
         <View style={styles.header}>
@@ -55,7 +72,9 @@ export const AddEventBottomSheet = forwardRef<
               Cancel
             </AppText>
           </Pressable>
-          <AppText variant="bodySemiBold">Add Event</AppText>
+          <AppText variant="bodySemiBold">
+            {isEditing ? "Edit Event" : "Add Event"}
+          </AppText>
           <Pressable onPress={handleSave}>
             <AppText variant="bodySemiBold" color={colors.tint}>
               Save

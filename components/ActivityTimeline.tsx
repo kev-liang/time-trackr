@@ -20,7 +20,17 @@ type PackedEvent = {
   height: number;
 };
 
-export function ActivityTimeline() {
+type ActivityTimelineProps = {
+  editingEventId?: string | null;
+  onEventPress?: (id: string) => void;
+  onDragEnd?: (id: string, deltaStart: number, deltaEnd: number) => void;
+};
+
+export function ActivityTimeline({
+  editingEventId,
+  onEventPress,
+  onDragEnd,
+}: ActivityTimelineProps) {
   const {
     today,
     eventsByDate,
@@ -33,15 +43,20 @@ export function ActivityTimeline() {
   const renderEvent = useCallback(
     (event: PackedEvent) => (
       <ActivityTimelineEvent
+        id={event.id}
         title={event.title}
         start={event.start}
+        end={event.end}
         color={event.color ?? colors.tint}
         height={event.height}
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
+        isEditing={event.id === editingEventId}
+        onPress={onEventPress}
+        onDragEnd={onDragEnd}
       />
     ),
-    [],
+    [editingEventId, onEventPress, onDragEnd],
   );
 
   const mergedTimelineProps = {
