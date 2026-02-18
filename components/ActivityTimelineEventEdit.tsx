@@ -1,4 +1,4 @@
-import { memo } from "react";
+import { memo, useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -8,10 +8,11 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { AppText } from "@/components/ux/AppText";
+import { useActivityStore } from "@/stores/useActivityStore";
 import { colors } from "@/theme";
+import { applyDragDeltas, durationMinutes } from "@/utils/activityTime";
 import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
-import { durationMinutes } from "@/utils/activityTime";
 
 type ActivityTimelineEventEditProps = {
   id?: string;
@@ -22,7 +23,6 @@ type ActivityTimelineEventEditProps = {
   height: number;
   textColor: string;
   secondaryTextColor: string;
-  onDragEnd?: (id: string, deltaStart: number, deltaEnd: number) => void;
 };
 
 export const ActivityTimelineEventEdit = memo(
@@ -35,7 +35,6 @@ export const ActivityTimelineEventEdit = memo(
     height,
     textColor,
     secondaryTextColor,
-    onDragEnd,
   }: ActivityTimelineEventEditProps) {
     const showTime = height > 40;
 
@@ -43,35 +42,59 @@ export const ActivityTimelineEventEdit = memo(
     const bottomOffset = useSharedValue(0);
 
     const pixelsPerMinute = height / durationMinutes(start, end);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const handleDragEnd = (deltaStartMin: number, deltaEndMin: number) => {
-      if (id && onDragEnd) {
-        onDragEnd(id, deltaStartMin, deltaEndMin);
-      }
-    };
+    const applyDrag = useCallback(
+      (deltaStartMin: number, deltaEndMin: number) => {
+        if (!id) return;
+        const activities = useActivityStore.getState().activities;
+        const event = activities.find((a) => a.id === id);
+        if (!event) return;
+        const updates = applyDragDeltas(event, deltaStartMin, deltaEndMin);
+        if (Object.keys(updates).length > 0) {
+          useActivityStore.getState().updateActivity(id, updates);
+        }
+      },
+      [id],
+    );
+
+    const debouncedDrag = useCallback(
+      (deltaStartMin: number, deltaEndMin: number) => {
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+          applyDrag(deltaStartMin, deltaEndMin);
+        }, 200);
+      },
+      [applyDrag],
+    );
+
+    const snapToMinutes = (px: number) =>
+      Math.round(px / pixelsPerMinute / 15) * 15;
 
     const topGesture = Gesture.Pan()
       .runOnJS(true)
       .onUpdate((e) => {
-        topOffset.value = Math.min(e.translationY, 0);
+        topOffset.value = e.translationY;
+        debouncedDrag(snapToMinutes(e.translationY), 0);
       })
       .onEnd(() => {
-        const deltaMinutes =
-          Math.round(topOffset.value / pixelsPerMinute / 15) * 15;
+        const deltaMinutes = snapToMinutes(topOffset.value);
         topOffset.value = 0;
-        handleDragEnd(deltaMinutes, 0);
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        applyDrag(deltaMinutes, 0);
       });
 
     const bottomGesture = Gesture.Pan()
       .runOnJS(true)
       .onUpdate((e) => {
-        bottomOffset.value = Math.max(e.translationY, 0);
+        bottomOffset.value = e.translationY;
+        debouncedDrag(0, snapToMinutes(e.translationY));
       })
       .onEnd(() => {
-        const deltaMinutes =
-          Math.round(bottomOffset.value / pixelsPerMinute / 15) * 15;
+        const deltaMinutes = snapToMinutes(bottomOffset.value);
         bottomOffset.value = 0;
-        handleDragEnd(0, deltaMinutes);
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        applyDrag(0, deltaMinutes);
       });
 
     const animatedContainerStyle = useAnimatedStyle(() => ({

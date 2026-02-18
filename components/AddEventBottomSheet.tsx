@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import DateTimePicker, {
   type DateTimePickerEvent,
@@ -10,16 +10,9 @@ import {
 
 import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
-import type { Activity } from "@/stores/useActivityStore";
+import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
-
-type AddEventBottomSheetProps = {
-  editingEvent?: Activity | null;
-  defaultStart?: Date;
-  defaultEnd?: Date;
-  onSave: (data: { title: string; start: Date; end: Date }) => void;
-  onCancel: () => void;
-};
 
 function formatTimeDisplay(date: Date): string {
   const h = date.getHours().toString().padStart(2, "0");
@@ -27,18 +20,34 @@ function formatTimeDisplay(date: Date): string {
   return `${h}:${m}`;
 }
 
-export const AddEventBottomSheet = forwardRef<
-  BottomSheetModal,
-  AddEventBottomSheetProps
->(function AddEventBottomSheet(
-  { editingEvent, defaultStart, defaultEnd, onSave, onCancel },
-  ref,
-) {
+export function AddEventBottomSheet() {
   const snapPoints = useMemo(() => ["60%"], []);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+
+  const editingEventId = useActivityEditStore((s) => s.editingEventId);
+  const defaultStart = useActivityEditStore((s) => s.defaultStart);
+  const defaultEnd = useActivityEditStore((s) => s.defaultEnd);
+  const sheetOpen = useActivityEditStore((s) => s.sheetOpen);
+  const clearEditing = useActivityEditStore((s) => s.clearEditing);
+
+  const activities = useActivityStore((s) => s.activities);
+  const addActivity = useActivityStore((s) => s.addActivity);
+  const updateActivity = useActivityStore((s) => s.updateActivity);
+
+  const editingEvent = editingEventId
+    ? activities.find((a) => a.id === editingEventId) ?? null
+    : null;
+
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
+
+  useEffect(() => {
+    if (sheetOpen) {
+      bottomSheetRef.current?.present();
+    }
+  }, [sheetOpen]);
 
   useEffect(() => {
     if (editingEvent) {
@@ -56,18 +65,28 @@ export const AddEventBottomSheet = forwardRef<
   }, [editingEvent, defaultStart, defaultEnd]);
 
   const handleDismiss = useCallback(() => {
-    if (ref && "current" in ref) {
-      ref.current?.dismiss();
-    }
-    onCancel();
-  }, [ref, onCancel]);
+    bottomSheetRef.current?.dismiss();
+    clearEditing();
+  }, [clearEditing]);
 
   const handleSave = useCallback(() => {
-    onSave({ title, start: startTime, end: endTime });
-    if (ref && "current" in ref) {
-      ref.current?.dismiss();
+    if (editingEventId) {
+      updateActivity(editingEventId, {
+        title,
+        start: startTime.toISOString(),
+        end: endTime.toISOString(),
+      });
+    } else {
+      addActivity({
+        title,
+        start: startTime.toISOString(),
+        end: endTime.toISOString(),
+        color: "#4293ff",
+      });
     }
-  }, [onSave, title, startTime, endTime, ref]);
+    bottomSheetRef.current?.dismiss();
+    clearEditing();
+  }, [editingEventId, title, startTime, endTime, updateActivity, addActivity, clearEditing]);
 
   const handleStartChange = useCallback(
     (_event: DateTimePickerEvent, date?: Date) => {
@@ -100,12 +119,12 @@ export const AddEventBottomSheet = forwardRef<
 
   return (
     <BottomSheetModal
-      ref={ref}
+      ref={bottomSheetRef}
       snapPoints={snapPoints}
       enablePanDownToClose
       handleIndicatorStyle={styles.indicator}
       backgroundStyle={styles.background}
-      onDismiss={onCancel}
+      onDismiss={clearEditing}
     >
       <BottomSheetView style={styles.content}>
         <View style={styles.header}>
@@ -186,7 +205,7 @@ export const AddEventBottomSheet = forwardRef<
       </BottomSheetView>
     </BottomSheetModal>
   );
-});
+}
 
 const styles = StyleSheet.create({
   background: {

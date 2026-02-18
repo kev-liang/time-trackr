@@ -7,6 +7,7 @@ import {
 
 import { ActivityTimelineEvent } from "@/components/ActivityTimelineEvent";
 import { useActivityTimeline } from "@/hooks/useActivityTimeline";
+import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { colors } from "@/theme";
 
 const INITIAL_TIME = { hour: 9, minutes: 0 };
@@ -20,19 +21,7 @@ type PackedEvent = {
   height: number;
 };
 
-type ActivityTimelineProps = {
-  editingEventId?: string | null;
-  onEventPress?: (id: string) => void;
-  onDragEnd?: (id: string, deltaStart: number, deltaEnd: number) => void;
-  onBackgroundPress?: (timeString: string, date: string) => void;
-};
-
-export function ActivityTimeline({
-  editingEventId,
-  onEventPress,
-  onDragEnd,
-  onBackgroundPress,
-}: ActivityTimelineProps) {
+export function ActivityTimeline() {
   const {
     today,
     eventsByDate,
@@ -53,20 +42,24 @@ export function ActivityTimeline({
         height={event.height}
         textColor={colors.text}
         secondaryTextColor={colors.textSecondary}
-        isEditing={event.id === editingEventId}
-        onPress={onEventPress}
-        onDragEnd={onDragEnd}
       />
     ),
-    [editingEventId, onEventPress, onDragEnd],
+    [],
   );
 
   const handleBackgroundLongPress = useCallback(
     (timeString: string, timeObject: { date?: string }) => {
+      const store = useActivityEditStore.getState();
       const date = timeObject.date ?? today;
-      onBackgroundPress?.(timeString, date);
+      const [hours, minutes] = timeString.split(":").map(Number);
+      const start = new Date(date);
+      start.setHours(hours, minutes, 0, 0);
+      const end = new Date(start.getTime() + 60 * 60000);
+      store.clearEditing();
+      store.setDefaults(start, end);
+      store.openSheet();
     },
-    [onBackgroundPress, today],
+    [today],
   );
 
   const mergedTimelineProps = {

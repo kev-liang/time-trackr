@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
+import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
 
@@ -13,7 +14,6 @@ type ActivityTimelineEventReadonlyProps = {
   height: number;
   textColor: string;
   secondaryTextColor: string;
-  onPress?: (id: string) => void;
 };
 
 export const ActivityTimelineEventReadonly = memo(
@@ -25,14 +25,14 @@ export const ActivityTimelineEventReadonly = memo(
     height,
     textColor,
     secondaryTextColor,
-    onPress,
   }: ActivityTimelineEventReadonlyProps) {
     const showTime = height > 40;
 
     const handlePress = () => {
-      if (id && onPress) {
-        onPress(id);
-      }
+      if (!id) return;
+      const store = useActivityEditStore.getState();
+      store.setEditingEventId(id);
+      store.openSheet();
     };
 
     return (

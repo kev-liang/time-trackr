@@ -2,6 +2,7 @@ import { memo } from "react";
 
 import { ActivityTimelineEventEdit } from "@/components/ActivityTimelineEventEdit";
 import { ActivityTimelineEventReadonly } from "@/components/ActivityTimelineEventReadonly";
+import { useActivityEditStore } from "@/stores/useActivityEditStore";
 
 type ActivityTimelineEventProps = {
   id?: string;
@@ -12,15 +13,14 @@ type ActivityTimelineEventProps = {
   height: number;
   textColor: string;
   secondaryTextColor: string;
-  isEditing?: boolean;
-  onPress?: (id: string) => void;
-  onDragEnd?: (id: string, deltaStart: number, deltaEnd: number) => void;
 };
 
-export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
-  isEditing = false,
-  ...props
-}: ActivityTimelineEventProps) {
+export const ActivityTimelineEvent = memo(function ActivityTimelineEvent(
+  props: ActivityTimelineEventProps,
+) {
+  const editingEventId = useActivityEditStore((s) => s.editingEventId);
+  const isEditing = props.id === editingEventId;
+
   if (isEditing) {
     return <ActivityTimelineEventEdit {...props} />;
   }
