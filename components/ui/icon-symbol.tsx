@@ -24,6 +24,7 @@ const MAPPING = {
   'bell.fill': 'notifications',
   'person': 'person-outline',
   'person.fill': 'person',
+  'clock': 'schedule',
 } as IconMapping;
 
 /**
