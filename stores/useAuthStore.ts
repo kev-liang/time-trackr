@@ -4,6 +4,7 @@ import { create } from "zustand";
 import {
   getSession,
   onAuthStateChange,
+  signInAnonymously,
   signInWithApple as appleSignIn,
   signInWithGoogle as googleSignIn,
   signOut as authSignOut,
@@ -26,8 +27,12 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
   loading: true,
 
   initialize: () => {
-    getSession().then((session) => {
-      set({ session, loading: false });
+    getSession().then(async (session) => {
+      if (!session) {
+        await signInAnonymously();
+      } else {
+        set({ session, loading: false });
+      }
     });
 
     const subscription = onAuthStateChange((session) => {

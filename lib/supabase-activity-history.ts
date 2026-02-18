@@ -30,12 +30,14 @@ export async function fetchActivityHistory(): Promise<ActivityHistoryItem[]> {
 export async function insertActivityHistoryItem(
   item: Omit<ActivityHistoryItem, "id">,
 ): Promise<ActivityHistoryItem> {
+  const { data: { session } } = await supabase.auth.getSession();
   const { data, error } = await supabase
     .from("activity_history")
     .insert({
       name: item.name,
       last_used: item.lastUsed ?? null,
       pinned: item.pinned,
+      user_id: session?.user?.id,
     })
     .select("id, name, last_used, pinned")
     .single();

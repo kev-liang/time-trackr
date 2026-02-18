@@ -24,12 +24,14 @@ type ActivityTimelineProps = {
   editingEventId?: string | null;
   onEventPress?: (id: string) => void;
   onDragEnd?: (id: string, deltaStart: number, deltaEnd: number) => void;
+  onBackgroundPress?: (timeString: string, date: string) => void;
 };
 
 export function ActivityTimeline({
   editingEventId,
   onEventPress,
   onDragEnd,
+  onBackgroundPress,
 }: ActivityTimelineProps) {
   const {
     today,
@@ -59,9 +61,18 @@ export function ActivityTimeline({
     [editingEventId, onEventPress, onDragEnd],
   );
 
+  const handleBackgroundLongPress = useCallback(
+    (timeString: string, timeObject: { date?: string }) => {
+      const date = timeObject.date ?? today;
+      onBackgroundPress?.(timeString, date);
+    },
+    [onBackgroundPress, today],
+  );
+
   const mergedTimelineProps = {
     ...timelineProps,
     renderEvent,
+    onBackgroundLongPress: handleBackgroundLongPress,
   };
 
   return (

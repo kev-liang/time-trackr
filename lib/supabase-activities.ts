@@ -32,6 +32,7 @@ export async function fetchActivities(): Promise<Activity[]> {
 export async function insertActivity(
   activity: Omit<Activity, "id">,
 ): Promise<Activity> {
+  const { data: { session } } = await supabase.auth.getSession();
   const { data, error } = await supabase
     .from("activities")
     .insert({
@@ -39,6 +40,7 @@ export async function insertActivity(
       start: activity.start,
       end: activity.end,
       color: activity.color,
+      user_id: session?.user?.id,
     })
     .select("id, title, start, end, color")
     .single();
