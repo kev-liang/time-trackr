@@ -3,14 +3,19 @@ import {
   CalendarContainer,
   CalendarBody,
   CalendarHeader,
+  DraggableEvent,
+  DraggingEvent,
   type CalendarKitHandle,
   type DateOrDateTime,
+  type DraggableEventProps,
+  type DraggingEventProps,
   type OnEventResponse,
   type PackedEvent,
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
 import type { GestureResponderEvent } from "react-native";
+import type { SharedValue } from "react-native-reanimated";
 
 import { CalendarKitEvent } from "@/components/CalendarKitEvent";
 import { useCalendarKit } from "@/hooks/useCalendarKit";
@@ -75,11 +80,42 @@ export function CalendarKitTimeline() {
         id={event.id}
         title={event.title ?? ""}
         start={event.start.dateTime!}
-        end={event.end.dateTime!}
         color={event.color ?? colors.tint}
       />
     ),
     [],
+  );
+
+  const renderSelectedEventContent = useCallback(
+    (
+      event: SelectedEventType | undefined,
+      _options: { width: SharedValue<number>; height: SharedValue<number> },
+    ) => {
+      if (!event) return null;
+      return (
+        <CalendarKitEvent
+          id={event.id ?? ""}
+          title={event.title ?? ""}
+          start={event.start.dateTime!}
+          color={event.color ?? colors.tint}
+        />
+      );
+    },
+    [],
+  );
+
+  const renderDraggableEvent = useCallback(
+    (props: DraggableEventProps) => (
+      <DraggableEvent {...props} renderEvent={renderSelectedEventContent} />
+    ),
+    [renderSelectedEventContent],
+  );
+
+  const renderDraggingEvent = useCallback(
+    (props: DraggingEventProps) => (
+      <DraggingEvent {...props} renderEvent={renderSelectedEventContent} />
+    ),
+    [renderSelectedEventContent],
   );
 
   return (
@@ -105,7 +141,12 @@ export function CalendarKitTimeline() {
       end={1440}
     >
       <CalendarHeader />
-      <CalendarBody showNowIndicator renderEvent={renderEvent} />
+      <CalendarBody
+        showNowIndicator
+        renderEvent={renderEvent}
+        renderDraggableEvent={renderDraggableEvent}
+        renderDraggingEvent={renderDraggingEvent}
+      />
     </CalendarContainer>
   );
 }
