@@ -1,6 +1,6 @@
+import { Ionicons } from "@expo/vector-icons";
 import { memo, useCallback, useRef } from "react";
 import { StyleSheet, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   useAnimatedStyle,
@@ -10,7 +10,12 @@ import Animated, {
 import { AppText } from "@/components/ux/AppText";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors } from "@/theme";
-import { applyDragDeltas, durationMinutes } from "@/utils/activityTime";
+import {
+  MIN_HEIGHT_FOR_TIME,
+  SNAP_INTERVAL_MINUTES,
+  applyDragDeltas,
+  durationMinutes,
+} from "@/utils/activityTime";
 import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
 
@@ -36,13 +41,13 @@ export const ActivityTimelineEventEdit = memo(
     textColor,
     secondaryTextColor,
   }: ActivityTimelineEventEditProps) {
-    const showTime = height > 40;
+    const showTime = height > MIN_HEIGHT_FOR_TIME;
 
     const topOffset = useSharedValue(0);
     const bottomOffset = useSharedValue(0);
 
     const pixelsPerMinute = height / durationMinutes(start, end);
-    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const lastDragTime = useRef(0);
 
     const applyDrag = useCallback(
       (deltaStartMin: number, deltaEndMin: number) => {
@@ -58,29 +63,29 @@ export const ActivityTimelineEventEdit = memo(
       [id],
     );
 
-    const debouncedDrag = useCallback(
+    const throttledDrag = useCallback(
       (deltaStartMin: number, deltaEndMin: number) => {
-        if (debounceTimer.current) clearTimeout(debounceTimer.current);
-        debounceTimer.current = setTimeout(() => {
-          applyDrag(deltaStartMin, deltaEndMin);
-        }, 200);
+        const now = Date.now();
+        if (now - lastDragTime.current < 200) return;
+        lastDragTime.current = now;
+        applyDrag(deltaStartMin, deltaEndMin);
       },
       [applyDrag],
     );
 
     const snapToMinutes = (px: number) =>
-      Math.round(px / pixelsPerMinute / 15) * 15;
+      Math.round(px / pixelsPerMinute / SNAP_INTERVAL_MINUTES) *
+      SNAP_INTERVAL_MINUTES;
 
     const topGesture = Gesture.Pan()
       .runOnJS(true)
       .onUpdate((e) => {
         topOffset.value = e.translationY;
-        debouncedDrag(snapToMinutes(e.translationY), 0);
+        throttledDrag(snapToMinutes(e.translationY), 0);
       })
       .onEnd(() => {
         const deltaMinutes = snapToMinutes(topOffset.value);
         topOffset.value = 0;
-        if (debounceTimer.current) clearTimeout(debounceTimer.current);
         applyDrag(deltaMinutes, 0);
       });
 
@@ -88,12 +93,11 @@ export const ActivityTimelineEventEdit = memo(
       .runOnJS(true)
       .onUpdate((e) => {
         bottomOffset.value = e.translationY;
-        debouncedDrag(0, snapToMinutes(e.translationY));
+        throttledDrag(0, snapToMinutes(e.translationY));
       })
       .onEnd(() => {
         const deltaMinutes = snapToMinutes(bottomOffset.value);
         bottomOffset.value = 0;
-        if (debounceTimer.current) clearTimeout(debounceTimer.current);
         applyDrag(0, deltaMinutes);
       });
 

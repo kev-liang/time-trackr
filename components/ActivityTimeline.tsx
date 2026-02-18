@@ -8,6 +8,7 @@ import {
 import { ActivityTimelineEvent } from "@/components/ActivityTimelineEvent";
 import { useActivityTimeline } from "@/hooks/useActivityTimeline";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { colors } from "@/theme";
 
 const INITIAL_TIME = { hour: 9, minutes: 0 };
@@ -54,7 +55,7 @@ export function ActivityTimeline() {
       const [hours, minutes] = timeString.split(":").map(Number);
       const start = new Date(date);
       start.setHours(hours, minutes, 0, 0);
-      const end = new Date(start.getTime() + 60 * 60000);
+      const end = new Date(start.getTime() + 60 * MS_PER_MINUTE);
       store.clearEditing();
       store.setDefaults(start, end);
       store.openSheet();

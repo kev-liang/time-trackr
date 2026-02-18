@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { MIN_HEIGHT_FOR_TIME } from "@/utils/activityTime";
 import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
 
@@ -26,7 +27,7 @@ export const ActivityTimelineEventReadonly = memo(
     textColor,
     secondaryTextColor,
   }: ActivityTimelineEventReadonlyProps) {
-    const showTime = height > 40;
+    const showTime = height > MIN_HEIGHT_FOR_TIME;
 
     const handlePress = () => {
       if (!id) return;

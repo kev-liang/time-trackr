@@ -12,6 +12,7 @@ import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInpu
 import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { colors, spacing } from "@/theme";
 
 function formatTimeDisplay(date: Date): string {
@@ -57,7 +58,7 @@ export function AddEventBottomSheet() {
     } else {
       setTitle("");
       const now = defaultStart ?? new Date();
-      const later = defaultEnd ?? new Date(now.getTime() + 60 * 60000);
+      const later = defaultEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
       setStartTime(now);
       setEndTime(later);
     }
@@ -96,7 +97,7 @@ export function AddEventBottomSheet() {
       if (date) {
         setStartTime(date);
         if (date >= endTime) {
-          setEndTime(new Date(date.getTime() + 30 * 60000));
+          setEndTime(new Date(date.getTime() + 30 * MS_PER_MINUTE));
         }
       }
     },
