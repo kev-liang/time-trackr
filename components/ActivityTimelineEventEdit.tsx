@@ -47,7 +47,7 @@ export const ActivityTimelineEventEdit = memo(
     const bottomOffset = useSharedValue(0);
 
     const pixelsPerMinute = height / durationMinutes(start, end);
-    const lastDragTime = useRef(0);
+    const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const applyDrag = useCallback(
       (deltaStartMin: number, deltaEndMin: number) => {
@@ -63,12 +63,12 @@ export const ActivityTimelineEventEdit = memo(
       [id],
     );
 
-    const throttledDrag = useCallback(
+    const debouncedDrag = useCallback(
       (deltaStartMin: number, deltaEndMin: number) => {
-        const now = Date.now();
-        if (now - lastDragTime.current < 200) return;
-        lastDragTime.current = now;
-        applyDrag(deltaStartMin, deltaEndMin);
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+          applyDrag(deltaStartMin, deltaEndMin);
+        }, 200);
       },
       [applyDrag],
     );
@@ -81,11 +81,12 @@ export const ActivityTimelineEventEdit = memo(
       .runOnJS(true)
       .onUpdate((e) => {
         topOffset.value = e.translationY;
-        throttledDrag(snapToMinutes(e.translationY), 0);
+        debouncedDrag(snapToMinutes(e.translationY), 0);
       })
       .onEnd(() => {
         const deltaMinutes = snapToMinutes(topOffset.value);
         topOffset.value = 0;
+        if (debounceTimer.current) clearTimeout(debounceTimer.current);
         applyDrag(deltaMinutes, 0);
       });
 
@@ -93,7 +94,7 @@ export const ActivityTimelineEventEdit = memo(
       .runOnJS(true)
       .onUpdate((e) => {
         bottomOffset.value = e.translationY;
-        throttledDrag(0, snapToMinutes(e.translationY));
+        debouncedDrag(0, snapToMinutes(e.translationY));
       })
       .onEnd(() => {
         const deltaMinutes = snapToMinutes(bottomOffset.value);
