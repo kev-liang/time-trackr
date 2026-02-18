@@ -4,10 +4,8 @@ import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
 import {
-  BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
-  type BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
 
 import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
@@ -57,17 +55,6 @@ export const AddEventBottomSheet = forwardRef<
     setPickerField(null);
   }, [editingEvent, defaultStart, defaultEnd]);
 
-  const renderBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => (
-      <BottomSheetBackdrop
-        {...props}
-        disappearsOnIndex={-1}
-        appearsOnIndex={0}
-      />
-    ),
-    [],
-  );
-
   const handleDismiss = useCallback(() => {
     if (ref && "current" in ref) {
       ref.current?.dismiss();
@@ -115,7 +102,7 @@ export const AddEventBottomSheet = forwardRef<
     <BottomSheetModal
       ref={ref}
       snapPoints={snapPoints}
-      backdropComponent={renderBackdrop}
+      enablePanDownToClose
       handleIndicatorStyle={styles.indicator}
       backgroundStyle={styles.background}
       onDismiss={onCancel}
