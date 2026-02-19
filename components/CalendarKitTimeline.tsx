@@ -29,7 +29,7 @@ import { extractTimes } from "@/utils/calendarKitAdapter";
 export function CalendarKitTimeline() {
   const calendarRef = useRef<CalendarKitHandle>(null);
   const { events, today, theme, unavailableHours } = useCalendarKit();
-  const [visibleDate, setVisibleDate] = useState(today);
+  const [selectedDate, setSelectedDate] = useState(today);
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
@@ -130,20 +130,15 @@ export function CalendarKitTimeline() {
     [renderSelectedEventContent],
   );
 
-  const activities = useActivityStore((s) => s.activities);
-
   const handleDateChanged = useCallback((date: string) => {
-    setVisibleDate(date);
+    setSelectedDate(date);
   }, []);
 
-  const handleSelectDate = useCallback(
-    (date: string) => {
-      setPickerOpen(false);
-      setVisibleDate(date);
-      calendarRef.current?.goToDate({ date });
-    },
-    [],
-  );
+  const handleSelectDate = useCallback((date: string) => {
+    setPickerOpen(false);
+    setSelectedDate(date);
+    calendarRef.current?.goToDate({ date });
+  }, []);
 
   return (
     <CalendarContainer
@@ -170,8 +165,7 @@ export function CalendarKitTimeline() {
       end={1440}
     >
       <CalendarKitDatePicker
-        visibleDate={visibleDate}
-        activities={activities}
+        selectedDate={selectedDate}
         open={pickerOpen}
         onToggle={() => setPickerOpen((prev) => !prev)}
         onSelectDate={handleSelectDate}
@@ -186,4 +180,3 @@ export function CalendarKitTimeline() {
     </CalendarContainer>
   );
 }
-

@@ -3,17 +3,15 @@ import moment from "moment";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import type { DateData } from "react-native-calendars";
-import { Calendar, CalendarUtils } from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 
 import { AppText } from "@/components/ux/AppText";
-import type { Activity } from "@/stores/useActivityStore";
 import { colors, fonts } from "@/theme";
 
 const MONTH_RANGE = 24; // 2 years in each direction
 
 type Props = {
-  visibleDate: string;
-  activities: Activity[];
+  selectedDate: string;
   open: boolean;
   onToggle: () => void;
   onSelectDate: (date: string) => void;
@@ -43,41 +41,32 @@ const MONTHS = buildMonths();
 const CENTER_INDEX = MONTH_RANGE;
 
 export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
-  visibleDate,
-  activities,
+  selectedDate: rawSelectedDate,
   open,
   onToggle,
   onSelectDate,
 }: Props) {
-  const [displayMonth, setDisplayMonth] = useState(visibleDate);
+  const selectedDate = rawSelectedDate.slice(0, 10);
+  const [displayMonth, setDisplayMonth] = useState(selectedDate);
   const monthListRef = useRef<FlatList>(null);
 
-  // Sync displayMonth when picker opens or visibleDate changes externally
+  // Sync displayMonth when picker opens or selectedDate changes externally
   useEffect(() => {
-    if (open) setDisplayMonth(visibleDate);
-  }, [open, visibleDate]);
+    if (open) setDisplayMonth(selectedDate);
+  }, [open, selectedDate]);
 
   const markedDates = useMemo(() => {
     const marks: Record<
       string,
       {
-        marked?: boolean;
-        dotColor?: string;
         selected?: boolean;
-        selectedColor?: string;
       }
     > = {};
-    for (const a of activities) {
-      const dateKey = CalendarUtils.getCalendarDateString(a.start);
-      marks[dateKey] = { marked: true, dotColor: colors.tint };
-    }
-    marks[visibleDate] = {
-      ...marks[visibleDate],
+    marks[selectedDate] = {
       selected: true,
-      selectedColor: colors.tint,
     };
     return marks;
-  }, [activities, visibleDate]);
+  }, [selectedDate]);
 
   const calendarTheme = useMemo(
     () => ({
@@ -88,24 +77,10 @@ export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
       todayTextColor: colors.tint,
       selectedDayBackgroundColor: colors.tint,
       selectedDayTextColor: colors.background,
-      dotColor: colors.tint,
       arrowColor: colors.tint,
       textDayFontFamily: fonts.regular,
       textMonthFontFamily: fonts.semiBold,
       textDayHeaderFontFamily: fonts.medium,
-      "stylesheet.day.basic": {
-        base: {
-          width: 36,
-          height: 36,
-          alignItems: "center" as const,
-          justifyContent: "center" as const,
-          paddingBottom: 8,
-        },
-        selected: {
-          borderRadius: 16,
-          backgroundColor: colors.tint,
-        },
-      },
     }),
     [],
   );
@@ -119,6 +94,10 @@ export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
 
   const handleMonthPress = useCallback((date: string) => {
     setDisplayMonth(date);
+  }, []);
+
+  const handleMonthChange = useCallback((date: DateData) => {
+    setDisplayMonth(date.dateString);
   }, []);
 
   const activeMonthKey = moment(displayMonth).format("YYYY-MM");
@@ -147,7 +126,7 @@ export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
     <View>
       <Pressable onPress={onToggle} style={styles.header}>
         <AppText variant="bodySemiBold" color={colors.text}>
-          {moment(open ? displayMonth : visibleDate).format("MMMM YYYY")}
+          {moment(open ? displayMonth : selectedDate).format("MMMM YYYY")}
         </AppText>
         <Ionicons
           name={open ? "chevron-up" : "chevron-down"}
@@ -167,6 +146,8 @@ export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
             firstDay={1}
             hideExtraDays={false}
             hideArrows
+            enableSwipeMonths
+            onMonthChange={handleMonthChange}
             renderHeader={() => null}
           />
           <FlatList
