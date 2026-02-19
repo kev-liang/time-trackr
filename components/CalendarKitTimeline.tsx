@@ -1,7 +1,7 @@
-import { useCallback, useMemo, useRef } from "react";
+import { Ionicons } from "@expo/vector-icons";
 import {
-  CalendarContainer,
   CalendarBody,
+  CalendarContainer,
   CalendarHeader,
   DraggableEvent,
   DraggingEvent,
@@ -14,20 +14,27 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import moment from "moment";
+import { useCallback, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 import { CalendarKitEvent } from "@/components/CalendarKitEvent";
+import { AppText } from "@/components/ux/AppText";
 import { useCalendarKit } from "@/hooks/useCalendarKit";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
-import { extractTimes } from "@/utils/calendarKitAdapter";
-import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { colors } from "@/theme";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
+import { extractTimes } from "@/utils/calendarKitAdapter";
 
 export function CalendarKitTimeline() {
   const calendarRef = useRef<CalendarKitHandle>(null);
   const { events, today, theme, unavailableHours } = useCalendarKit();
+  const [visibleDate, setVisibleDate] = useState(today);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
 
@@ -69,7 +76,9 @@ export function CalendarKitTimeline() {
       const start = event.start.dateTime;
       const end = event.end.dateTime;
       if (!start || !end) return;
-      await useActivityStore.getState().updateActivity(event.id, { start, end });
+      await useActivityStore
+        .getState()
+        .updateActivity(event.id, { start, end });
     },
     [],
   );
@@ -118,6 +127,17 @@ export function CalendarKitTimeline() {
     [renderSelectedEventContent],
   );
 
+  const handleDateChanged = useCallback((date: string) => {
+    setVisibleDate(date);
+  }, []);
+
+  const handlePickerChange = useCallback((_event: unknown, selected?: Date) => {
+    if (!selected) return;
+    const iso = moment(selected).format("YYYY-MM-DD");
+    setPickerOpen(false);
+    calendarRef.current?.goToDate({ date: iso });
+  }, []);
+
   return (
     <CalendarContainer
       ref={calendarRef}
@@ -135,12 +155,34 @@ export function CalendarKitTimeline() {
       onLongPressBackground={handleLongPressBackground}
       onDragEventEnd={handleDragEventEnd}
       onDragSelectedEventEnd={handleDragSelectedEventEnd}
+      onDateChanged={handleDateChanged}
       overlapEventsSpacing={8}
       rightEdgeSpacing={0}
       start={0}
       end={1440}
     >
+      <Pressable
+        onPress={() => setPickerOpen((prev) => !prev)}
+        style={styles.datePickerToggle}
+      >
+        <AppText variant="bodySemiBold" color={colors.text}>
+          {moment(visibleDate).format("MMMM YYYY")}
+        </AppText>
+        <Ionicons
+          name={pickerOpen ? "chevron-up" : "chevron-down"}
+          size={16}
+          color={colors.text}
+        />
+      </Pressable>
       <CalendarHeader />
+      {pickerOpen && (
+        <DateTimePicker
+          mode="date"
+          display="inline"
+          value={new Date(visibleDate)}
+          onChange={handlePickerChange}
+        />
+      )}
       <CalendarBody
         showNowIndicator
         renderEvent={renderEvent}
@@ -150,3 +192,15 @@ export function CalendarKitTimeline() {
     </CalendarContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  datePickerToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 16,
+    paddingLeft: 16,
+    backgroundColor: colors.surface,
+  },
+});
