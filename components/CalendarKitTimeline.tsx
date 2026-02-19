@@ -14,8 +14,9 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
-import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
+import { Calendar, CalendarUtils } from "react-native-calendars";
+import type { DateData } from "react-native-calendars";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import { Pressable, StyleSheet } from "react-native";
@@ -26,7 +27,7 @@ import { AppText } from "@/components/ux/AppText";
 import { useCalendarKit } from "@/hooks/useCalendarKit";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
-import { colors } from "@/theme";
+import { colors, fonts } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { extractTimes } from "@/utils/calendarKitAdapter";
 
@@ -35,6 +36,7 @@ export function CalendarKitTimeline() {
   const { events, today, theme, unavailableHours } = useCalendarKit();
   const [visibleDate, setVisibleDate] = useState(today);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [displayMonth, setDisplayMonth] = useState(today);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
 
@@ -50,6 +52,13 @@ export function CalendarKitTimeline() {
     store.setEditingEventId(event.id);
     store.openSheet();
   }, []);
+
+  const handlePressBackground = useCallback(
+    (_props: DateOrDateTime, _event: GestureResponderEvent) => {
+      if (pickerOpen) setPickerOpen(false);
+    },
+    [pickerOpen],
+  );
 
   const handleLongPressBackground = useCallback(
     (props: DateOrDateTime, _event: GestureResponderEvent) => {
@@ -127,15 +136,77 @@ export function CalendarKitTimeline() {
     [renderSelectedEventContent],
   );
 
+  const activities = useActivityStore((s) => s.activities);
+
+  const markedDates = useMemo(() => {
+    const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string }> = {};
+    for (const a of activities) {
+      const dateKey = CalendarUtils.getCalendarDateString(a.start);
+      marks[dateKey] = { marked: true, dotColor: colors.tint };
+    }
+    marks[visibleDate] = {
+      ...marks[visibleDate],
+      selected: true,
+      selectedColor: colors.tint,
+    };
+    return marks;
+  }, [activities, visibleDate]);
+
+  const calendarTheme = useMemo(
+    () => ({
+      calendarBackground: colors.background,
+      dayTextColor: colors.text,
+      monthTextColor: colors.text,
+      textSectionTitleColor: colors.textSecondary,
+      todayTextColor: colors.tint,
+      selectedDayBackgroundColor: colors.tint,
+      selectedDayTextColor: colors.background,
+      dotColor: colors.tint,
+      arrowColor: colors.tint,
+      textDayFontFamily: fonts.regular,
+      textMonthFontFamily: fonts.semiBold,
+      textDayHeaderFontFamily: fonts.medium,
+      "stylesheet.day.basic": {
+        base: {
+          width: 36,
+          height: 36,
+          alignItems: "center" as const,
+          justifyContent: "center" as const,
+          paddingBottom: 8,
+        },
+        selected: {
+          borderRadius: 16,
+          backgroundColor: colors.tint,
+        },
+      },
+    }),
+    [],
+  );
+
   const handleDateChanged = useCallback((date: string) => {
     setVisibleDate(date);
   }, []);
 
-  const handlePickerChange = useCallback((_event: unknown, selected?: Date) => {
-    if (!selected) return;
-    const iso = moment(selected).format("YYYY-MM-DD");
-    setPickerOpen(false);
-    calendarRef.current?.goToDate({ date: iso });
+  const handleDayPress = useCallback(
+    (day: DateData) => {
+      setPickerOpen(false);
+      setVisibleDate(day.dateString);
+      setDisplayMonth(day.dateString);
+      calendarRef.current?.goToDate({ date: day.dateString });
+    },
+    [],
+  );
+
+  const handlePrevMonth = useCallback(() => {
+    setDisplayMonth((prev) =>
+      moment(prev).subtract(1, "month").format("YYYY-MM-DD"),
+    );
+  }, []);
+
+  const handleNextMonth = useCallback(() => {
+    setDisplayMonth((prev) =>
+      moment(prev).add(1, "month").format("YYYY-MM-DD"),
+    );
   }, []);
 
   return (
@@ -152,6 +223,7 @@ export function CalendarKitTimeline() {
       selectedEvent={selectedEvent}
       useHaptic
       onPressEvent={handlePressEvent}
+      onPressBackground={handlePressBackground}
       onLongPressBackground={handleLongPressBackground}
       onDragEventEnd={handleDragEventEnd}
       onDragSelectedEventEnd={handleDragSelectedEventEnd}
@@ -162,25 +234,45 @@ export function CalendarKitTimeline() {
       end={1440}
     >
       <Pressable
-        onPress={() => setPickerOpen((prev) => !prev)}
+        onPress={() => {
+          setPickerOpen((prev) => {
+            if (!prev) setDisplayMonth(visibleDate);
+            return !prev;
+          });
+        }}
         style={styles.datePickerToggle}
       >
+        {pickerOpen && (
+          <Pressable onPress={handlePrevMonth} style={styles.arrowButton}>
+            <Ionicons name="chevron-back" size={20} color={colors.tint} />
+          </Pressable>
+        )}
         <AppText variant="bodySemiBold" color={colors.text}>
-          {moment(visibleDate).format("MMMM YYYY")}
+          {moment(pickerOpen ? displayMonth : visibleDate).format("MMMM YYYY")}
         </AppText>
         <Ionicons
           name={pickerOpen ? "chevron-up" : "chevron-down"}
           size={16}
           color={colors.text}
         />
+        {pickerOpen && (
+          <Pressable onPress={handleNextMonth} style={styles.arrowButton}>
+            <Ionicons name="chevron-forward" size={20} color={colors.tint} />
+          </Pressable>
+        )}
       </Pressable>
       <CalendarHeader />
       {pickerOpen && (
-        <DateTimePicker
-          mode="date"
-          display="inline"
-          value={new Date(visibleDate)}
-          onChange={handlePickerChange}
+        <Calendar
+          key={displayMonth}
+          current={displayMonth}
+          onDayPress={handleDayPress}
+          markedDates={markedDates}
+          theme={calendarTheme}
+          firstDay={1}
+          hideExtraDays={false}
+          hideArrows
+          renderHeader={() => null}
         />
       )}
       <CalendarBody
@@ -202,5 +294,8 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingLeft: 16,
     backgroundColor: colors.surface,
+  },
+  arrowButton: {
+    padding: 4,
   },
 });
