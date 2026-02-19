@@ -1,19 +1,16 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import DateTimePicker, {
   type DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
-import {
-  BottomSheetModal,
-  BottomSheetView,
-} from "@gorhom/bottom-sheet";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Platform, Pressable, StyleSheet, View } from "react-native";
 
 import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
-import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { colors, spacing } from "@/theme";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 function formatTimeDisplay(date: Date): string {
   const h = date.getHours().toString().padStart(2, "0");
@@ -36,7 +33,7 @@ export function AddEventBottomSheet() {
   const updateActivity = useActivityStore((s) => s.updateActivity);
 
   const editingEvent = editingEventId
-    ? activities.find((a) => a.id === editingEventId) ?? null
+    ? (activities.find((a) => a.id === editingEventId) ?? null)
     : null;
 
   const [title, setTitle] = useState("");
@@ -87,7 +84,15 @@ export function AddEventBottomSheet() {
     }
     bottomSheetRef.current?.dismiss();
     clearEditing();
-  }, [editingEventId, title, startTime, endTime, updateActivity, addActivity, clearEditing]);
+  }, [
+    editingEventId,
+    title,
+    startTime,
+    endTime,
+    updateActivity,
+    addActivity,
+    clearEditing,
+  ]);
 
   const handleStartChange = useCallback(
     (_event: DateTimePickerEvent, date?: Date) => {
@@ -218,6 +223,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: spacing.md,
+    paddingBottom: spacing.md,
   },
   header: {
     flexDirection: "row",
