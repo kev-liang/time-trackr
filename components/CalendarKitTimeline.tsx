@@ -13,7 +13,7 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
@@ -56,6 +56,14 @@ export function CalendarKitTimeline() {
   }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
+
+  // Scroll to draft start time whenever a new draft is created
+  useEffect(() => {
+    if (hasDraft && !editingEventId && defaultStart) {
+      const hour = defaultStart.getHours() + defaultStart.getMinutes() / 60;
+      calendarRef.current?.goToHour(hour, true);
+    }
+  }, [hasDraft, editingEventId, defaultStart]);
 
   const handlePressEvent = useCallback((event: OnEventResponse) => {
     const store = useActivityEditStore.getState();
