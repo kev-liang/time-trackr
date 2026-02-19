@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import {
   CalendarBody,
   CalendarContainer,
@@ -14,20 +13,16 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
-import moment from "moment";
-import { Calendar, CalendarUtils } from "react-native-calendars";
-import type { DateData } from "react-native-calendars";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
-import { Pressable, StyleSheet } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
+import { CalendarKitDatePicker } from "@/components/CalendarKitDatePicker";
 import { CalendarKitEvent } from "@/components/CalendarKitEvent";
-import { AppText } from "@/components/ux/AppText";
 import { useCalendarKit } from "@/hooks/useCalendarKit";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
-import { colors, fonts } from "@/theme";
+import { colors } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { extractTimes } from "@/utils/calendarKitAdapter";
 
@@ -36,7 +31,6 @@ export function CalendarKitTimeline() {
   const { events, today, theme, unavailableHours } = useCalendarKit();
   const [visibleDate, setVisibleDate] = useState(today);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [displayMonth, setDisplayMonth] = useState(today);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
 
@@ -138,76 +132,18 @@ export function CalendarKitTimeline() {
 
   const activities = useActivityStore((s) => s.activities);
 
-  const markedDates = useMemo(() => {
-    const marks: Record<string, { marked?: boolean; dotColor?: string; selected?: boolean; selectedColor?: string }> = {};
-    for (const a of activities) {
-      const dateKey = CalendarUtils.getCalendarDateString(a.start);
-      marks[dateKey] = { marked: true, dotColor: colors.tint };
-    }
-    marks[visibleDate] = {
-      ...marks[visibleDate],
-      selected: true,
-      selectedColor: colors.tint,
-    };
-    return marks;
-  }, [activities, visibleDate]);
-
-  const calendarTheme = useMemo(
-    () => ({
-      calendarBackground: colors.background,
-      dayTextColor: colors.text,
-      monthTextColor: colors.text,
-      textSectionTitleColor: colors.textSecondary,
-      todayTextColor: colors.tint,
-      selectedDayBackgroundColor: colors.tint,
-      selectedDayTextColor: colors.background,
-      dotColor: colors.tint,
-      arrowColor: colors.tint,
-      textDayFontFamily: fonts.regular,
-      textMonthFontFamily: fonts.semiBold,
-      textDayHeaderFontFamily: fonts.medium,
-      "stylesheet.day.basic": {
-        base: {
-          width: 36,
-          height: 36,
-          alignItems: "center" as const,
-          justifyContent: "center" as const,
-          paddingBottom: 8,
-        },
-        selected: {
-          borderRadius: 16,
-          backgroundColor: colors.tint,
-        },
-      },
-    }),
-    [],
-  );
-
   const handleDateChanged = useCallback((date: string) => {
     setVisibleDate(date);
   }, []);
 
-  const handleDayPress = useCallback(
-    (day: DateData) => {
+  const handleSelectDate = useCallback(
+    (date: string) => {
       setPickerOpen(false);
-      setVisibleDate(day.dateString);
-      setDisplayMonth(day.dateString);
-      calendarRef.current?.goToDate({ date: day.dateString });
+      setVisibleDate(date);
+      calendarRef.current?.goToDate({ date });
     },
     [],
   );
-
-  const handlePrevMonth = useCallback(() => {
-    setDisplayMonth((prev) =>
-      moment(prev).subtract(1, "month").format("YYYY-MM-DD"),
-    );
-  }, []);
-
-  const handleNextMonth = useCallback(() => {
-    setDisplayMonth((prev) =>
-      moment(prev).add(1, "month").format("YYYY-MM-DD"),
-    );
-  }, []);
 
   return (
     <CalendarContainer
@@ -233,48 +169,14 @@ export function CalendarKitTimeline() {
       start={0}
       end={1440}
     >
-      <Pressable
-        onPress={() => {
-          setPickerOpen((prev) => {
-            if (!prev) setDisplayMonth(visibleDate);
-            return !prev;
-          });
-        }}
-        style={styles.datePickerToggle}
-      >
-        {pickerOpen && (
-          <Pressable onPress={handlePrevMonth} style={styles.arrowButton}>
-            <Ionicons name="chevron-back" size={20} color={colors.tint} />
-          </Pressable>
-        )}
-        <AppText variant="bodySemiBold" color={colors.text}>
-          {moment(pickerOpen ? displayMonth : visibleDate).format("MMMM YYYY")}
-        </AppText>
-        <Ionicons
-          name={pickerOpen ? "chevron-up" : "chevron-down"}
-          size={16}
-          color={colors.text}
-        />
-        {pickerOpen && (
-          <Pressable onPress={handleNextMonth} style={styles.arrowButton}>
-            <Ionicons name="chevron-forward" size={20} color={colors.tint} />
-          </Pressable>
-        )}
-      </Pressable>
+      <CalendarKitDatePicker
+        visibleDate={visibleDate}
+        activities={activities}
+        open={pickerOpen}
+        onToggle={() => setPickerOpen((prev) => !prev)}
+        onSelectDate={handleSelectDate}
+      />
       <CalendarHeader />
-      {pickerOpen && (
-        <Calendar
-          key={displayMonth}
-          current={displayMonth}
-          onDayPress={handleDayPress}
-          markedDates={markedDates}
-          theme={calendarTheme}
-          firstDay={1}
-          hideExtraDays={false}
-          hideArrows
-          renderHeader={() => null}
-        />
-      )}
       <CalendarBody
         showNowIndicator
         renderEvent={renderEvent}
@@ -285,17 +187,3 @@ export function CalendarKitTimeline() {
   );
 }
 
-const styles = StyleSheet.create({
-  datePickerToggle: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 16,
-    paddingLeft: 16,
-    backgroundColor: colors.surface,
-  },
-  arrowButton: {
-    padding: 4,
-  },
-});
