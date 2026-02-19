@@ -43,11 +43,9 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=...
 - `supabase-activities.ts`, `supabase-activity-history.ts` — CRUD functions consumed by stores
 - `supabase-auth.ts` — Apple/Google/anonymous auth helpers
 
-**Two calendar implementations** coexist:
-- `react-native-calendars` — `ActivityTimeline` component + `useActivityTimeline` hook (Calendar tab / `index`)
-- `@howljs/calendar-kit` — `CalendarKitTimeline` component + `useCalendarKit` hook (Calendar Kit tab). `utils/calendarKitAdapter.ts` converts `Activity[]` to `EventItem[]` format.
+**Calendar** uses `@howljs/calendar-kit` via the `ActivityTimeline` component + `useActivityTimeline` hook (Calendar tab / `index`). `utils/activityAdapter.ts` converts `Activity[]` to `EventItem[]` format via `activitiesToEvents`.
 
-Both timelines share the same `useActivityStore` data and `useActivityEditStore` for the add/edit bottom sheet (`AddEventBottomSheet`). Tapping or long-pressing the calendar background opens the sheet; dragging events calls `updateActivity` directly.
+The timeline shares `useActivityStore` data and `useActivityEditStore` for the add/edit bottom sheet (`AddEventBottomSheet`). Tapping or long-pressing the calendar background opens the sheet; dragging events calls `updateActivity` directly.
 
 **Theme** in `theme/` exports `colors`, `spacing`, `fonts`, `textStyles` — always import from `@/theme`. Palette is light-only (no dark mode currently).
 
