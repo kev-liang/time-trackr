@@ -47,19 +47,28 @@ export function AddEventBottomSheet() {
     }
   }, [sheetOpen]);
 
+  // Reset title and picker when switching between events or re-opening create mode.
+  // sheetOpen in deps ensures the title clears when the sheet is re-opened for creation.
   useEffect(() => {
     if (editingEvent) {
       setTitle(editingEvent.title);
+    } else {
+      setTitle("");
+    }
+    setPickerField(null);
+  }, [editingEvent, sheetOpen]);
+
+  // Sync times separately so drag-to-resize updates don't wipe the user's typed title.
+  useEffect(() => {
+    if (editingEvent) {
       setStartTime(new Date(editingEvent.start));
       setEndTime(new Date(editingEvent.end));
     } else {
-      setTitle("");
       const now = defaultStart ?? new Date();
       const later = defaultEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
       setStartTime(now);
       setEndTime(later);
     }
-    setPickerField(null);
   }, [editingEvent, defaultStart, defaultEnd]);
 
   const handleDismiss = useCallback(() => {

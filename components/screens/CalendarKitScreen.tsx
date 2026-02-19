@@ -9,20 +9,20 @@ import { ThemedView } from "@/components/themed-view";
 import { Fab } from "@/components/ux/Fab";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 export function CalendarKitScreen() {
   const loadActivities = useActivityStore((s) => s.loadActivities);
-  const clearEditing = useActivityEditStore((s) => s.clearEditing);
-  const openSheet = useActivityEditStore((s) => s.openSheet);
 
   useEffect(() => {
     loadActivities();
   }, [loadActivities]);
 
   const handleOpen = useCallback(() => {
-    clearEditing();
-    openSheet();
-  }, [clearEditing, openSheet]);
+    const now = new Date();
+    const start = new Date(now.getTime() - 30 * MS_PER_MINUTE);
+    useActivityEditStore.getState().openCreate(start, now);
+  }, []);
 
   return (
     <BottomSheetModalProvider>

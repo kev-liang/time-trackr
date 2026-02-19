@@ -33,13 +33,29 @@ export function CalendarKitTimeline() {
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
+  const hasDraft = useActivityEditStore((s) => s.hasDraft);
+  const defaultStart = useActivityEditStore((s) => s.defaultStart);
+  const defaultEnd = useActivityEditStore((s) => s.defaultEnd);
 
-  const selectedEvent: SelectedEventType | undefined = useMemo(() => {
+  const existingSelectedEvent: SelectedEventType | undefined = useMemo(() => {
     if (!editingEventId) return undefined;
     const found = events.find((e) => e.id === editingEventId);
     if (!found) return undefined;
     return found as SelectedEventType;
   }, [editingEventId, events]);
+
+  const draftSelectedEvent: SelectedEventType | undefined = useMemo(() => {
+    if (!hasDraft || editingEventId || !defaultStart || !defaultEnd)
+      return undefined;
+    return {
+      title: "",
+      start: { dateTime: defaultStart.toISOString() },
+      end: { dateTime: defaultEnd.toISOString() },
+      color: colors.tint,
+    };
+  }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
+
+  const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
 
   const handlePressEvent = useCallback((event: OnEventResponse) => {
     const store = useActivityEditStore.getState();
@@ -58,12 +74,9 @@ export function CalendarKitTimeline() {
     (props: DateOrDateTime, _event: GestureResponderEvent) => {
       const dateTime = props.dateTime;
       if (!dateTime) return;
-      const store = useActivityEditStore.getState();
       const start = new Date(dateTime);
       const end = new Date(start.getTime() + 60 * MS_PER_MINUTE);
-      store.clearEditing();
-      store.setDefaults(start, end);
-      store.openSheet();
+      useActivityEditStore.getState().openCreate(start, end);
     },
     [],
   );
@@ -75,7 +88,16 @@ export function CalendarKitTimeline() {
 
   const handleDragSelectedEventEnd = useCallback(
     async (event: SelectedEventType) => {
-      if (!event.id) return;
+      if (!event.id) {
+        // Draft ghost was resized — sync times back to the store
+        const start = event.start.dateTime;
+        const end = event.end.dateTime;
+        if (!start || !end) return;
+        useActivityEditStore
+          .getState()
+          .updateDraft(new Date(start), new Date(end));
+        return;
+      }
       const start = event.start.dateTime;
       const end = event.end.dateTime;
       if (!start || !end) return;
