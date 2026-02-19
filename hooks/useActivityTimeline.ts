@@ -1,14 +1,14 @@
 import { useMemo } from "react";
 
 import { useActivityStore } from "@/stores/useActivityStore";
-import { activitiesToEvents } from "@/utils/calendarKitAdapter";
+import { activitiesToEvents } from "@/utils/activityAdapter";
 import { colors, fonts } from "@/theme";
 
 import type { EventItem, UnavailableHourProps } from "@howljs/calendar-kit";
 
 const NOW_COLOR = "#EF4444";
 
-export function useCalendarKit() {
+export function useActivityTimeline() {
   const activities = useActivityStore((s) => s.activities);
 
   const events: EventItem[] = useMemo(

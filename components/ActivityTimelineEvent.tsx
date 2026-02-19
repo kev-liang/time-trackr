@@ -1,29 +1,66 @@
 import { memo } from "react";
+import { Pressable, StyleSheet, View } from "react-native";
 
-import { ActivityTimelineEventEdit } from "@/components/ActivityTimelineEventEdit";
-import { ActivityTimelineEventReadonly } from "@/components/ActivityTimelineEventReadonly";
+import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { lighten } from "@/utils/colors";
+import { formatTime } from "@/utils/time";
+import { colors } from "@/theme";
 
-type ActivityTimelineEventProps = {
-  id?: string;
+type Props = {
+  id: string;
   title: string;
   start: string;
-  end: string;
   color: string;
-  height: number;
-  textColor: string;
-  secondaryTextColor: string;
 };
 
-export const ActivityTimelineEvent = memo(function ActivityTimelineEvent(
-  props: ActivityTimelineEventProps,
-) {
-  const editingEventId = useActivityEditStore((s) => s.editingEventId);
-  const isEditing = props.id === editingEventId;
+export const ActivityTimelineEvent = memo(
+  function ActivityTimelineEvent({ id, title, start, color }: Props) {
+    const handlePress = () => {
+      if (!id) return;
+      const store = useActivityEditStore.getState();
+      store.setEditingEventId(id);
+      store.openSheet();
+    };
 
-  if (isEditing) {
-    return <ActivityTimelineEventEdit {...props} />;
-  }
+    return (
+      <Pressable onPress={handlePress} style={styles.pressable}>
+        <View
+          style={[
+            styles.container,
+            { backgroundColor: lighten(color), borderLeftColor: color },
+          ]}
+        >
+          <AppText variant="caption" color={colors.textSecondary}>
+            {formatTime(start)}
+          </AppText>
+          <AppText
+            variant="bodySemiBold"
+            color={colors.text}
+            style={styles.title}
+            numberOfLines={1}
+          >
+            {title}
+          </AppText>
+        </View>
+      </Pressable>
+    );
+  },
+);
 
-  return <ActivityTimelineEventReadonly {...props} />;
+const styles = StyleSheet.create({
+  pressable: {
+    height: "100%",
+    width: "100%",
+  },
+  container: {
+    height: "100%",
+    width: "100%",
+    borderLeftWidth: 3,
+    paddingLeft: 8,
+    paddingVertical: 4,
+  },
+  title: {
+    fontSize: 14,
+  },
 });

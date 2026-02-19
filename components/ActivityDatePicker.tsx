@@ -40,7 +40,7 @@ function buildMonths(): MonthItem[] {
 const MONTHS = buildMonths();
 const CENTER_INDEX = MONTH_RANGE;
 
-export const CalendarKitDatePicker = memo(function CalendarKitDatePicker({
+export const ActivityDatePicker = memo(function ActivityDatePicker({
   selectedDate: rawSelectedDate,
   open,
   onToggle,
