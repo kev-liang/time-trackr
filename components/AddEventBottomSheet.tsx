@@ -27,6 +27,7 @@ export function AddEventBottomSheet() {
   const defaultEnd = useActivityEditStore((s) => s.defaultEnd);
   const sheetOpen = useActivityEditStore((s) => s.sheetOpen);
   const clearEditing = useActivityEditStore((s) => s.clearEditing);
+  const setHasDraft = useActivityEditStore((s) => s.setHasDraft);
 
   const activities = useActivityStore((s) => s.activities);
   const addActivity = useActivityStore((s) => s.addActivity);
@@ -74,6 +75,7 @@ export function AddEventBottomSheet() {
   const handleDismiss = useCallback(() => {
     bottomSheetRef.current?.dismiss();
     clearEditing();
+    setHasDraft(false);
   }, [clearEditing]);
 
   const handleSave = useCallback(() => {
