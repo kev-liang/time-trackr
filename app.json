@@ -31,10 +31,15 @@
       "expo-router",
       [
         "expo-notifications",
-        { "icon": "./assets/images/icon.png", "color": "#A3CCF5", "defaultChannel": "default" }
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#A3CCF5",
+          "defaultChannel": "default"
+        }
       ],
-      ["expo-task-manager"],
-      ["expo-background-fetch"],
+      [
+        "expo-task-manager"
+      ],
       [
         "expo-splash-screen",
         {
@@ -49,11 +54,19 @@
       ],
       "@react-native-community/datetimepicker",
       "expo-web-browser",
-      "expo-apple-authentication"
+      "expo-apple-authentication",
+      "expo-background-task"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "904d3d32-5ba9-4205-8b3c-df04da9ba0e0"
+      }
+    },
+    "owner": "kliang"
   }
 }

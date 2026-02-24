@@ -1,7 +1,7 @@
 import * as Notifications from "expo-notifications";
 import { SchedulableTriggerInputTypes } from "expo-notifications";
 
-import type { Weekday, DaySchedule } from "@/stores/useAlarmStore";
+import type { DaySchedule, Weekday } from "@/stores/useAlarmStore";
 
 export type AlarmState = {
   enabled: boolean;
@@ -26,6 +26,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -41,7 +43,7 @@ export async function requestPermissions(): Promise<boolean> {
 export function computeFireTimes(
   state: AlarmState,
   from: Date,
-  limit: number
+  limit: number,
 ): Date[] {
   if (!state.enabled) return [];
 
@@ -58,9 +60,7 @@ export function computeFireTimes(
   const maxMs = from.getTime() + 4 * 7 * 24 * 60 * 60 * 1000; // 4 weeks out
 
   // Snap to next frequency boundary after `from`
-  let cursor = new Date(
-    Math.ceil(from.getTime() / frequencyMs) * frequencyMs
-  );
+  let cursor = new Date(Math.ceil(from.getTime() / frequencyMs) * frequencyMs);
 
   while (cursor.getTime() < maxMs && results.length < limit) {
     const weekday = DAY_INDEX_TO_WEEKDAY[cursor.getDay()];
@@ -100,7 +100,7 @@ export async function scheduleNotifications(state: AlarmState): Promise<void> {
   for (const fireDate of fireTimes) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "Time check",
+        title: "TimeTrackr Check",
         body: "What have you been working on?",
         sound: true,
       },

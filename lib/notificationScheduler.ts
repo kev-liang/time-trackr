@@ -1,5 +1,6 @@
 import * as TaskManager from "expo-task-manager";
-import * as BackgroundFetch from "expo-background-fetch";
+import * as BackgroundTask from "expo-background-task";
+import { BackgroundTaskResult } from "expo-background-task";
 
 import { scheduleNotifications } from "@/lib/notifications";
 import { useAlarmStore } from "@/stores/useAlarmStore";
@@ -10,20 +11,18 @@ TaskManager.defineTask(RESCHEDULE_TASK, async () => {
   try {
     const state = useAlarmStore.getState();
     await scheduleNotifications(state);
-    return BackgroundFetch.BackgroundFetchResult.NewData;
+    return BackgroundTaskResult.Success;
   } catch {
-    return BackgroundFetch.BackgroundFetchResult.Failed;
+    return BackgroundTaskResult.Failed;
   }
 });
 
 export async function registerBackgroundReschedule(): Promise<void> {
-  await BackgroundFetch.registerTaskAsync(RESCHEDULE_TASK, {
-    minimumInterval: 12 * 60 * 60, // 12 hours in seconds
-    stopOnTerminate: false,
-    startOnBoot: true,
+  await BackgroundTask.registerTaskAsync(RESCHEDULE_TASK, {
+    minimumInterval: 12 * 60, // 12 hours in minutes
   });
 }
 
 export async function unregisterBackgroundReschedule(): Promise<void> {
-  await BackgroundFetch.unregisterTaskAsync(RESCHEDULE_TASK);
+  await BackgroundTask.unregisterTaskAsync(RESCHEDULE_TASK);
 }
