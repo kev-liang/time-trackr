@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export type Weekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
@@ -20,7 +22,7 @@ export const WEEKDAYS: Weekday[] = [
 
 type FrequencyUnit = "minutes" | "hours";
 
-type AlarmState = {
+export type AlarmState = {
   enabled: boolean;
   mutedUntil: string | null;
   frequency: number;
@@ -36,6 +38,7 @@ type AlarmActions = {
   toggleDay: (day: Weekday) => void;
   setDayStartTime: (day: Weekday, time: string) => void;
   setDayEndTime: (day: Weekday, time: string) => void;
+  clearExpiredMute: () => void;
 };
 
 const defaultSchedule: Record<Weekday, DaySchedule> = {
@@ -48,42 +51,64 @@ const defaultSchedule: Record<Weekday, DaySchedule> = {
   Sun: { active: false, startTime: "09:00", endTime: "17:00" },
 };
 
-export const useAlarmStore = create<AlarmState & AlarmActions>((set) => ({
-  enabled: true,
-  mutedUntil: null,
-  frequency: 30,
-  frequencyUnit: "minutes",
-  schedule: defaultSchedule,
+export const useAlarmStore = create<AlarmState & AlarmActions>()(
+  persist(
+    (set, get) => ({
+      enabled: true,
+      mutedUntil: null,
+      frequency: 30,
+      frequencyUnit: "minutes",
+      schedule: defaultSchedule,
 
-  setEnabled: (enabled) => set({ enabled }),
+      setEnabled: (enabled) => set({ enabled }),
 
-  muteUntil: (until) => set({ mutedUntil: until }),
+      muteUntil: (until) => set({ mutedUntil: until }),
 
-  setFrequencyValue: (value) => set({ frequency: value }),
+      setFrequencyValue: (value) => set({ frequency: value }),
 
-  setFrequencyUnit: (unit) => set({ frequencyUnit: unit }),
+      setFrequencyUnit: (unit) => set({ frequencyUnit: unit }),
 
-  toggleDay: (day) =>
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [day]: { ...state.schedule[day], active: !state.schedule[day].active },
+      toggleDay: (day) =>
+        set((state) => ({
+          schedule: {
+            ...state.schedule,
+            [day]: { ...state.schedule[day], active: !state.schedule[day].active },
+          },
+        })),
+
+      setDayStartTime: (day, time) =>
+        set((state) => ({
+          schedule: {
+            ...state.schedule,
+            [day]: { ...state.schedule[day], startTime: time },
+          },
+        })),
+
+      setDayEndTime: (day, time) =>
+        set((state) => ({
+          schedule: {
+            ...state.schedule,
+            [day]: { ...state.schedule[day], endTime: time },
+          },
+        })),
+
+      clearExpiredMute: () => {
+        const { mutedUntil } = get();
+        if (mutedUntil && new Date(mutedUntil) <= new Date()) {
+          set({ mutedUntil: null });
+        }
       },
-    })),
-
-  setDayStartTime: (day, time) =>
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [day]: { ...state.schedule[day], startTime: time },
-      },
-    })),
-
-  setDayEndTime: (day, time) =>
-    set((state) => ({
-      schedule: {
-        ...state.schedule,
-        [day]: { ...state.schedule[day], endTime: time },
-      },
-    })),
-}));
+    }),
+    {
+      name: "alarm-store",
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        enabled: state.enabled,
+        mutedUntil: state.mutedUntil,
+        frequency: state.frequency,
+        frequencyUnit: state.frequencyUnit,
+        schedule: state.schedule,
+      }),
+    }
+  )
+);

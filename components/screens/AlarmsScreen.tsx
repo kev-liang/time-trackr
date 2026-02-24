@@ -1,9 +1,9 @@
 import { ScrollView, StyleSheet, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AlarmFrequencyInput } from "@/components/AlarmFrequencyInput";
-import { AlarmMuteDropdown } from "@/components/AlarmMuteDropdown";
-import { AlarmScheduleCard } from "@/components/AlarmScheduleCard";
+import { AlarmFrequencyInput } from "@/components/alarms/AlarmFrequencyInput";
+import { AlarmMuteDropdown } from "@/components/alarms/AlarmMuteDropdown";
+import { AlarmScheduleCard } from "@/components/alarms/AlarmScheduleCard";
 import { ThemedView } from "@/components/themed-view";
 import { AppText } from "@/components/ux/AppText";
 import { Card } from "@/components/ux/Card";

@@ -30,6 +30,12 @@
     "plugins": [
       "expo-router",
       [
+        "expo-notifications",
+        { "icon": "./assets/images/icon.png", "color": "#A3CCF5", "defaultChannel": "default" }
+      ],
+      ["expo-task-manager"],
+      ["expo-background-fetch"],
+      [
         "expo-splash-screen",
         {
           "image": "./assets/images/splash-icon.png",

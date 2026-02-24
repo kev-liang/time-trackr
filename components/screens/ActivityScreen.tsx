@@ -9,8 +9,8 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ActivityTimeline } from "@/components/ActivityTimeline";
-import { AddEventBottomSheet } from "@/components/AddEventBottomSheet";
+import { ActivityTimeline } from "@/components/activities/ActivityTimeline";
+import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet";
 import { ThemedView } from "@/components/themed-view";
 import { Fab } from "@/components/ux/Fab";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";

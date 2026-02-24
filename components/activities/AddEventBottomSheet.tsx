@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
-import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
+import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";

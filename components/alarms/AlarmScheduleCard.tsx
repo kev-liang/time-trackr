@@ -1,4 +1,4 @@
-import { AlarmScheduleRow } from "@/components/AlarmScheduleRow";
+import { AlarmScheduleRow } from "@/components/alarms/AlarmScheduleRow";
 import { Card } from "@/components/ux/Card";
 import { WEEKDAYS } from "@/stores/useAlarmStore";
 

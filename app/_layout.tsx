@@ -1,3 +1,5 @@
+import "@/lib/notificationScheduler";
+
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import {
   Raleway_400Regular,
@@ -14,6 +16,10 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useAlarmStore } from '@/stores/useAlarmStore';
+import { useAlarmScheduler } from '@/hooks/useAlarmScheduler';
+import { requestPermissions, scheduleNotifications } from '@/lib/notifications';
+import { registerBackgroundReschedule } from '@/lib/notificationScheduler';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,10 +33,23 @@ export default function RootLayout() {
 
   const initialize = useAuthStore((s) => s.initialize);
 
+  useAlarmScheduler();
+
   useEffect(() => {
     const unsubscribe = initialize();
     return unsubscribe;
   }, [initialize]);
+
+  useEffect(() => {
+    useAlarmStore.persist.onFinishHydration(async () => {
+      useAlarmStore.getState().clearExpiredMute();
+      const granted = await requestPermissions();
+      if (granted) {
+        await scheduleNotifications(useAlarmStore.getState());
+        await registerBackgroundReschedule();
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded) {

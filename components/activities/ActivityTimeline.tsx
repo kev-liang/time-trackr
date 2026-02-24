@@ -17,14 +17,14 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
-import { ActivityDatePicker } from "@/components/ActivityDatePicker";
-import { ActivityTimelineEvent } from "@/components/ActivityTimelineEvent";
+import { ActivityDatePicker } from "@/components/activities/ActivityDatePicker";
+import { ActivityTimelineEvent } from "@/components/activities/ActivityTimelineEvent";
 import { useActivityTimeline } from "@/hooks/useActivityTimeline";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors } from "@/theme";
-import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { extractTimes } from "@/utils/activityAdapter";
+import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 export function ActivityTimeline() {
   const calendarRef = useRef<CalendarKitHandle>(null);
