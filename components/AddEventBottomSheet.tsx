@@ -4,6 +4,7 @@ import DateTimePicker, {
 } from "@react-native-community/datetimepicker";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Platform, Pressable, StyleSheet, View } from "react-native";
+import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
@@ -18,9 +19,18 @@ function formatTimeDisplay(date: Date): string {
   return `${h}:${m}`;
 }
 
-export function AddEventBottomSheet() {
+interface AddEventBottomSheetProps {
+  animatedPosition: SharedValue<number>;
+  onPositionsCalculated?: (minPosition: number, maxPosition: number) => void;
+}
+
+export function AddEventBottomSheet({
+  animatedPosition,
+  onPositionsCalculated,
+}: AddEventBottomSheetProps) {
   const snapPoints = useMemo(() => ["60%"], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const hasCalculatedPositions = useRef(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
   const defaultStart = useActivityEditStore((s) => s.defaultStart);
@@ -132,6 +142,24 @@ export function AddEventBottomSheet() {
     [],
   );
 
+  const handleAnimate = useCallback(
+    (
+      _fromIndex: number,
+      _toIndex: number,
+      fromPosition: number,
+      toPosition: number,
+    ) => {
+      if (onPositionsCalculated && !hasCalculatedPositions.current) {
+        onPositionsCalculated(
+          Math.min(fromPosition, toPosition),
+          Math.max(fromPosition, toPosition),
+        );
+        hasCalculatedPositions.current = true;
+      }
+    },
+    [onPositionsCalculated],
+  );
+
   const isEditing = !!editingEvent;
 
   return (
@@ -142,6 +170,8 @@ export function AddEventBottomSheet() {
       handleIndicatorStyle={styles.indicator}
       backgroundStyle={styles.background}
       onDismiss={clearEditing}
+      animatedPosition={animatedPosition}
+      onAnimate={handleAnimate}
     >
       <BottomSheetView style={styles.content}>
         <View style={styles.header}>
