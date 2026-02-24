@@ -1,10 +1,9 @@
-import { ScrollView, StyleSheet, Switch, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AlarmFrequencyInput } from "@/components/alarms/AlarmFrequencyInput";
-import { AlarmMuteDropdown } from "@/components/alarms/AlarmMuteDropdown";
 import { AlarmScheduleCard } from "@/components/alarms/AlarmScheduleCard";
-import { NextAlarmDisplay } from "@/components/alarms/NextAlarmDisplay";
+import { AlarmSettingsSection } from "@/components/alarms/AlarmSettingsSection";
 import { ThemedView } from "@/components/themed-view";
 import { AppText } from "@/components/ux/AppText";
 import { Card } from "@/components/ux/Card";
@@ -22,17 +21,7 @@ export function AlarmsScreen() {
           <AppText variant="title">Notifications</AppText>
 
           <Card>
-            <View style={styles.row}>
-              <AppText variant="bodySemiBold">Enabled</AppText>
-              <Switch
-                value={enabled}
-                onValueChange={setEnabled}
-                trackColor={{ true: colors.tint }}
-              />
-            </View>
-            <NextAlarmDisplay />
-            <View style={styles.divider} />
-            <AlarmMuteDropdown />
+            <AlarmSettingsSection />
           </Card>
 
           <Card title="Frequency">
