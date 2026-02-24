@@ -1,34 +1,19 @@
 import { ScrollView, StyleSheet, Switch, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useShallow } from "zustand/react/shallow";
 
 import { AlarmFrequencyInput } from "@/components/alarms/AlarmFrequencyInput";
 import { AlarmMuteDropdown } from "@/components/alarms/AlarmMuteDropdown";
 import { AlarmScheduleCard } from "@/components/alarms/AlarmScheduleCard";
+import { NextAlarmDisplay } from "@/components/alarms/NextAlarmDisplay";
 import { ThemedView } from "@/components/themed-view";
 import { AppText } from "@/components/ux/AppText";
 import { Card } from "@/components/ux/Card";
-import { computeFireTimes } from "@/lib/notifications";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { colors, spacing } from "@/theme";
 
 export function AlarmsScreen() {
   const enabled = useAlarmStore((s) => s.enabled);
   const setEnabled = useAlarmStore((s) => s.setEnabled);
-  const alarmState = useAlarmStore(
-    useShallow((s) => ({
-      enabled: s.enabled,
-      mutedUntil: s.mutedUntil,
-      frequency: s.frequency,
-      frequencyUnit: s.frequencyUnit,
-      schedule: s.schedule,
-    })),
-  );
-
-  const nextFireTime = enabled ? (computeFireTimes(alarmState, new Date(), 1)[0] ?? null) : null;
-  const nextAlarmLabel = nextFireTime
-    ? nextFireTime.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", hour12: true })
-    : null;
 
   return (
     <ThemedView style={styles.container}>
@@ -45,16 +30,7 @@ export function AlarmsScreen() {
                 trackColor={{ true: colors.tint }}
               />
             </View>
-            {enabled && (
-              <View style={styles.row}>
-                <AppText variant="caption" color={colors.textSecondary}>
-                  Next Alarm
-                </AppText>
-                <AppText variant="caption" color={colors.textSecondary}>
-                  {nextAlarmLabel ?? "—"}
-                </AppText>
-              </View>
-            )}
+            <NextAlarmDisplay />
             <View style={styles.divider} />
             <AlarmMuteDropdown />
           </Card>
