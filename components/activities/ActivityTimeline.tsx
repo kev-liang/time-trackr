@@ -23,7 +23,6 @@ import { useActivityTimeline } from "@/hooks/useActivityTimeline";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors } from "@/theme";
-import { extractTimes } from "@/utils/activityAdapter";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 export function ActivityTimeline() {
@@ -47,6 +46,7 @@ export function ActivityTimeline() {
   const draftSelectedEvent: SelectedEventType | undefined = useMemo(() => {
     if (!hasDraft || editingEventId || !defaultStart || !defaultEnd)
       return undefined;
+    console.log("DRAFT SELECTED EVENT", defaultStart);
     return {
       title: "",
       start: { dateTime: defaultStart.toISOString() },
@@ -56,6 +56,7 @@ export function ActivityTimeline() {
   }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
+  console.log("SELECTED EVENT", selectedEvent);
 
   const handlePressEvent = useCallback((event: OnEventResponse) => {
     const store = useActivityEditStore.getState();
@@ -82,13 +83,29 @@ export function ActivityTimeline() {
   );
 
   const handleDragEventEnd = useCallback(async (event: OnEventResponse) => {
-    if (!event.id) return;
-    const { start, end } = extractTimes(event);
+    console.log("drag event", event);
+    // if (!event.id) return;
+    // const { start, end } = extractTimes(event);
+    // await useActivityStore.getState().updateActivity(event.id, { start, end });
+    if (!event.id) {
+      // Draft ghost was resized — sync times back to the store
+      const start = event.start.dateTime;
+      const end = event.end.dateTime;
+      if (!start || !end) return;
+      useActivityEditStore
+        .getState()
+        .updateDraft(new Date(start), new Date(end));
+      return;
+    }
+    const start = event.start.dateTime;
+    const end = event.end.dateTime;
+    if (!start || !end) return;
     await useActivityStore.getState().updateActivity(event.id, { start, end });
   }, []);
 
   const handleDragSelectedEventEnd = useCallback(
     async (event: SelectedEventType) => {
+      console.log("drag selected", event);
       if (!event.id) {
         // Draft ghost was resized — sync times back to the store
         const start = event.start.dateTime;
