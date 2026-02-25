@@ -10,6 +10,8 @@ export type AutocompleteItem = {
   label: string;
 };
 
+const CREATE_ID = "__create__";
+
 type AutocompleteTextInputProps = {
   items: AutocompleteItem[];
   value: string;
@@ -36,6 +38,12 @@ export function AutocompleteTextInput({
     return items.filter((item) => fuzzyMatch(value, item.label));
   }, [value, items]);
 
+  const listData = useMemo(() => {
+    const trimmed = value.trim();
+    if (!trimmed) return filtered;
+    return [...filtered, { id: CREATE_ID, label: trimmed }];
+  }, [filtered, value]);
+
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
       onSelect(item);
@@ -55,7 +63,7 @@ export function AutocompleteTextInput({
   const onChangeTextLocal = useCallback((text: string) => {
     setOpen(true);
     onChangeText(text);
-  }, []);
+  }, [onChangeText]);
 
   return (
     <View>
@@ -74,26 +82,55 @@ export function AutocompleteTextInput({
         />
         {rightComponent}
       </View>
-      {open && filtered.length > 0 && (
+      {open && (
         <FlatList
-          data={filtered}
+          data={listData}
           keyExtractor={(item) => item.id}
           keyboardShouldPersistTaps="handled"
           style={styles.dropdown}
+          ListHeaderComponent={DropdownHeader}
           ItemSeparatorComponent={Separator}
-          renderItem={({ item }) => (
-            <Pressable
-              style={({ pressed }) => [
-                styles.row,
-                pressed && styles.rowPressed,
-              ]}
-              onPress={() => handleSelect(item)}
-            >
-              <AppText variant="body">{item.label}</AppText>
-            </Pressable>
-          )}
+          renderItem={({ item }) =>
+            item.id === CREATE_ID ? (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.row,
+                  styles.createRow,
+                  pressed && styles.rowPressed,
+                ]}
+                onPress={() => handleSelect(item)}
+              >
+                <AppText variant="body" color={colors.tint}>
+                  Create{" "}
+                </AppText>
+                <AppText variant="bodySemiBold" color={colors.tint}>
+                  {item.label}
+                </AppText>
+              </Pressable>
+            ) : (
+              <Pressable
+                style={({ pressed }) => [
+                  styles.row,
+                  pressed && styles.rowPressed,
+                ]}
+                onPress={() => handleSelect(item)}
+              >
+                <AppText variant="body">{item.label}</AppText>
+              </Pressable>
+            )
+          }
         />
       )}
+    </View>
+  );
+}
+
+function DropdownHeader() {
+  return (
+    <View style={styles.dropdownHeader}>
+      <AppText variant="body" color={colors.textSecondary}>
+        Select an activity or create a new one
+      </AppText>
     </View>
   );
 }
@@ -142,5 +179,14 @@ const styles = StyleSheet.create({
   separator: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: colors.border,
+  },
+  dropdownHeader: {
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm + 2,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  createRow: {
+    flexDirection: "row",
   },
 });
