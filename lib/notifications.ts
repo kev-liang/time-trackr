@@ -2,6 +2,7 @@ import * as Notifications from "expo-notifications";
 import { SchedulableTriggerInputTypes } from "expo-notifications";
 
 import type { DaySchedule, Weekday } from "@/stores/useAlarmStore";
+import { NOTIFICATION_ACTIONS } from "@/utils/consts";
 
 export type AlarmState = {
   enabled: boolean;
@@ -103,6 +104,7 @@ export async function scheduleNotifications(state: AlarmState): Promise<void> {
         title: "TimeTrackr Check",
         body: "What have you been working on?",
         sound: true,
+        data: { action: NOTIFICATION_ACTIONS.LOG_TIME },
       },
       trigger: {
         type: SchedulableTriggerInputTypes.DATE,

@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(ls:*)",
-      "Bash(npx expo install:*)"
+      "Bash(npx expo install:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ]
   }
 }

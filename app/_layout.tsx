@@ -18,6 +18,7 @@ import 'react-native-reanimated';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAlarmStore } from '@/stores/useAlarmStore';
 import { useAlarmScheduler } from '@/hooks/useAlarmScheduler';
+import { useNotificationResponse } from '@/hooks/useNotificationResponse';
 import { requestPermissions, scheduleNotifications } from '@/lib/notifications';
 import { registerBackgroundReschedule } from '@/lib/notificationScheduler';
 
@@ -34,6 +35,7 @@ export default function RootLayout() {
   const initialize = useAuthStore((s) => s.initialize);
 
   useAlarmScheduler();
+  useNotificationResponse();
 
   useEffect(() => {
     const unsubscribe = initialize();
