@@ -1,11 +1,3 @@
-/** Turn "#4A90D9" into "rgba(74,144,217,0.12)" */
-export function toFadedBg(hex: string, opacity = 0.12): string {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${opacity})`;
-}
-
 /** Lighten a hex color by keeping its hue and saturation but pushing lightness up. */
 export function lighten(hex: string, lightness = 0.92): string {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -27,8 +19,7 @@ export function lighten(hex: string, lightness = 0.92): string {
 
   // Original saturation (HSL)
   const origL = (max + min) / 2;
-  const s =
-    d === 0 ? 0 : d / (1 - Math.abs(2 * origL - 1));
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * origL - 1));
 
   // HSL → RGB with original H & S, overridden L
   const c = (1 - Math.abs(2 * lightness - 1)) * s;

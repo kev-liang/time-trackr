@@ -1,7 +1,6 @@
-import { useCallback, useMemo } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { useCallback, useMemo } from "react";
+import { StyleSheet } from "react-native";
 
 import {
   AutocompleteTextInput,
@@ -49,11 +48,6 @@ export function AddEventAutocompleteInput({
       onSelect={onSelect}
       placeholder="Add Title"
       TextInputComponent={BottomSheetTextInput}
-      rightComponent={
-        <Pressable style={styles.addButton} onPress={handleAdd}>
-          <Ionicons name="add" size={22} color={colors.tint} />
-        </Pressable>
-      }
     />
   );
 }

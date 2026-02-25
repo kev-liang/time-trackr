@@ -4,6 +4,7 @@ import type { ActivityHistoryItem } from "@/stores/useActivityHistoryStore";
 type HistoryRow = {
   id: string;
   name: string;
+  color: string | null;
   last_used: string | null;
   pinned: boolean;
 };
@@ -12,6 +13,7 @@ function rowToItem(row: HistoryRow): ActivityHistoryItem {
   return {
     id: row.id,
     name: row.name,
+    color: row.color ?? undefined,
     lastUsed: row.last_used ?? undefined,
     pinned: row.pinned,
   };
@@ -20,7 +22,7 @@ function rowToItem(row: HistoryRow): ActivityHistoryItem {
 export async function fetchActivityHistory(): Promise<ActivityHistoryItem[]> {
   const { data, error } = await supabase
     .from("activity_history")
-    .select("id, name, last_used, pinned")
+    .select("id, name, color, last_used, pinned")
     .order("last_used", { ascending: false, nullsFirst: false });
 
   if (error) throw error;
@@ -35,11 +37,12 @@ export async function insertActivityHistoryItem(
     .from("activity_history")
     .insert({
       name: item.name,
+      color: item.color ?? null,
       last_used: item.lastUsed ?? null,
       pinned: item.pinned,
       user_id: session?.user?.id,
     })
-    .select("id, name, last_used, pinned")
+    .select("id, name, color, last_used, pinned")
     .single();
 
   if (error) throw error;
@@ -48,7 +51,7 @@ export async function insertActivityHistoryItem(
 
 export async function updateActivityHistoryItem(
   id: string,
-  updates: Partial<{ name: string; last_used: string | null; pinned: boolean }>,
+  updates: Partial<{ name: string; color: string | null; last_used: string | null; pinned: boolean }>,
 ): Promise<void> {
   const { error } = await supabase
     .from("activity_history")
