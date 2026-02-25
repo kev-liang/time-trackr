@@ -26,7 +26,7 @@ export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
-  const snapPoints = useMemo(() => ["60%"], []);
+  const snapPoints = useMemo(() => [], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
