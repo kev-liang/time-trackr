@@ -11,8 +11,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ActivityTimeline } from "@/components/activities/ActivityTimeline";
 import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet";
+import { AddEventFab } from "@/components/activities/AddEventFab";
 import { ThemedView } from "@/components/themed-view";
-import { Fab } from "@/components/ux/Fab";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
@@ -75,7 +75,7 @@ export function ActivityScreen() {
           >
             <ActivityTimeline />
           </Animated.View>
-          <Fab onPress={handleOpen} />
+          <AddEventFab onPress={handleOpen} />
         </SafeAreaView>
       </ThemedView>
       <AddEventBottomSheet

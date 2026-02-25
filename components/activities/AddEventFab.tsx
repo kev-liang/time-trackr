@@ -9,7 +9,7 @@ type FabProps = {
   onPress: () => void;
 };
 
-export function Fab({ label, onPress }: FabProps) {
+export function AddEventFab({ label, onPress }: FabProps) {
   return (
     <Pressable style={styles.fab} onPress={onPress}>
       <Ionicons name="add" size={28} color={colors.background} />

@@ -1,5 +1,18 @@
-import { type ComponentType, type ReactNode, useCallback, useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, TextInput, type TextInputProps, View } from "react-native";
+import {
+  type ComponentType,
+  type ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  type TextInputProps,
+  View,
+} from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { colors, fonts, spacing } from "@/theme";
@@ -60,10 +73,13 @@ export function AutocompleteTextInput({
     setTimeout(() => setOpen(false), 150);
   }, []);
 
-  const onChangeTextLocal = useCallback((text: string) => {
-    setOpen(true);
-    onChangeText(text);
-  }, [onChangeText]);
+  const onChangeTextLocal = useCallback(
+    (text: string) => {
+      setOpen(true);
+      onChangeText(text);
+    },
+    [onChangeText],
+  );
 
   return (
     <View>
