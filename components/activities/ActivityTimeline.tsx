@@ -82,6 +82,7 @@ export function ActivityTimeline() {
   );
 
   const handleDragEventEnd = useCallback(async (event: OnEventResponse) => {
+    if (!event.id) return;
     const { start, end } = extractTimes(event);
     await useActivityStore.getState().updateActivity(event.id, { start, end });
   }, []);
