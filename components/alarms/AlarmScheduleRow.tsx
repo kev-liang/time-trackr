@@ -1,10 +1,8 @@
 import { useCallback, useState } from "react";
-import { Platform, Pressable, StyleSheet, Switch, View } from "react-native";
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import { Pressable, StyleSheet, Switch, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
+import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
 import { useAlarmStore, type Weekday } from "@/stores/useAlarmStore";
 import { colors, spacing } from "@/theme";
 
@@ -37,103 +35,90 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
 
   const handleToggle = useCallback(() => toggleDay(day), [day, toggleDay]);
 
-  const openPicker = useCallback((field: PickerField) => {
-    setPickerField(field);
+  const handleTimePress = useCallback((field: PickerField) => {
+    setPickerField((prev) => (prev === field ? null : field));
   }, []);
 
   const handlePickerChange = useCallback(
-    (event: DateTimePickerEvent, date?: Date) => {
-      if (Platform.OS === "android") {
-        setPickerField(null);
-      }
-      if (event.type === "dismissed" || !date) {
-        setPickerField(null);
-        return;
-      }
+    (date: Date) => {
       const time = dateToTime(date);
       if (pickerField === "startTime") {
         setDayStartTime(day, time);
       } else if (pickerField === "endTime") {
         setDayEndTime(day, time);
       }
-      if (Platform.OS === "android") {
-        setPickerField(null);
-      }
     },
     [pickerField, day, setDayStartTime, setDayEndTime],
   );
 
-  const closePicker = useCallback(() => setPickerField(null), []);
-
   return (
-    <View style={styles.row}>
-      <AppText variant="bodySemiBold" style={styles.dayLabel}>
-        {day}
-      </AppText>
-      <Switch
-        value={schedule.active}
-        onValueChange={handleToggle}
-        trackColor={{ true: colors.tint }}
-      />
-      <Pressable
-        onPress={() => openPicker("startTime")}
-        disabled={!schedule.active}
-        style={styles.timeButton}
-      >
-        <AppText
-          variant="body"
-          color={schedule.active ? colors.text : colors.textSecondary}
-        >
-          {schedule.startTime}
+    <View style={styles.container}>
+      <View style={styles.row}>
+        <AppText variant="bodySemiBold" style={styles.dayLabel}>
+          {day}
         </AppText>
-      </Pressable>
-      <AppText variant="body" color={colors.textSecondary}>
-        –
-      </AppText>
-      <Pressable
-        onPress={() => openPicker("endTime")}
-        disabled={!schedule.active}
-        style={styles.timeButton}
-      >
-        <AppText
-          variant="body"
-          color={schedule.active ? colors.text : colors.textSecondary}
+        <Switch
+          value={schedule.active}
+          onValueChange={handleToggle}
+          trackColor={{ true: colors.tint }}
+        />
+        <Pressable
+          onPress={() => handleTimePress("startTime")}
+          disabled={!schedule.active}
+          style={[
+            styles.timeButton,
+            pickerField === "startTime" && styles.timeButtonActive,
+          ]}
         >
-          {schedule.endTime}
+          <AppText
+            variant="body"
+            color={schedule.active ? colors.text : colors.textSecondary}
+          >
+            {schedule.startTime}
+          </AppText>
+        </Pressable>
+        <AppText variant="body" color={colors.textSecondary}>
+          –
         </AppText>
-      </Pressable>
+        <Pressable
+          onPress={() => handleTimePress("endTime")}
+          disabled={!schedule.active}
+          style={[
+            styles.timeButton,
+            pickerField === "endTime" && styles.timeButtonActive,
+          ]}
+        >
+          <AppText
+            variant="body"
+            color={schedule.active ? colors.text : colors.textSecondary}
+          >
+            {schedule.endTime}
+          </AppText>
+        </Pressable>
+      </View>
 
       {pickerField && (
-        <>
-          <DateTimePicker
-            value={timeToDate(
-              pickerField === "startTime"
-                ? schedule.startTime
-                : schedule.endTime,
-            )}
-            mode="time"
-            is24Hour
-            onChange={handlePickerChange}
-          />
-          {Platform.OS === "ios" && (
-            <Pressable onPress={closePicker} style={styles.doneButton}>
-              <AppText variant="bodySemiBold" color={colors.tint}>
-                Done
-              </AppText>
-            </Pressable>
+        <TimeSpinnerPicker
+          key={pickerField}
+          value={timeToDate(
+            pickerField === "startTime" ? schedule.startTime : schedule.endTime,
           )}
-        </>
+          minuteInterval={5}
+          onChange={handlePickerChange}
+        />
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    paddingVertical: spacing.sm,
+  },
   row: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
-    paddingVertical: spacing.sm,
   },
   dayLabel: {
     width: 40,
@@ -144,7 +129,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: colors.surface,
   },
-  doneButton: {
-    paddingHorizontal: spacing.sm,
+  timeButtonActive: {
+    backgroundColor: colors.tint + "33",
   },
 });

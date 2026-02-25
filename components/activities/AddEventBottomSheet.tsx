@@ -1,13 +1,11 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import DateTimePicker, {
-  type DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
+import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
@@ -51,6 +49,7 @@ export function AddEventBottomSheet({
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
+  const [resetKey, setResetKey] = useState(0);
 
   useEffect(() => {
     if (sheetOpen) {
@@ -80,6 +79,7 @@ export function AddEventBottomSheet({
       setStartTime(now);
       setEndTime(later);
     }
+    setResetKey((k) => k + 1);
   }, [editingEvent, defaultStart, defaultEnd]);
 
   const handleDismiss = useCallback(() => {
@@ -116,31 +116,18 @@ export function AddEventBottomSheet({
   ]);
 
   const handleStartChange = useCallback(
-    (_event: DateTimePickerEvent, date?: Date) => {
-      if (Platform.OS === "android") {
-        setPickerField(null);
-      }
-      if (date) {
-        setStartTime(date);
-        if (date >= endTime) {
-          setEndTime(new Date(date.getTime() + 30 * MS_PER_MINUTE));
-        }
+    (date: Date) => {
+      setStartTime(date);
+      if (date >= endTime) {
+        setEndTime(new Date(date.getTime() + 30 * MS_PER_MINUTE));
       }
     },
     [endTime],
   );
 
-  const handleEndChange = useCallback(
-    (_event: DateTimePickerEvent, date?: Date) => {
-      if (Platform.OS === "android") {
-        setPickerField(null);
-      }
-      if (date) {
-        setEndTime(date);
-      }
-    },
-    [],
-  );
+  const handleEndChange = useCallback((date: Date) => {
+    setEndTime(date);
+  }, []);
 
   const handleAnimate = useCallback(
     (
@@ -213,11 +200,10 @@ export function AddEventBottomSheet({
           </View>
 
           {pickerField === "start" && (
-            <DateTimePicker
+            <TimeSpinnerPicker
+              key={`start-${resetKey}`}
               value={startTime}
-              mode="time"
-              display="spinner"
-              minuteInterval={15}
+              minuteInterval={5}
               onChange={handleStartChange}
             />
           )}
@@ -239,12 +225,10 @@ export function AddEventBottomSheet({
           </View>
 
           {pickerField === "end" && (
-            <DateTimePicker
+            <TimeSpinnerPicker
+              key={`end-${resetKey}`}
               value={endTime}
-              mode="time"
-              display="spinner"
-              minuteInterval={15}
-              minimumDate={startTime}
+              minuteInterval={5}
               onChange={handleEndChange}
             />
           )}
