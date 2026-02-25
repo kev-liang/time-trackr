@@ -1,5 +1,5 @@
-import { type ReactNode, useCallback, useMemo, useState } from "react";
-import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { type ComponentType, type ReactNode, useCallback, useMemo, useState } from "react";
+import { FlatList, Pressable, StyleSheet, TextInput, type TextInputProps, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { colors, fonts, spacing } from "@/theme";
@@ -17,6 +17,7 @@ type AutocompleteTextInputProps = {
   onSelect: (item: AutocompleteItem) => void;
   placeholder?: string;
   rightComponent?: ReactNode;
+  TextInputComponent?: ComponentType<TextInputProps>;
 };
 
 export function AutocompleteTextInput({
@@ -26,6 +27,7 @@ export function AutocompleteTextInput({
   onSelect,
   placeholder,
   rightComponent,
+  TextInputComponent = TextInput,
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
 
@@ -58,7 +60,7 @@ export function AutocompleteTextInput({
   return (
     <View>
       <View style={styles.inputRow}>
-        <TextInput
+        <TextInputComponent
           style={[
             styles.input,
             rightComponent ? styles.inputWithRight : undefined,
