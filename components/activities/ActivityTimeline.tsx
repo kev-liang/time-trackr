@@ -46,7 +46,6 @@ export function ActivityTimeline() {
   const draftSelectedEvent: SelectedEventType | undefined = useMemo(() => {
     if (!hasDraft || editingEventId || !defaultStart || !defaultEnd)
       return undefined;
-    console.log("DRAFT SELECTED EVENT", defaultStart);
     return {
       title: "",
       start: { dateTime: defaultStart.toISOString() },
@@ -56,7 +55,6 @@ export function ActivityTimeline() {
   }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
-  console.log("SELECTED EVENT", selectedEvent);
 
   const handlePressEvent = useCallback((event: OnEventResponse) => {
     const store = useActivityEditStore.getState();
@@ -83,10 +81,6 @@ export function ActivityTimeline() {
   );
 
   const handleDragEventEnd = useCallback(async (event: OnEventResponse) => {
-    console.log("drag event", event);
-    // if (!event.id) return;
-    // const { start, end } = extractTimes(event);
-    // await useActivityStore.getState().updateActivity(event.id, { start, end });
     if (!event.id) {
       // Draft ghost was resized — sync times back to the store
       const start = event.start.dateTime;
@@ -105,7 +99,6 @@ export function ActivityTimeline() {
 
   const handleDragSelectedEventEnd = useCallback(
     async (event: SelectedEventType) => {
-      console.log("drag selected", event);
       if (!event.id) {
         // Draft ghost was resized — sync times back to the store
         const start = event.start.dateTime;
