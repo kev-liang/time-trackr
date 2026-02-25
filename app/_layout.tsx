@@ -13,7 +13,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import 'react-native-reanimated';
+import {
+  configureReanimatedLogger,
+  ReanimatedLogLevel,
+} from 'react-native-reanimated';
+
+configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAlarmStore } from '@/stores/useAlarmStore';
