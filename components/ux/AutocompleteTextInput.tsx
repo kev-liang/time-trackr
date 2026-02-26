@@ -16,7 +16,16 @@ import {
 import { AutocompleteChip } from "@/components/ux/AutocompleteChip";
 import { AutocompleteDropdown, CREATE_ID } from "@/components/ux/AutocompleteDropdown";
 import { colors, fonts, spacing } from "@/theme";
+import { ACTIVITY_COLORS } from "@/utils/consts";
 import { fuzzyMatch } from "@/utils/fuzzyMatch";
+
+const activityColorValues = Object.values(ACTIVITY_COLORS);
+
+function randomActivityColor() {
+  return activityColorValues[
+    Math.floor(Math.random() * activityColorValues.length)
+  ];
+}
 
 export type AutocompleteItem = {
   id: string;
@@ -29,6 +38,7 @@ type AutocompleteTextInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   onSelect: (item: AutocompleteItem) => void;
+  onCreate?: (label: string, color: string) => void;
   placeholder?: string;
   rightComponent?: ReactNode;
   TextInputComponent?: ComponentType<TextInputProps>;
@@ -39,6 +49,7 @@ export function AutocompleteTextInput({
   value,
   onChangeText,
   onSelect,
+  onCreate,
   placeholder,
   rightComponent,
   TextInputComponent = TextInput,
@@ -67,16 +78,29 @@ export function AutocompleteTextInput({
 
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
-      const chip =
-        item.id === CREATE_ID ? { ...item, id: `created:${item.label}` } : item;
+      const isNew = item.id === CREATE_ID;
+      const color = isNew ? randomActivityColor() : item.color;
+      const chip = isNew
+        ? { ...item, id: `created:${item.label}`, color }
+        : item;
+      if (isNew) onCreate?.(item.label, color!);
       setSelectedChips((prev) => [...prev, chip]);
       onSelect(chip);
       onChangeText("");
       setLocalValue("");
       setOpen(false);
     },
-    [onSelect, onChangeText],
+    [onSelect, onCreate, onChangeText],
   );
+
+  const handleSubmitEditing = useCallback(() => {
+    const trimmed = localValue.trim();
+    if (!trimmed) return;
+    const exact = items.find(
+      (i) => i.label.toLowerCase() === trimmed.toLowerCase(),
+    );
+    handleSelect(exact ?? { id: CREATE_ID, label: trimmed });
+  }, [localValue, items, handleSelect]);
 
   const handleRemoveChip = useCallback((id: string) => {
     setSelectedChips((prev) => prev.filter((c) => c.id !== id));
@@ -129,6 +153,8 @@ export function AutocompleteTextInput({
             onFocus={handleFocus}
             onBlur={handleBlur}
             onKeyPress={handleKeyPress}
+            onSubmitEditing={handleSubmitEditing}
+            submitBehavior="submit"
             placeholder={selectedChips.length === 0 ? placeholder : undefined}
             placeholderTextColor={colors.textSecondary}
           />
