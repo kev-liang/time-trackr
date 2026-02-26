@@ -8,6 +8,7 @@ export const CREATE_ID = "__create__";
 type DropdownItem = {
   id: string;
   label: string;
+  color?: string;
 };
 
 type AutocompleteDropdownProps = {
@@ -38,19 +39,35 @@ export function AutocompleteDropdown({
             ]}
             onPress={() => onSelect(item)}
           >
-            <AppText variant="body" color={colors.tint}>
+            <AppText variant="body" color={colors.textSecondary}>
               Create{" "}
             </AppText>
-            <AppText variant="bodySemiBold" color={colors.tint}>
-              {item.label}
-            </AppText>
+            <View
+              style={[
+                styles.chip,
+                { backgroundColor: item.color ?? colors.tint },
+              ]}
+            >
+              <AppText variant="body" color="#fff">
+                {item.label}
+              </AppText>
+            </View>
           </Pressable>
         ) : (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
             onPress={() => onSelect(item)}
           >
-            <AppText variant="body">{item.label}</AppText>
+            <View
+              style={[
+                styles.chip,
+                { backgroundColor: item.color ?? colors.tint },
+              ]}
+            >
+              <AppText variant="body" color="#fff">
+                {item.label}
+              </AppText>
+            </View>
           </Pressable>
         )
       }
@@ -83,8 +100,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   row: {
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   rowPressed: {
     backgroundColor: colors.surface,
@@ -94,12 +111,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   header: {
-    paddingHorizontal: spacing.sm + 4,
-    paddingVertical: spacing.sm + 2,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   createRow: {
     flexDirection: "row",
+    alignItems: "center",
+  },
+  chip: {
+    alignSelf: "flex-start",
+    borderRadius: 100,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
   },
 });

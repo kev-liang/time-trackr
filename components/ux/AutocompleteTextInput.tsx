@@ -21,10 +21,12 @@ import { fuzzyMatch } from "@/utils/fuzzyMatch";
 
 const activityColorValues = Object.values(ACTIVITY_COLORS);
 
-function randomActivityColor() {
-  return activityColorValues[
-    Math.floor(Math.random() * activityColorValues.length)
-  ];
+function labelToColor(label: string): string {
+  let hash = 0;
+  for (let i = 0; i < label.length; i++) {
+    hash = ((hash * 31) + label.charCodeAt(i)) >>> 0;
+  }
+  return activityColorValues[hash % activityColorValues.length];
 }
 
 export type AutocompleteItem = {
@@ -73,13 +75,13 @@ export function AutocompleteTextInput({
   const listData = useMemo(() => {
     const trimmed = localValue.trim();
     if (!trimmed) return filtered;
-    return [...filtered, { id: CREATE_ID, label: trimmed }];
+    return [...filtered, { id: CREATE_ID, label: trimmed, color: labelToColor(trimmed) }];
   }, [filtered, localValue]);
 
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
       const isNew = item.id === CREATE_ID;
-      const color = isNew ? randomActivityColor() : item.color;
+      const color = isNew ? labelToColor(item.label) : item.color;
       const chip = isNew
         ? { ...item, id: `created:${item.label}`, color }
         : item;
