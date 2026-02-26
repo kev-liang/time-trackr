@@ -163,7 +163,7 @@ export function AddEventBottomSheet({
       onDismiss={clearEditing}
       animatedPosition={animatedPosition}
       onAnimate={handleAnimate}
-      keyboardBehavior="interactive"
+      keyboardBehavior="fillParent"
       keyboardBlurBehavior="restore"
     >
       <BottomSheetView style={styles.content}>

@@ -1,4 +1,5 @@
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { Chip } from "@/components/ux/Chip";
@@ -22,7 +23,7 @@ export function AutocompleteDropdown({
   onSelect,
 }: AutocompleteDropdownProps) {
   return (
-    <FlatList
+    <BottomSheetFlatList<DropdownItem>
       data={data}
       keyExtractor={(item) => item.id}
       keyboardShouldPersistTaps="handled"
