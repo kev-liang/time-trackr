@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -22,6 +23,7 @@ import { fuzzyMatch } from "@/utils/fuzzyMatch";
 export type AutocompleteItem = {
   id: string;
   label: string;
+  color?: string;
 };
 
 const CREATE_ID = "__create__";
@@ -46,12 +48,20 @@ export function AutocompleteTextInput({
   TextInputComponent = TextInput,
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
-  // to fix laggy text input, fix later
   const [localValue, setLocalValue] = useState(value);
+  const [selectedChip, setSelectedChip] = useState<AutocompleteItem | null>(
+    null,
+  );
+  const chipInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
-    setLocalValue(value);
-  }, [value]);
+    if (!selectedChip) {
+      setLocalValue(value);
+    }
+    if (!value) {
+      setSelectedChip(null);
+    }
+  }, [value, selectedChip]);
 
   const filtered = useMemo(() => {
     if (!localValue) return items;
@@ -66,18 +76,35 @@ export function AutocompleteTextInput({
 
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
+      setSelectedChip(item);
       onSelect(item);
       onChangeText(item.label);
-      setLocalValue(item.label);
+      setLocalValue("");
       setOpen(false);
+      setTimeout(() => chipInputRef.current?.focus(), 50);
     },
     [onSelect, onChangeText],
+  );
+
+  const handleClearChip = useCallback(() => {
+    setSelectedChip(null);
+    onChangeText("");
+    setLocalValue("");
+    setOpen(false);
+  }, [onChangeText]);
+
+  const handleChipKeyPress = useCallback(
+    (e: { nativeEvent: { key: string } }) => {
+      if (e.nativeEvent.key === "Backspace") {
+        handleClearChip();
+      }
+    },
+    [handleClearChip],
   );
 
   const handleFocus = useCallback(() => setOpen(true), []);
 
   const handleBlur = useCallback(() => {
-    // Small delay so onPress on items fires before blur hides the list
     setTimeout(() => setOpen(false), 150);
   }, []);
 
@@ -90,24 +117,61 @@ export function AutocompleteTextInput({
     [onChangeText],
   );
 
+  const chipColor = selectedChip?.color ?? colors.tint;
+
   return (
     <View>
       <View style={styles.inputRow}>
-        <TextInputComponent
-          style={[
-            styles.input,
-            rightComponent ? styles.inputWithRight : undefined,
-          ]}
-          value={localValue}
-          onChangeText={onChangeTextLocal}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder={placeholder}
-          placeholderTextColor={colors.textSecondary}
-        />
-        {rightComponent}
+        {selectedChip ? (
+          <>
+            <View
+              style={[
+                styles.chipWrapper,
+                rightComponent ? styles.chipWrapperWithRight : undefined,
+              ]}
+            >
+              <Pressable
+                style={[styles.chip, { backgroundColor: chipColor }]}
+                onPress={handleClearChip}
+                hitSlop={4}
+              >
+                <AppText variant="body" color="#fff">
+                  {selectedChip.label}
+                </AppText>
+                <AppText variant="body" color="rgba(255,255,255,0.75)">
+                  {" ×"}
+                </AppText>
+              </Pressable>
+              <TextInput
+                ref={chipInputRef}
+                style={styles.chipCursor}
+                value=""
+                onChangeText={() => {}}
+                onKeyPress={handleChipKeyPress}
+                caretHidden={false}
+              />
+            </View>
+            {rightComponent}
+          </>
+        ) : (
+          <>
+            <TextInputComponent
+              style={[
+                styles.input,
+                rightComponent ? styles.inputWithRight : undefined,
+              ]}
+              value={localValue}
+              onChangeText={onChangeTextLocal}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              placeholder={placeholder}
+              placeholderTextColor={colors.textSecondary}
+            />
+            {rightComponent}
+          </>
+        )}
       </View>
-      {open && (
+      {open && !selectedChip && (
         <FlatList
           data={listData}
           keyExtractor={(item) => item.id}
@@ -184,6 +248,37 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 0,
     borderBottomRightRadius: 0,
     borderRightWidth: 0,
+  },
+  chipWrapper: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.sm + 2,
+    gap: spacing.xs,
+  },
+  chipWrapperWithRight: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderRightWidth: 0,
+  },
+  chip: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 100,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+  chipCursor: {
+    flex: 1,
+    minWidth: 4,
+    fontFamily: fonts.regular,
+    fontSize: 16,
+    color: colors.text,
+    padding: 0,
   },
   dropdown: {
     maxHeight: 200,
