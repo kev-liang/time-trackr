@@ -2,6 +2,7 @@ import {
   type ComponentType,
   type ReactNode,
   useCallback,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -45,22 +46,29 @@ export function AutocompleteTextInput({
   TextInputComponent = TextInput,
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
+  // to fix laggy text input, fix later
+  const [localValue, setLocalValue] = useState(value);
+
+  useEffect(() => {
+    setLocalValue(value);
+  }, [value]);
 
   const filtered = useMemo(() => {
-    if (!value) return items;
-    return items.filter((item) => fuzzyMatch(value, item.label));
-  }, [value, items]);
+    if (!localValue) return items;
+    return items.filter((item) => fuzzyMatch(localValue, item.label));
+  }, [localValue, items]);
 
   const listData = useMemo(() => {
-    const trimmed = value.trim();
+    const trimmed = localValue.trim();
     if (!trimmed) return filtered;
     return [...filtered, { id: CREATE_ID, label: trimmed }];
-  }, [filtered, value]);
+  }, [filtered, localValue]);
 
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
       onSelect(item);
       onChangeText(item.label);
+      setLocalValue(item.label);
       setOpen(false);
     },
     [onSelect, onChangeText],
@@ -75,6 +83,7 @@ export function AutocompleteTextInput({
 
   const onChangeTextLocal = useCallback(
     (text: string) => {
+      setLocalValue(text);
       setOpen(true);
       onChangeText(text);
     },
@@ -89,7 +98,7 @@ export function AutocompleteTextInput({
             styles.input,
             rightComponent ? styles.inputWithRight : undefined,
           ]}
-          value={value}
+          value={localValue}
           onChangeText={onChangeTextLocal}
           onFocus={handleFocus}
           onBlur={handleBlur}
