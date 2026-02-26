@@ -13,8 +13,9 @@ import {
   View,
 } from "react-native";
 
-import { AutocompleteChip } from "@/components/ux/AutocompleteChip";
 import { AutocompleteDropdown, CREATE_ID } from "@/components/ux/AutocompleteDropdown";
+import { AppText } from "@/components/ux/AppText";
+import { Chip } from "@/components/ux/Chip";
 import { colors, fonts, spacing } from "@/theme";
 import { ACTIVITY_COLORS } from "@/utils/consts";
 import { fuzzyMatch } from "@/utils/fuzzyMatch";
@@ -142,10 +143,16 @@ export function AutocompleteTextInput({
           ]}
         >
           {selectedChips.map((chip) => (
-            <AutocompleteChip
+            <Chip
               key={chip.id}
-              item={chip}
-              onRemove={() => handleRemoveChip(chip.id)}
+              label={chip.label}
+              color={chip.color ?? colors.tint}
+              onPress={() => handleRemoveChip(chip.id)}
+              rightComponent={
+                <AppText variant="body" color="rgba(255,255,255,0.75)">
+                  {" ×"}
+                </AppText>
+              }
             />
           ))}
           <TextInputComponent

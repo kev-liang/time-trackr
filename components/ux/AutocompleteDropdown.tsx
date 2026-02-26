@@ -1,6 +1,7 @@
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
+import { Chip } from "@/components/ux/Chip";
 import { colors, spacing } from "@/theme";
 
 export const CREATE_ID = "__create__";
@@ -42,32 +43,14 @@ export function AutocompleteDropdown({
             <AppText variant="body" color={colors.textSecondary}>
               Create{" "}
             </AppText>
-            <View
-              style={[
-                styles.chip,
-                { backgroundColor: item.color ?? colors.tint },
-              ]}
-            >
-              <AppText variant="body" color="#fff">
-                {item.label}
-              </AppText>
-            </View>
+            <Chip label={item.label} color={item.color ?? colors.tint} />
           </Pressable>
         ) : (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
             onPress={() => onSelect(item)}
           >
-            <View
-              style={[
-                styles.chip,
-                { backgroundColor: item.color ?? colors.tint },
-              ]}
-            >
-              <AppText variant="body" color="#fff">
-                {item.label}
-              </AppText>
-            </View>
+            <Chip label={item.label} color={item.color ?? colors.tint} />
           </Pressable>
         )
       }
@@ -119,11 +102,5 @@ const styles = StyleSheet.create({
   createRow: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  chip: {
-    alignSelf: "flex-start",
-    borderRadius: 100,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
   },
 });
