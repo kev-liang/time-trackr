@@ -1,6 +1,6 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
@@ -81,6 +81,10 @@ export function AddEventBottomSheet({
     }
     setResetKey((k) => k + 1);
   }, [editingEvent, defaultStart, defaultEnd]);
+
+  const handleDismissKeyboard = useCallback(() => {
+    TextInput.State.blurTextInput(TextInput.State.currentlyFocusedInput());
+  }, []);
 
   const handleDismiss = useCallback(() => {
     bottomSheetRef.current?.dismiss();
@@ -178,7 +182,7 @@ export function AddEventBottomSheet({
             </AppText>
           </Pressable>
         </View>
-        <View style={styles.form}>
+        <Pressable style={styles.form} onPress={handleDismissKeyboard}>
           <AddEventAutocompleteInput
             value={title}
             onChangeText={setTitle}
@@ -234,7 +238,7 @@ export function AddEventBottomSheet({
               onChange={handleEndChange}
             />
           )}
-        </View>
+        </Pressable>
       </BottomSheetView>
     </BottomSheetModal>
   );
