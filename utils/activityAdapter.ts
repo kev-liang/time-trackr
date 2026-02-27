@@ -1,14 +1,17 @@
 import type { EventItem, OnEventResponse } from "@howljs/calendar-kit";
 
 import type { Activity } from "@/stores/useActivityStore";
+import { toLocalDateTimeString } from "@/utils/time";
 
-/** Convert Activity[] to calendar-kit EventItem[] */
+/** Convert Activity[] to calendar-kit EventItem[].
+ *  Activities are stored as UTC ISO strings; calendar-kit treats dateTime as
+ *  local time, so we convert here. */
 export function activitiesToEvents(activities: Activity[]): EventItem[] {
   return activities.map((a) => ({
     id: a.id,
     title: a.title,
-    start: { dateTime: a.start },
-    end: { dateTime: a.end },
+    start: { dateTime: toLocalDateTimeString(new Date(a.start)) },
+    end: { dateTime: toLocalDateTimeString(new Date(a.end)) },
     color: a.color,
   }));
 }

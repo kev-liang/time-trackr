@@ -24,6 +24,7 @@ import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
+import { toLocalDateTimeString } from "@/utils/time";
 
 export function ActivityTimeline() {
   const calendarRef = useRef<CalendarKitHandle>(null);
@@ -48,8 +49,8 @@ export function ActivityTimeline() {
       return undefined;
     return {
       title: "",
-      start: { dateTime: defaultStart.toISOString() },
-      end: { dateTime: defaultEnd.toISOString() },
+      start: { dateTime: toLocalDateTimeString(defaultStart) },
+      end: { dateTime: toLocalDateTimeString(defaultEnd) },
       color: colors.tint,
     };
   }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
@@ -94,7 +95,10 @@ export function ActivityTimeline() {
     const start = event.start.dateTime;
     const end = event.end.dateTime;
     if (!start || !end) return;
-    await useActivityStore.getState().updateActivity(event.id, { start, end });
+    await useActivityStore.getState().updateActivity(event.id, {
+      start: new Date(start).toISOString(),
+      end: new Date(end).toISOString(),
+    });
   }, []);
 
   const handleDragSelectedEventEnd = useCallback(
@@ -114,7 +118,10 @@ export function ActivityTimeline() {
       if (!start || !end) return;
       await useActivityStore
         .getState()
-        .updateActivity(event.id, { start, end });
+        .updateActivity(event.id, {
+          start: new Date(start).toISOString(),
+          end: new Date(end).toISOString(),
+        });
     },
     [],
   );
