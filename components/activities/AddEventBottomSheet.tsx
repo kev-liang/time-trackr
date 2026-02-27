@@ -1,6 +1,6 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
@@ -26,7 +26,7 @@ export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
-  const snapPoints = useMemo(() => [], []);
+  const snapPoints = useMemo(() => [300], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
@@ -81,6 +81,13 @@ export function AddEventBottomSheet({
     }
     setResetKey((k) => k + 1);
   }, [editingEvent, defaultStart, defaultEnd]);
+
+  useEffect(() => {
+    const sub = Keyboard.addListener("keyboardDidHide", () => {
+      bottomSheetRef.current?.snapToIndex(0);
+    });
+    return () => sub.remove();
+  }, []);
 
   const handleDismissKeyboard = useCallback(() => {
     TextInput.State.blurTextInput(TextInput.State.currentlyFocusedInput());
@@ -164,7 +171,7 @@ export function AddEventBottomSheet({
       animatedPosition={animatedPosition}
       onAnimate={handleAnimate}
       keyboardBehavior="fillParent"
-      keyboardBlurBehavior="restore"
+      keyboardBlurBehavior="none"
     >
       <BottomSheetView style={styles.content}>
         <View style={styles.header}>

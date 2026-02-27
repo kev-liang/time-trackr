@@ -1,5 +1,5 @@
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { Chip } from "@/components/ux/Chip";
@@ -39,7 +39,7 @@ export function AutocompleteDropdown({
               styles.createRow,
               pressed && styles.rowPressed,
             ]}
-            onPress={() => onSelect(item)}
+            onPress={() => { Keyboard.dismiss(); onSelect(item); }}
           >
             <AppText variant="body" color={colors.textSecondary}>
               Create{" "}
@@ -49,7 +49,7 @@ export function AutocompleteDropdown({
         ) : (
           <Pressable
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
-            onPress={() => onSelect(item)}
+            onPress={() => { Keyboard.dismiss(); onSelect(item); }}
           >
             <Chip label={item.label} color={item.color ?? colors.tint} />
           </Pressable>
