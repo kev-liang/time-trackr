@@ -2,12 +2,16 @@ import { create } from "zustand";
 
 type ActivityEditStore = {
   editingEventId: string | null;
-  defaultStart: Date | undefined;
-  defaultEnd: Date | undefined;
+  draftStart: Date | undefined;
+  draftEnd: Date | undefined;
+  previewStart: Date | undefined;
+  previewEnd: Date | undefined;
   sheetOpen: boolean;
   hasDraft: boolean;
   setEditingEventId: (id: string | null) => void;
-  setDefaults: (start: Date | undefined, end: Date | undefined) => void;
+  setDraftTimes: (start: Date | undefined, end: Date | undefined) => void;
+  setPreview: (start: Date, end: Date) => void;
+  clearPreview: () => void;
   openSheet: () => void;
   clearEditing: () => void;
   openCreate: (start: Date, end: Date) => void;
@@ -17,22 +21,30 @@ type ActivityEditStore = {
 
 export const useActivityEditStore = create<ActivityEditStore>((set) => ({
   editingEventId: null,
-  defaultStart: undefined,
-  defaultEnd: undefined,
+  draftStart: undefined,
+  draftEnd: undefined,
+  previewStart: undefined,
+  previewEnd: undefined,
   sheetOpen: false,
   hasDraft: false,
 
   setEditingEventId: (id) => set({ editingEventId: id }),
 
-  setDefaults: (start, end) => set({ defaultStart: start, defaultEnd: end }),
+  setDraftTimes: (start, end) => set({ draftStart: start, draftEnd: end }),
+
+  setPreview: (start, end) => set({ previewStart: start, previewEnd: end }),
+
+  clearPreview: () => set({ previewStart: undefined, previewEnd: undefined }),
 
   openSheet: () => set({ sheetOpen: true }),
   setHasDraft: (_hasDraft) => set({ hasDraft: _hasDraft }),
   clearEditing: () =>
     set({
       editingEventId: null,
-      defaultStart: undefined,
-      defaultEnd: undefined,
+      draftStart: undefined,
+      draftEnd: undefined,
+      previewStart: undefined,
+      previewEnd: undefined,
       sheetOpen: false,
       hasDraft: false,
     }),
@@ -40,11 +52,19 @@ export const useActivityEditStore = create<ActivityEditStore>((set) => ({
   openCreate: (start, end) =>
     set({
       editingEventId: null,
-      defaultStart: start,
-      defaultEnd: end,
+      draftStart: start,
+      draftEnd: end,
+      previewStart: undefined,
+      previewEnd: undefined,
       sheetOpen: true,
       hasDraft: true,
     }),
 
-  updateDraft: (start, end) => set({ defaultStart: start, defaultEnd: end }),
+  updateDraft: (start, end) =>
+    set({
+      draftStart: start,
+      draftEnd: end,
+      previewStart: undefined,
+      previewEnd: undefined,
+    }),
 }));

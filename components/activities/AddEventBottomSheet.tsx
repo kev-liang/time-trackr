@@ -31,11 +31,12 @@ export function AddEventBottomSheet({
   const hasCalculatedPositions = useRef(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
-  const defaultStart = useActivityEditStore((s) => s.defaultStart);
-  const defaultEnd = useActivityEditStore((s) => s.defaultEnd);
+  const draftStart = useActivityEditStore((s) => s.draftStart);
+  const draftEnd = useActivityEditStore((s) => s.draftEnd);
   const sheetOpen = useActivityEditStore((s) => s.sheetOpen);
   const clearEditing = useActivityEditStore((s) => s.clearEditing);
   const setHasDraft = useActivityEditStore((s) => s.setHasDraft);
+  const setPreview = useActivityEditStore((s) => s.setPreview);
 
   const activities = useActivityStore((s) => s.activities);
   const addActivity = useActivityStore((s) => s.addActivity);
@@ -79,13 +80,13 @@ export function AddEventBottomSheet({
       setStartTime(new Date(editingEvent.start));
       setEndTime(new Date(editingEvent.end));
     } else {
-      const now = defaultStart ?? new Date();
-      const later = defaultEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
+      const now = draftStart ?? new Date();
+      const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
       setStartTime(now);
       setEndTime(later);
     }
     setResetKey((k) => k + 1);
-  }, [editingEvent, defaultStart, defaultEnd]);
+  }, [editingEvent, draftStart, draftEnd]);
 
   useEffect(() => {
     const sub = Keyboard.addListener("keyboardDidHide", () => {
@@ -139,16 +140,23 @@ export function AddEventBottomSheet({
   const handleStartChange = useCallback(
     (date: Date) => {
       setStartTime(date);
+      let effectiveEnd = endTime;
       if (date >= endTime) {
-        setEndTime(new Date(date.getTime() + 30 * MS_PER_MINUTE));
+        effectiveEnd = new Date(date.getTime() + 30 * MS_PER_MINUTE);
+        setEndTime(effectiveEnd);
       }
+      setPreview(date, effectiveEnd);
     },
-    [endTime],
+    [endTime, setPreview],
   );
 
-  const handleEndChange = useCallback((date: Date) => {
-    setEndTime(date);
-  }, []);
+  const handleEndChange = useCallback(
+    (date: Date) => {
+      setEndTime(date);
+      setPreview(startTime, date);
+    },
+    [startTime, setPreview],
+  );
 
   const handleAnimate = useCallback(
     (

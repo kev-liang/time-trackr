@@ -38,35 +38,46 @@ export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
   const hasDraft = useActivityEditStore((s) => s.hasDraft);
-  const defaultStart = useActivityEditStore((s) => s.defaultStart);
-  const defaultEnd = useActivityEditStore((s) => s.defaultEnd);
+  const draftStart = useActivityEditStore((s) => s.draftStart);
+  const draftEnd = useActivityEditStore((s) => s.draftEnd);
+  const previewStart = useActivityEditStore((s) => s.previewStart);
+  const previewEnd = useActivityEditStore((s) => s.previewEnd);
 
   const existingSelectedEvent: SelectedEventType | undefined = useMemo(() => {
     if (!editingEventId) return undefined;
     const found = events.find((e) => e.id === editingEventId);
     if (!found) return undefined;
+    if (previewStart && previewEnd) {
+      return {
+        ...found,
+        start: { dateTime: toLocalDateTimeString(previewStart) },
+        end: { dateTime: toLocalDateTimeString(previewEnd) },
+      } as SelectedEventType;
+    }
     return found as SelectedEventType;
-  }, [editingEventId, events]);
+  }, [editingEventId, events, previewStart, previewEnd]);
 
   const draftSelectedEvent: SelectedEventType | undefined = useMemo(() => {
-    if (!hasDraft || editingEventId || !defaultStart || !defaultEnd)
-      return undefined;
+    if (!hasDraft || editingEventId) return undefined;
+    const start = previewStart ?? draftStart;
+    const end = previewEnd ?? draftEnd;
+    if (!start || !end) return undefined;
     return {
       title: "",
-      start: { dateTime: toLocalDateTimeString(defaultStart) },
-      end: { dateTime: toLocalDateTimeString(defaultEnd) },
+      start: { dateTime: toLocalDateTimeString(start) },
+      end: { dateTime: toLocalDateTimeString(end) },
       color: colors.tint,
     };
-  }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
+  }, [hasDraft, editingEventId, previewStart, previewEnd, draftStart, draftEnd]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
 
   // TODO: small bug when scrolling to end of day, hitting + FAB makes calendar scroll up then back down
   useEffect(() => {
     if (!hasDraft) return;
-    const { defaultStart } = useActivityEditStore.getState();
-    if (!defaultStart) return;
-    const hour = defaultStart.getHours() + defaultStart.getMinutes() / 60;
+    const { draftStart } = useActivityEditStore.getState();
+    if (!draftStart) return;
+    const hour = draftStart.getHours() + draftStart.getMinutes() / 60;
     const hourHeight = calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
     const hourOffset = sheetSnapHeight / hourHeight;
     calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
@@ -131,6 +142,7 @@ export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
       const start = event.start.dateTime;
       const end = event.end.dateTime;
       if (!start || !end) return;
+      useActivityEditStore.getState().clearPreview();
       await useActivityStore.getState().updateActivity(event.id, {
         start: new Date(start).toISOString(),
         end: new Date(end).toISOString(),
