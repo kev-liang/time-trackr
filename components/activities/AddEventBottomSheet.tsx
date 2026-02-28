@@ -45,7 +45,9 @@ export function AddEventBottomSheet({
     ? (activities.find((a) => a.id === editingEventId) ?? null)
     : null;
 
-  const [title, setTitle] = useState("");
+  const [localTitle, setLocalTitle] = useState("");
+  const [selectedTitle, setSelectedTitle] = useState("");
+  const [titleError, setTitleError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
@@ -61,10 +63,13 @@ export function AddEventBottomSheet({
   // sheetOpen in deps ensures the title clears when the sheet is re-opened for creation.
   useEffect(() => {
     if (editingEvent) {
-      setTitle(editingEvent.title);
+      setLocalTitle(editingEvent.title);
+      setSelectedTitle(editingEvent.title);
     } else {
-      setTitle("");
+      setLocalTitle("");
+      setSelectedTitle("");
     }
+    setTitleError(null);
     setPickerField(null);
   }, [editingEvent, sheetOpen]);
 
@@ -100,15 +105,20 @@ export function AddEventBottomSheet({
   }, [clearEditing]);
 
   const handleSave = useCallback(() => {
+    if (!selectedTitle) {
+      setTitleError("Title is required");
+      return;
+    }
+    setTitleError(null);
     if (editingEventId) {
       updateActivity(editingEventId, {
-        title,
+        title: selectedTitle,
         start: startTime.toISOString(),
         end: endTime.toISOString(),
       });
     } else {
       addActivity({
-        title,
+        title: selectedTitle,
         start: startTime.toISOString(),
         end: endTime.toISOString(),
         color: "#4293ff",
@@ -118,7 +128,7 @@ export function AddEventBottomSheet({
     clearEditing();
   }, [
     editingEventId,
-    title,
+    selectedTitle,
     startTime,
     endTime,
     updateActivity,
@@ -191,10 +201,18 @@ export function AddEventBottomSheet({
         </View>
         <Pressable style={styles.form} onPress={handleDismissKeyboard}>
           <AddEventAutocompleteInput
-            value={title}
-            onChangeText={setTitle}
-            onSelect={(item) => setTitle(item.label)}
+            value={localTitle}
+            onChangeText={setLocalTitle}
+            onSelect={(item) => {
+              setSelectedTitle(item.label);
+              setTitleError(null);
+            }}
           />
+          {titleError && (
+            <AppText variant="body" color="#EF4444">
+              {titleError}
+            </AppText>
+          )}
 
           <View style={styles.timeRow}>
             <AppText variant="body" color={colors.textSecondary}>
