@@ -13,7 +13,7 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
@@ -26,7 +26,11 @@ import { colors } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { toLocalDateTimeString } from "@/utils/time";
 
-export function ActivityTimeline() {
+type Props = {
+  sheetSnapHeight?: number;
+};
+
+export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
   const calendarRef = useRef<CalendarKitHandle>(null);
   const { events, today, theme, unavailableHours } = useActivityTimeline();
   const [selectedDate, setSelectedDate] = useState(today);
@@ -56,6 +60,17 @@ export function ActivityTimeline() {
   }, [hasDraft, editingEventId, defaultStart, defaultEnd]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
+
+  // TODO: small bug when scrolling to end of day, hitting + FAB makes calendar scroll up then back down
+  useEffect(() => {
+    if (!hasDraft) return;
+    const { defaultStart } = useActivityEditStore.getState();
+    if (!defaultStart) return;
+    const hour = defaultStart.getHours() + defaultStart.getMinutes() / 60;
+    const hourHeight = calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
+    const hourOffset = sheetSnapHeight / hourHeight;
+    calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
+  }, [hasDraft, sheetSnapHeight]);
 
   const handlePressEvent = useCallback((event: OnEventResponse) => {
     const store = useActivityEditStore.getState();
@@ -116,12 +131,10 @@ export function ActivityTimeline() {
       const start = event.start.dateTime;
       const end = event.end.dateTime;
       if (!start || !end) return;
-      await useActivityStore
-        .getState()
-        .updateActivity(event.id, {
-          start: new Date(start).toISOString(),
-          end: new Date(end).toISOString(),
-        });
+      await useActivityStore.getState().updateActivity(event.id, {
+        start: new Date(start).toISOString(),
+        end: new Date(end).toISOString(),
+      });
     },
     [],
   );

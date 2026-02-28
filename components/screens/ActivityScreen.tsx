@@ -73,7 +73,7 @@ export function ActivityScreen() {
               timelineHeight.value = e.nativeEvent.layout.height;
             }}
           >
-            <ActivityTimeline />
+            <ActivityTimeline sheetSnapHeight={300} />
           </Animated.View>
           <AddEventFab onPress={handleOpen} />
         </SafeAreaView>
