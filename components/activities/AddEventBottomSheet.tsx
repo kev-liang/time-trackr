@@ -5,7 +5,7 @@ import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
-import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
+import { TimePickerModal } from "@/components/ux/TimePickerModal";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
@@ -220,9 +220,7 @@ export function AddEventBottomSheet({
             </AppText>
             <Pressable
               style={styles.timeButton}
-              onPress={() =>
-                setPickerField(pickerField === "start" ? null : "start")
-              }
+              onPress={() => setPickerField("start")}
             >
               <AppText variant="bodySemiBold">
                 {formatTimeDisplay(startTime)}
@@ -230,24 +228,13 @@ export function AddEventBottomSheet({
             </Pressable>
           </View>
 
-          {pickerField === "start" && (
-            <TimeSpinnerPicker
-              key={`start-${resetKey}`}
-              value={startTime}
-              minuteInterval={5}
-              onChange={handleStartChange}
-            />
-          )}
-
           <View style={styles.timeRow}>
             <AppText variant="body" color={colors.textSecondary}>
               End
             </AppText>
             <Pressable
               style={styles.timeButton}
-              onPress={() =>
-                setPickerField(pickerField === "end" ? null : "end")
-              }
+              onPress={() => setPickerField("end")}
             >
               <AppText variant="bodySemiBold">
                 {formatTimeDisplay(endTime)}
@@ -255,14 +242,22 @@ export function AddEventBottomSheet({
             </Pressable>
           </View>
 
-          {pickerField === "end" && (
-            <TimeSpinnerPicker
-              key={`end-${resetKey}`}
-              value={endTime}
-              minuteInterval={5}
-              onChange={handleEndChange}
-            />
-          )}
+          <TimePickerModal
+            visible={pickerField === "start"}
+            title="Start Time"
+            value={startTime}
+            resetKey={resetKey}
+            onChange={handleStartChange}
+            onClose={() => setPickerField(null)}
+          />
+          <TimePickerModal
+            visible={pickerField === "end"}
+            title="End Time"
+            value={endTime}
+            resetKey={resetKey}
+            onChange={handleEndChange}
+            onClose={() => setPickerField(null)}
+          />
         </Pressable>
       </BottomSheetView>
     </BottomSheetModal>

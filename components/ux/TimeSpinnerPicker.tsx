@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView } from "react-native-gesture-handler";
 import { StyleSheet, View } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 
 import { AppText } from "@/components/ux/AppText";
 import { colors } from "@/theme";
@@ -8,12 +8,14 @@ import { colors } from "@/theme";
 const ITEM_HEIGHT = 48;
 const VISIBLE_ITEMS = 5;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+const LOOP_COUNT = 5;
 
 type SpinnerColumnProps = {
   items: string[];
   initialIndex: number;
   onChange: (index: number) => void;
   width: number;
+  loop?: boolean;
 };
 
 function SpinnerColumn({
@@ -21,14 +23,23 @@ function SpinnerColumn({
   initialIndex,
   onChange,
   width,
+  loop = true,
 }: SpinnerColumnProps) {
   const scrollRef = useRef<ScrollView>(null);
-  const [selected, setSelected] = useState(initialIndex);
+
+  const loopedItems = loop
+    ? Array.from({ length: LOOP_COUNT }, () => items).flat()
+    : items;
+  const startLoopIndex = loop
+    ? Math.floor(LOOP_COUNT / 2) * items.length + initialIndex
+    : initialIndex;
+
+  const [selectedLoopIndex, setSelectedLoopIndex] = useState(startLoopIndex);
 
   useEffect(() => {
     const t = setTimeout(() => {
       scrollRef.current?.scrollTo({
-        y: initialIndex * ITEM_HEIGHT,
+        y: startLoopIndex * ITEM_HEIGHT,
         animated: false,
       });
     }, 50);
@@ -37,17 +48,18 @@ function SpinnerColumn({
 
   const handleScrollEnd = useCallback(
     (e: { nativeEvent: { contentOffset: { y: number } } }) => {
-      const clamped = Math.max(
+      const rawIndex = Math.max(
         0,
         Math.min(
           Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT),
-          items.length - 1,
+          loopedItems.length - 1,
         ),
       );
-      setSelected(clamped);
-      onChange(clamped);
+      const actualIndex = loop ? rawIndex % items.length : rawIndex;
+      setSelectedLoopIndex(rawIndex);
+      onChange(actualIndex);
     },
-    [items.length, onChange],
+    [loop, items.length, loopedItems.length, onChange],
   );
 
   return (
@@ -63,11 +75,13 @@ function SpinnerColumn({
         onScrollEndDrag={handleScrollEnd}
         scrollEventThrottle={16}
       >
-        {items.map((item, i) => (
-          <View key={item} style={styles.item}>
+        {loopedItems.map((item, i) => (
+          <View key={i} style={styles.item}>
             <AppText
-              variant={selected === i ? "bodySemiBold" : "body"}
-              color={selected === i ? colors.text : colors.textSecondary}
+              variant={selectedLoopIndex === i ? "bodySemiBold" : "body"}
+              color={
+                selectedLoopIndex === i ? colors.text : colors.textSecondary
+              }
             >
               {item}
             </AppText>
@@ -179,6 +193,7 @@ export function TimeSpinnerPicker({
         initialIndex={initPeriodIndex}
         onChange={handlePeriodChange}
         width={64}
+        loop={false}
       />
     </View>
   );
