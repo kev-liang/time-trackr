@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
@@ -31,16 +32,18 @@ export function ActivityScreen() {
     loadActivities();
   }, [loadActivities]);
 
-  const handleOpen = useCallback(() => {
-    const now = new Date();
-    const end = new Date(now.getTime() + 60 * MS_PER_MINUTE);
-    useActivityEditStore.getState().openCreate(now, end);
-  }, []);
-
   const timelineRef = useRef<ActivityTimelineHandle>(null);
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
   const isToday = selectedDate === today;
+
+  const handleOpen = useCallback(() => {
+    const start = isToday
+      ? new Date()
+      : moment(selectedDate).startOf("day").add(12, "hours").toDate();
+    const end = new Date(start.getTime() + 60 * MS_PER_MINUTE);
+    useActivityEditStore.getState().openCreate(start, end);
+  }, [isToday, selectedDate]);
 
   const handleGoToToday = useCallback(() => {
     timelineRef.current?.goToToday();
