@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
@@ -57,6 +58,7 @@ export function AddEventBottomSheet({
   const [selectedTitle, setSelectedTitle] = useState("");
   const [selectedColor, setSelectedColor] = useState<string>(colors.tint);
   const [titleError, setTitleError] = useState<string | null>(null);
+  const [timeError, setTimeError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
@@ -82,6 +84,7 @@ export function AddEventBottomSheet({
       setSelectedColor(colors.tint);
     }
     setTitleError(null);
+    setTimeError(null);
     setPickerField(null);
   }, [editingEvent, sheetOpen]);
 
@@ -142,6 +145,7 @@ export function AddEventBottomSheet({
       return;
     }
     setTitleError(null);
+    if (timeError) return;
     if (editingEventId) {
       updateActivity(editingEventId, {
         title: selectedTitle,
@@ -173,12 +177,12 @@ export function AddEventBottomSheet({
   const handleStartChange = useCallback(
     (date: Date) => {
       setStartTime(date);
-      let effectiveEnd = endTime;
-      if (date >= endTime) {
-        effectiveEnd = new Date(date.getTime() + 30 * MS_PER_MINUTE);
-        setEndTime(effectiveEnd);
+      if (moment(date).isSameOrAfter(endTime)) {
+        setTimeError("Start time must be before end time");
+      } else {
+        setTimeError(null);
       }
-      setPreview(date, effectiveEnd);
+      setPreview(date, endTime);
     },
     [endTime, setPreview],
   );
@@ -186,6 +190,11 @@ export function AddEventBottomSheet({
   const handleEndChange = useCallback(
     (date: Date) => {
       setEndTime(date);
+      if (moment(date).isSameOrBefore(startTime)) {
+        setTimeError("Start time must be before end time");
+      } else {
+        setTimeError(null);
+      }
       setPreview(startTime, date);
     },
     [startTime, setPreview],
@@ -332,6 +341,11 @@ export function AddEventBottomSheet({
                 onChange={handleEndChange}
               />
             </View>
+          )}
+          {timeError && (
+            <AppText variant="body" color="#EF4444" style={{ paddingHorizontal: spacing.xl }}>
+              {timeError}
+            </AppText>
           )}
         </BottomSheetView>
       </BottomSheetModal>
