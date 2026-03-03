@@ -3,9 +3,9 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { colors } from "@/theme";
 import { lighten } from "@/utils/colors";
 import { formatTime } from "@/utils/time";
-import { colors } from "@/theme";
 
 type Props = {
   id: string;
@@ -14,39 +14,42 @@ type Props = {
   color: string;
 };
 
-export const ActivityTimelineEvent = memo(
-  function ActivityTimelineEvent({ id, title, start, color }: Props) {
-    const handlePress = () => {
-      if (!id) return;
-      const store = useActivityEditStore.getState();
-      store.setEditingEventId(id);
-      store.openSheet();
-    };
+export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
+  id,
+  title,
+  start,
+  color,
+}: Props) {
+  const handlePress = () => {
+    if (!id) return;
+    const store = useActivityEditStore.getState();
+    store.setEditingEventId(id);
+    store.openSheet();
+  };
 
-    return (
-      <Pressable onPress={handlePress} style={styles.pressable}>
-        <View
-          style={[
-            styles.container,
-            { backgroundColor: lighten(color), borderLeftColor: color },
-          ]}
+  return (
+    <Pressable onPress={handlePress} style={styles.pressable}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: lighten(color), borderLeftColor: color },
+        ]}
+      >
+        <AppText
+          variant="bodySemiBold"
+          color={colors.text}
+          style={styles.title}
+          numberOfLines={1}
         >
-          <AppText variant="caption" color={colors.textSecondary}>
-            {formatTime(start)}
-          </AppText>
-          <AppText
-            variant="bodySemiBold"
-            color={colors.text}
-            style={styles.title}
-            numberOfLines={1}
-          >
-            {title}
-          </AppText>
-        </View>
-      </Pressable>
-    );
-  },
-);
+          {title}
+        </AppText>
+        <AppText variant="caption" color={colors.textSecondary}>
+          {formatTime(start)}
+        </AppText>
+      </View>
+    </Pressable>
+  );
+});
 
 const styles = StyleSheet.create({
   pressable: {
