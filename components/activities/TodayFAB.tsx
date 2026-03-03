@@ -4,20 +4,17 @@ import { Pressable, StyleSheet } from "react-native";
 import { AppText } from "@/components/ux/AppText";
 import { colors, spacing } from "@/theme";
 
-type FabProps = {
-  label?: string;
+type TodayFABProps = {
   onPress: () => void;
 };
 
-export function AddEventFAB({ label, onPress }: FabProps) {
+export function TodayFAB({ onPress }: TodayFABProps) {
   return (
     <Pressable style={styles.fab} onPress={onPress}>
-      <Ionicons name="add" size={28} color={colors.background} />
-      {label && (
-        <AppText variant="bodySemiBold" color={colors.background}>
-          {label}
-        </AppText>
-      )}
+      <Ionicons name="chevron-back" size={20} color={colors.text} />
+      <AppText variant="bodySemiBold" color={colors.text}>
+        Today
+      </AppText>
     </Pressable>
   );
 }
@@ -26,13 +23,14 @@ const styles = StyleSheet.create({
   fab: {
     position: "absolute",
     bottom: spacing.lg,
-    right: spacing.lg,
+    left: spacing.lg,
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: 56,
-    height: 56,
-    backgroundColor: colors.tint,
-    borderRadius: 28,
+    paddingHorizontal: spacing.md,
+    height: 44,
+    backgroundColor: colors.background,
+    borderRadius: 22,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,

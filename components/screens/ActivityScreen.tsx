@@ -1,5 +1,5 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import Animated, {
   Extrapolation,
@@ -9,9 +9,13 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ActivityTimeline } from "@/components/activities/ActivityTimeline";
+import {
+  ActivityTimeline,
+  type ActivityTimelineHandle,
+} from "@/components/activities/ActivityTimeline";
 import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet";
-import { AddEventFab } from "@/components/activities/AddEventFab";
+import { AddEventFAB } from "@/components/activities/AddEventFab";
+import { TodayFAB } from "@/components/activities/TodayFAB";
 import { ThemedView } from "@/components/themed-view";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
@@ -31,6 +35,16 @@ export function ActivityScreen() {
     const now = new Date();
     const end = new Date(now.getTime() + 60 * MS_PER_MINUTE);
     useActivityEditStore.getState().openCreate(now, end);
+  }, []);
+
+  const timelineRef = useRef<ActivityTimelineHandle>(null);
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+  const isToday = selectedDate === today;
+
+  const handleGoToToday = useCallback(() => {
+    timelineRef.current?.goToToday();
+    setSelectedDate(new Date().toISOString().split("T")[0]);
   }, []);
 
   const bottomSheetAnimatedPosition = useSharedValue(0);
@@ -73,9 +87,14 @@ export function ActivityScreen() {
               timelineHeight.value = e.nativeEvent.layout.height;
             }}
           >
-            <ActivityTimeline sheetSnapHeight={300} />
+            <ActivityTimeline
+              ref={timelineRef}
+              sheetSnapHeight={300}
+              onDateChanged={setSelectedDate}
+            />
           </Animated.View>
-          <AddEventFab onPress={handleOpen} />
+          {!isToday && <TodayFAB onPress={handleGoToToday} />}
+          <AddEventFAB onPress={handleOpen} />
         </SafeAreaView>
       </ThemedView>
       <AddEventBottomSheet

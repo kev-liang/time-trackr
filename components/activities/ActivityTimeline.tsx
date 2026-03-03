@@ -13,7 +13,7 @@ import {
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
@@ -26,14 +26,31 @@ import { colors } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { toLocalDateTimeString } from "@/utils/time";
 
-type Props = {
-  sheetSnapHeight?: number;
+export type ActivityTimelineHandle = {
+  goToToday: () => void;
 };
 
-export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
+type Props = {
+  sheetSnapHeight?: number;
+  onDateChanged?: (date: string) => void;
+};
+
+export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
+function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
   const calendarRef = useRef<CalendarKitHandle>(null);
   const { events, today, theme, unavailableHours } = useActivityTimeline();
   const [selectedDate, setSelectedDate] = useState(today);
+
+  useImperativeHandle(ref, () => ({
+    goToToday: () => {
+      const todayStr = new Date().toISOString().split("T")[0];
+      calendarRef.current?.goToDate({ date: todayStr, animatedDate: true });
+      setSelectedDate(todayStr);
+      const now = new Date();
+      const hour = now.getHours() + now.getMinutes() / 60;
+      calendarRef.current?.goToHour(Math.max(0, hour), true);
+    },
+  }));
   const [pickerOpen, setPickerOpen] = useState(false);
 
   const editingEventId = useActivityEditStore((s) => s.editingEventId);
@@ -197,7 +214,8 @@ export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
 
   const handleDateChanged = useCallback((date: string) => {
     setSelectedDate(date);
-  }, []);
+    onDateChanged?.(date);
+  }, [onDateChanged]);
 
   const handleSelectDate = useCallback((date: string) => {
     setPickerOpen(false);
@@ -244,4 +262,4 @@ export function ActivityTimeline({ sheetSnapHeight = 0 }: Props) {
       />
     </CalendarContainer>
   );
-}
+});
