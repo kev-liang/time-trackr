@@ -22,12 +22,8 @@ import { fuzzyMatch } from "@/utils/fuzzyMatch";
 
 const activityColorValues = Object.values(ACTIVITY_COLORS);
 
-function labelToColor(label: string): string {
-  let hash = 0;
-  for (let i = 0; i < label.length; i++) {
-    hash = ((hash * 31) + label.charCodeAt(i)) >>> 0;
-  }
-  return activityColorValues[hash % activityColorValues.length];
+function randomActivityColor(): string {
+  return activityColorValues[Math.floor(Math.random() * activityColorValues.length)];
 }
 
 export type AutocompleteItem = {
@@ -60,9 +56,11 @@ export function AutocompleteTextInput({
   const [open, setOpen] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [selectedChips, setSelectedChips] = useState<AutocompleteItem[]>([]);
+  const [stagedColor, setStagedColor] = useState<string | null>(null);
 
   useEffect(() => {
     setLocalValue(value);
+    if (!value) setStagedColor(null);
   }, [value]);
 
   const filtered = useMemo(() => {
@@ -76,13 +74,13 @@ export function AutocompleteTextInput({
   const listData = useMemo(() => {
     const trimmed = localValue.trim();
     if (!trimmed) return filtered;
-    return [...filtered, { id: CREATE_ID, label: trimmed, color: labelToColor(trimmed) }];
-  }, [filtered, localValue]);
+    return [...filtered, { id: CREATE_ID, label: trimmed, color: stagedColor ?? randomActivityColor() }];
+  }, [filtered, localValue, stagedColor]);
 
   const handleSelect = useCallback(
     (item: AutocompleteItem) => {
       const isNew = item.id === CREATE_ID;
-      const color = isNew ? labelToColor(item.label) : item.color;
+      const color = isNew ? (stagedColor ?? randomActivityColor()) : item.color;
       const chip = isNew
         ? { ...item, id: `created:${item.label}`, color }
         : item;
@@ -91,9 +89,10 @@ export function AutocompleteTextInput({
       onSelect(chip);
       onChangeText("");
       setLocalValue("");
+      setStagedColor(null);
       setOpen(false);
     },
-    [onSelect, onCreate, onChangeText],
+    [onSelect, onCreate, onChangeText, stagedColor],
   );
 
   const handleSubmitEditing = useCallback(() => {
@@ -126,11 +125,13 @@ export function AutocompleteTextInput({
 
   const onChangeTextLocal = useCallback(
     (text: string) => {
+      if (text && !localValue) setStagedColor(randomActivityColor());
+      else if (!text) setStagedColor(null);
       setLocalValue(text);
       setOpen(true);
       onChangeText(text);
     },
-    [onChangeText],
+    [onChangeText, localValue],
   );
 
   return (
