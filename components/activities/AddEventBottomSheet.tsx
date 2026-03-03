@@ -212,7 +212,11 @@ export function AddEventBottomSheet({
   const initialItem = useMemo(
     () =>
       editingEvent
-        ? { id: editingEventId!, label: editingEvent.title, color: editingEvent.color }
+        ? {
+            id: editingEventId!,
+            label: editingEvent.title,
+            color: editingEvent.color,
+          }
         : undefined,
     [editingEventId],
   );
@@ -277,46 +281,53 @@ export function AddEventBottomSheet({
               </AppText>
               <Pressable
                 style={styles.timeButton}
-                onPress={() => setPickerField("start")}
+                onPress={() =>
+                  setPickerField(pickerField === "start" ? null : "start")
+                }
               >
                 <AppText variant="bodySemiBold">
                   {formatTimeDisplay(startTime)}
                 </AppText>
               </Pressable>
             </View>
-
+          </Pressable>
+          {pickerField === "start" && (
+            <View style={styles.inlinePicker}>
+              <TimeSpinnerPicker
+                key={`start-${resetKey}`}
+                value={startTime}
+                minuteInterval={5}
+                onChange={handleStartChange}
+              />
+            </View>
+          )}
+          <Pressable
+            style={styles.formContinued}
+            onPress={handleDismissKeyboard}
+          >
             <View style={styles.timeRow}>
               <AppText variant="body" color={colors.textSecondary}>
                 End
               </AppText>
               <Pressable
                 style={styles.timeButton}
-                onPress={() => setPickerField("end")}
+                onPress={() =>
+                  setPickerField(pickerField === "end" ? null : "end")
+                }
               >
                 <AppText variant="bodySemiBold">
                   {formatTimeDisplay(endTime)}
                 </AppText>
               </Pressable>
             </View>
-
           </Pressable>
-          {pickerField && (
+          {pickerField === "end" && (
             <View style={styles.inlinePicker}>
-              <View style={styles.inlinePickerHeader}>
-                <AppText variant="bodySemiBold">
-                  {pickerField === "start" ? "Start Time" : "End Time"}
-                </AppText>
-                <Pressable onPress={() => setPickerField(null)} hitSlop={12}>
-                  <AppText variant="bodySemiBold" color={colors.tint}>
-                    Done
-                  </AppText>
-                </Pressable>
-              </View>
               <TimeSpinnerPicker
-                key={`${pickerField}-${resetKey}`}
-                value={pickerField === "start" ? startTime : endTime}
+                key={`end-${resetKey}`}
+                value={endTime}
                 minuteInterval={5}
-                onChange={pickerField === "start" ? handleStartChange : handleEndChange}
+                onChange={handleEndChange}
               />
             </View>
           )}
@@ -363,9 +374,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.sm,
   },
   timeButton: {
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.lg,
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: 8,
@@ -386,4 +399,5 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
+  formContinued: {},
 });

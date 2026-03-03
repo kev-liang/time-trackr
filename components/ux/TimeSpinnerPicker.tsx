@@ -8,7 +8,7 @@ import { colors } from "@/theme";
 const ITEM_HEIGHT = 48;
 const VISIBLE_ITEMS = 5;
 const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
-const LOOP_COUNT = 5;
+const LOOP_COUNT = 3;
 
 type SpinnerColumnProps = {
   items: string[];
