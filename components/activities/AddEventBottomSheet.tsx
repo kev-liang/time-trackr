@@ -48,6 +48,7 @@ export function AddEventBottomSheet({
 
   const [localTitle, setLocalTitle] = useState("");
   const [selectedTitle, setSelectedTitle] = useState("");
+  const [selectedColor, setSelectedColor] = useState<string>(colors.tint);
   const [titleError, setTitleError] = useState<string | null>(null);
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
@@ -66,9 +67,11 @@ export function AddEventBottomSheet({
     if (editingEvent) {
       setLocalTitle(editingEvent.title);
       setSelectedTitle(editingEvent.title);
+      setSelectedColor(editingEvent.color);
     } else {
       setLocalTitle("");
       setSelectedTitle("");
+      setSelectedColor(colors.tint);
     }
     setTitleError(null);
     setPickerField(null);
@@ -116,13 +119,14 @@ export function AddEventBottomSheet({
         title: selectedTitle,
         start: startTime.toISOString(),
         end: endTime.toISOString(),
+        color: selectedColor,
       });
     } else {
       addActivity({
         title: selectedTitle,
         start: startTime.toISOString(),
         end: endTime.toISOString(),
-        color: "#4293ff",
+        color: selectedColor,
       });
     }
     bottomSheetRef.current?.dismiss();
@@ -130,6 +134,7 @@ export function AddEventBottomSheet({
   }, [
     editingEventId,
     selectedTitle,
+    selectedColor,
     startTime,
     endTime,
     updateActivity,
@@ -213,6 +218,7 @@ export function AddEventBottomSheet({
             onChangeText={setLocalTitle}
             onSelect={(item) => {
               setSelectedTitle(item.label);
+              setSelectedColor(item.color ?? colors.tint);
               setTitleError(null);
             }}
           />
