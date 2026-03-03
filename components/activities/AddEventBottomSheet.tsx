@@ -37,6 +37,8 @@ export function AddEventBottomSheet({
   const clearEditing = useActivityEditStore((s) => s.clearEditing);
   const setHasDraft = useActivityEditStore((s) => s.setHasDraft);
   const setPreview = useActivityEditStore((s) => s.setPreview);
+  const setDraftColor = useActivityEditStore((s) => s.setDraftColor);
+  const setDraftTitle = useActivityEditStore((s) => s.setDraftTitle);
 
   const activities = useActivityStore((s) => s.activities);
   const addActivity = useActivityStore((s) => s.addActivity);
@@ -219,6 +221,8 @@ export function AddEventBottomSheet({
             onSelect={(item) => {
               setSelectedTitle(item.label);
               setSelectedColor(item.color ?? colors.tint);
+              setDraftColor(item.color ?? colors.tint);
+              setDraftTitle(item.label);
               setTitleError(null);
             }}
           />

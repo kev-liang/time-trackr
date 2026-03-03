@@ -1,15 +1,21 @@
 import { create } from "zustand";
 
+import { colors } from "@/theme";
+
 type ActivityEditStore = {
   editingEventId: string | null;
   draftStart: Date | undefined;
   draftEnd: Date | undefined;
+  draftColor: string;
+  draftTitle: string;
   previewStart: Date | undefined;
   previewEnd: Date | undefined;
   sheetOpen: boolean;
   hasDraft: boolean;
   setEditingEventId: (id: string | null) => void;
   setDraftTimes: (start: Date | undefined, end: Date | undefined) => void;
+  setDraftColor: (color: string) => void;
+  setDraftTitle: (title: string) => void;
   setPreview: (start: Date, end: Date) => void;
   clearPreview: () => void;
   openSheet: () => void;
@@ -23,6 +29,8 @@ export const useActivityEditStore = create<ActivityEditStore>((set) => ({
   editingEventId: null,
   draftStart: undefined,
   draftEnd: undefined,
+  draftColor: colors.tint,
+  draftTitle: "",
   previewStart: undefined,
   previewEnd: undefined,
   sheetOpen: false,
@@ -31,6 +39,10 @@ export const useActivityEditStore = create<ActivityEditStore>((set) => ({
   setEditingEventId: (id) => set({ editingEventId: id }),
 
   setDraftTimes: (start, end) => set({ draftStart: start, draftEnd: end }),
+
+  setDraftColor: (color) => set({ draftColor: color }),
+
+  setDraftTitle: (title) => set({ draftTitle: title }),
 
   setPreview: (start, end) => set({ previewStart: start, previewEnd: end }),
 
@@ -43,6 +55,8 @@ export const useActivityEditStore = create<ActivityEditStore>((set) => ({
       editingEventId: null,
       draftStart: undefined,
       draftEnd: undefined,
+      draftColor: colors.tint,
+      draftTitle: "",
       previewStart: undefined,
       previewEnd: undefined,
       sheetOpen: false,

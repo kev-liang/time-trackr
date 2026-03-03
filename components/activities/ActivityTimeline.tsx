@@ -59,6 +59,8 @@ function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
   const draftEnd = useActivityEditStore((s) => s.draftEnd);
   const previewStart = useActivityEditStore((s) => s.previewStart);
   const previewEnd = useActivityEditStore((s) => s.previewEnd);
+  const draftColor = useActivityEditStore((s) => s.draftColor);
+  const draftTitle = useActivityEditStore((s) => s.draftTitle);
 
   const existingSelectedEvent: SelectedEventType | undefined = useMemo(() => {
     if (!editingEventId) return undefined;
@@ -80,12 +82,12 @@ function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
     const end = previewEnd ?? draftEnd;
     if (!start || !end) return undefined;
     return {
-      title: "",
+      title: draftTitle,
       start: { dateTime: toLocalDateTimeString(start) },
       end: { dateTime: toLocalDateTimeString(end) },
-      color: colors.tint,
+      color: draftColor,
     };
-  }, [hasDraft, editingEventId, previewStart, previewEnd, draftStart, draftEnd]);
+  }, [hasDraft, editingEventId, previewStart, previewEnd, draftStart, draftEnd, draftColor, draftTitle]);
 
   const selectedEvent = existingSelectedEvent ?? draftSelectedEvent;
 
