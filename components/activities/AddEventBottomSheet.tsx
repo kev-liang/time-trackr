@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
@@ -5,6 +6,7 @@ import type { SharedValue } from "react-native-reanimated";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
+import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
 import { TimePickerModal } from "@/components/ux/TimePickerModal";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
@@ -43,6 +45,7 @@ export function AddEventBottomSheet({
   const activities = useActivityStore((s) => s.activities);
   const addActivity = useActivityStore((s) => s.addActivity);
   const updateActivity = useActivityStore((s) => s.updateActivity);
+  const removeActivity = useActivityStore((s) => s.removeActivity);
 
   const editingEvent = editingEventId
     ? (activities.find((a) => a.id === editingEventId) ?? null)
@@ -56,6 +59,7 @@ export function AddEventBottomSheet({
   const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
   const [resetKey, setResetKey] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (sheetOpen) {
@@ -109,6 +113,18 @@ export function AddEventBottomSheet({
     clearEditing();
     setHasDraft(false);
   }, [clearEditing]);
+
+  const handleDelete = useCallback(() => {
+    setShowDeleteConfirm(true);
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!editingEventId) return;
+    setShowDeleteConfirm(false);
+    removeActivity(editingEventId);
+    bottomSheetRef.current?.dismiss();
+    clearEditing();
+  }, [editingEventId, removeActivity, clearEditing]);
 
   const handleSave = useCallback(() => {
     if (!selectedTitle) {
@@ -186,99 +202,115 @@ export function AddEventBottomSheet({
   const isEditing = !!editingEvent;
 
   return (
-    <BottomSheetModal
-      ref={bottomSheetRef}
-      snapPoints={snapPoints}
-      enablePanDownToClose
-      handleIndicatorStyle={styles.indicator}
-      backgroundStyle={styles.background}
-      onDismiss={clearEditing}
-      animatedPosition={animatedPosition}
-      onAnimate={handleAnimate}
-      keyboardBehavior="fillParent"
-      keyboardBlurBehavior="none"
-    >
-      <BottomSheetView style={styles.content}>
-        <View style={styles.header}>
-          <Pressable onPress={handleDismiss}>
-            <AppText variant="body" color={colors.tint}>
-              Cancel
-            </AppText>
-          </Pressable>
-          <AppText variant="bodySemiBold">
-            {isEditing ? "Edit Event" : "Add Event"}
-          </AppText>
-          <Pressable onPress={handleSave}>
-            <AppText variant="bodySemiBold" color={colors.tint}>
-              Save
-            </AppText>
-          </Pressable>
-        </View>
-        <Pressable style={styles.form} onPress={handleDismissKeyboard}>
-          <AddEventAutocompleteInput
-            value={localTitle}
-            onChangeText={setLocalTitle}
-            onSelect={(item) => {
-              setSelectedTitle(item.label);
-              setSelectedColor(item.color ?? colors.tint);
-              setDraftColor(item.color ?? colors.tint);
-              setDraftTitle(item.label);
-              setTitleError(null);
-            }}
-          />
-          {titleError && (
-            <AppText variant="body" color="#EF4444">
-              {titleError}
-            </AppText>
-          )}
-
-          <View style={styles.timeRow}>
-            <AppText variant="body" color={colors.textSecondary}>
-              Start
-            </AppText>
-            <Pressable
-              style={styles.timeButton}
-              onPress={() => setPickerField("start")}
-            >
-              <AppText variant="bodySemiBold">
-                {formatTimeDisplay(startTime)}
+    <>
+      <BottomSheetModal
+        ref={bottomSheetRef}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        handleIndicatorStyle={styles.indicator}
+        backgroundStyle={styles.background}
+        onDismiss={clearEditing}
+        animatedPosition={animatedPosition}
+        onAnimate={handleAnimate}
+        keyboardBehavior="fillParent"
+        keyboardBlurBehavior="none"
+      >
+        <BottomSheetView style={styles.content}>
+          <View style={styles.header}>
+            <Pressable onPress={handleDismiss}>
+              <AppText variant="body" color={colors.tint}>
+                Cancel
               </AppText>
             </Pressable>
-          </View>
-
-          <View style={styles.timeRow}>
-            <AppText variant="body" color={colors.textSecondary}>
-              End
+            <AppText variant="bodySemiBold">
+              {isEditing ? "Edit Event" : "Add Event"}
             </AppText>
-            <Pressable
-              style={styles.timeButton}
-              onPress={() => setPickerField("end")}
-            >
-              <AppText variant="bodySemiBold">
-                {formatTimeDisplay(endTime)}
-              </AppText>
-            </Pressable>
+            <View style={styles.headerActions}>
+              {isEditing && (
+                <Pressable onPress={handleDelete} hitSlop={8}>
+                  <Ionicons name="trash-outline" size={22} color="#EF4444" />
+                </Pressable>
+              )}
+              <Pressable onPress={handleSave} hitSlop={8}>
+                <Ionicons name="save-outline" size={24} color={colors.tint} />
+              </Pressable>
+            </View>
           </View>
+          <Pressable style={styles.form} onPress={handleDismissKeyboard}>
+            <AddEventAutocompleteInput
+              value={localTitle}
+              onChangeText={setLocalTitle}
+              onSelect={(item) => {
+                setSelectedTitle(item.label);
+                setSelectedColor(item.color ?? colors.tint);
+                setDraftColor(item.color ?? colors.tint);
+                setDraftTitle(item.label);
+                setTitleError(null);
+              }}
+            />
+            {titleError && (
+              <AppText variant="body" color="#EF4444">
+                {titleError}
+              </AppText>
+            )}
 
-          <TimePickerModal
-            visible={pickerField === "start"}
-            title="Start Time"
-            value={startTime}
-            resetKey={resetKey}
-            onChange={handleStartChange}
-            onClose={() => setPickerField(null)}
-          />
-          <TimePickerModal
-            visible={pickerField === "end"}
-            title="End Time"
-            value={endTime}
-            resetKey={resetKey}
-            onChange={handleEndChange}
-            onClose={() => setPickerField(null)}
-          />
-        </Pressable>
-      </BottomSheetView>
-    </BottomSheetModal>
+            <View style={styles.timeRow}>
+              <AppText variant="body" color={colors.textSecondary}>
+                Start
+              </AppText>
+              <Pressable
+                style={styles.timeButton}
+                onPress={() => setPickerField("start")}
+              >
+                <AppText variant="bodySemiBold">
+                  {formatTimeDisplay(startTime)}
+                </AppText>
+              </Pressable>
+            </View>
+
+            <View style={styles.timeRow}>
+              <AppText variant="body" color={colors.textSecondary}>
+                End
+              </AppText>
+              <Pressable
+                style={styles.timeButton}
+                onPress={() => setPickerField("end")}
+              >
+                <AppText variant="bodySemiBold">
+                  {formatTimeDisplay(endTime)}
+                </AppText>
+              </Pressable>
+            </View>
+
+            <TimePickerModal
+              visible={pickerField === "start"}
+              title="Start Time"
+              value={startTime}
+              resetKey={resetKey}
+              onChange={handleStartChange}
+              onClose={() => setPickerField(null)}
+            />
+            <TimePickerModal
+              visible={pickerField === "end"}
+              title="End Time"
+              value={endTime}
+              resetKey={resetKey}
+              onChange={handleEndChange}
+              onClose={() => setPickerField(null)}
+            />
+          </Pressable>
+        </BottomSheetView>
+      </BottomSheetModal>
+
+      <ConfirmationModal
+        visible={showDeleteConfirm}
+        title="Delete Event"
+        body="Are you sure you want to delete this event?"
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
+    </>
   );
 }
 
@@ -316,5 +348,10 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: 8,
+  },
+  headerActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
 });
