@@ -11,12 +11,14 @@ type AddEventAutocompleteInputProps = {
   value: string;
   onChangeText: (text: string) => void;
   onSelect: (item: AutocompleteItem) => void;
+  initialItem?: AutocompleteItem;
 };
 
 export function AddEventAutocompleteInput({
   value,
   onChangeText,
   onSelect,
+  initialItem,
 }: AddEventAutocompleteInputProps) {
   const rawItems = useActivityHistoryStore((s) => s.items);
   const addItem = useActivityHistoryStore((s) => s.addItem);
@@ -47,6 +49,7 @@ export function AddEventAutocompleteInput({
       onCreate={handleCreate}
       placeholder="Add Title"
       TextInputComponent={BottomSheetTextInput}
+      initialItem={initialItem}
     />
   );
 }

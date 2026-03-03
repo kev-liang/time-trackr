@@ -41,6 +41,7 @@ type AutocompleteTextInputProps = {
   placeholder?: string;
   rightComponent?: ReactNode;
   TextInputComponent?: ComponentType<TextInputProps>;
+  initialItem?: AutocompleteItem;
 };
 
 export function AutocompleteTextInput({
@@ -52,6 +53,7 @@ export function AutocompleteTextInput({
   placeholder,
   rightComponent,
   TextInputComponent = TextInput,
+  initialItem,
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
   const [localValue, setLocalValue] = useState(value);
@@ -63,12 +65,24 @@ export function AutocompleteTextInput({
     if (!value) setStagedColor(null);
   }, [value]);
 
+  useEffect(() => {
+    if (initialItem) {
+      setSelectedChips([initialItem]);
+      setLocalValue("");
+    } else {
+      setSelectedChips([]);
+    }
+  }, [initialItem]);
+
   const filtered = useMemo(() => {
     const selectedIds = new Set(selectedChips.map((c) => c.id));
+    const selectedLabels = new Set(selectedChips.map((c) => c.label.toLowerCase()));
     const base = localValue
       ? items.filter((item) => fuzzyMatch(localValue, item.label))
       : items;
-    return base.filter((item) => !selectedIds.has(item.id));
+    return base.filter(
+      (item) => !selectedIds.has(item.id) && !selectedLabels.has(item.label.toLowerCase()),
+    );
   }, [localValue, items, selectedChips]);
 
   const listData = useMemo(() => {

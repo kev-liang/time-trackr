@@ -71,7 +71,7 @@ export function AddEventBottomSheet({
   // sheetOpen in deps ensures the title clears when the sheet is re-opened for creation.
   useEffect(() => {
     if (editingEvent) {
-      setLocalTitle(editingEvent.title);
+      setLocalTitle("");
       setSelectedTitle(editingEvent.title);
       setSelectedColor(editingEvent.color);
     } else {
@@ -201,6 +201,14 @@ export function AddEventBottomSheet({
 
   const isEditing = !!editingEvent;
 
+  const initialItem = useMemo(
+    () =>
+      editingEvent
+        ? { id: editingEventId!, label: editingEvent.title, color: editingEvent.color }
+        : undefined,
+    [editingEventId],
+  );
+
   return (
     <>
       <BottomSheetModal
@@ -240,6 +248,7 @@ export function AddEventBottomSheet({
             <AddEventAutocompleteInput
               value={localTitle}
               onChangeText={setLocalTitle}
+              initialItem={initialItem}
               onSelect={(item) => {
                 setSelectedTitle(item.label);
                 setSelectedColor(item.color ?? colors.tint);
