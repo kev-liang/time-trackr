@@ -14,9 +14,11 @@ import { colors, spacing } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 function formatTimeDisplay(date: Date): string {
-  const h = date.getHours().toString().padStart(2, "0");
+  const h = date.getHours();
   const m = date.getMinutes().toString().padStart(2, "0");
-  return `${h}:${m}`;
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${h12}:${m} ${period}`;
 }
 
 interface AddEventBottomSheetProps {
@@ -378,7 +380,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   timeButton: {
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: 8,

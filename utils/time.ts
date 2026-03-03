@@ -9,7 +9,7 @@ export function toLocalDateTimeString(date: Date): string {
   return moment(date).format("YYYY-MM-DDTHH:mm:00");
 }
 
-/** Turn a local datetime string into "HH.mm" for display */
+/** Turn a local datetime string into "h:mm A" for display */
 export function formatTime(dateString: string): string {
-  return moment(dateString).format("HH.mm");
+  return moment(dateString).format("h:mm A");
 }

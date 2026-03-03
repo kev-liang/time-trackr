@@ -258,6 +258,7 @@ function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
       <CalendarHeader />
       <CalendarBody
         showNowIndicator
+        hourFormat="h A"
         renderEvent={renderEvent}
         renderDraggableEvent={renderDraggableEvent}
         renderDraggingEvent={renderDraggingEvent}

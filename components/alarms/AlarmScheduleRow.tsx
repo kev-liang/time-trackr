@@ -21,6 +21,13 @@ function dateToTime(date: Date): string {
   return `${h}:${m}`;
 }
 
+function formatTimeDisplay(time: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const period = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 || 12;
+  return `${h12}:${m.toString().padStart(2, "0")} ${period}`;
+}
+
 type AlarmScheduleRowProps = {
   day: Weekday;
 };
@@ -74,7 +81,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
             variant="body"
             color={schedule.active ? colors.text : colors.textSecondary}
           >
-            {schedule.startTime}
+            {formatTimeDisplay(schedule.startTime)}
           </AppText>
         </Pressable>
         <AppText variant="body" color={colors.textSecondary}>
@@ -92,7 +99,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
             variant="body"
             color={schedule.active ? colors.text : colors.textSecondary}
           >
-            {schedule.endTime}
+            {formatTimeDisplay(schedule.endTime)}
           </AppText>
         </Pressable>
       </View>
