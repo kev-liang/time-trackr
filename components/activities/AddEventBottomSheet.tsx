@@ -7,7 +7,7 @@ import type { SharedValue } from "react-native-reanimated";
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
-import { TimePickerModal } from "@/components/ux/TimePickerModal";
+import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
@@ -28,7 +28,7 @@ export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
-  const snapPoints = useMemo(() => [300], []);
+  const snapPoints = useMemo(() => [300, 560], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
@@ -96,6 +96,14 @@ export function AddEventBottomSheet({
     }
     setResetKey((k) => k + 1);
   }, [editingEvent, draftStart, draftEnd]);
+
+  useEffect(() => {
+    if (pickerField !== null) {
+      bottomSheetRef.current?.snapToIndex(1);
+    } else {
+      bottomSheetRef.current?.snapToIndex(0);
+    }
+  }, [pickerField]);
 
   useEffect(() => {
     const sub = Keyboard.addListener("keyboardDidHide", () => {
@@ -291,23 +299,27 @@ export function AddEventBottomSheet({
               </Pressable>
             </View>
 
-            <TimePickerModal
-              visible={pickerField === "start"}
-              title="Start Time"
-              value={startTime}
-              resetKey={resetKey}
-              onChange={handleStartChange}
-              onClose={() => setPickerField(null)}
-            />
-            <TimePickerModal
-              visible={pickerField === "end"}
-              title="End Time"
-              value={endTime}
-              resetKey={resetKey}
-              onChange={handleEndChange}
-              onClose={() => setPickerField(null)}
-            />
           </Pressable>
+          {pickerField && (
+            <View style={styles.inlinePicker}>
+              <View style={styles.inlinePickerHeader}>
+                <AppText variant="bodySemiBold">
+                  {pickerField === "start" ? "Start Time" : "End Time"}
+                </AppText>
+                <Pressable onPress={() => setPickerField(null)} hitSlop={12}>
+                  <AppText variant="bodySemiBold" color={colors.tint}>
+                    Done
+                  </AppText>
+                </Pressable>
+              </View>
+              <TimeSpinnerPicker
+                key={`${pickerField}-${resetKey}`}
+                value={pickerField === "start" ? startTime : endTime}
+                minuteInterval={5}
+                onChange={pickerField === "start" ? handleStartChange : handleEndChange}
+              />
+            </View>
+          )}
         </BottomSheetView>
       </BottomSheetModal>
 
@@ -362,5 +374,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+  },
+  inlinePicker: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    paddingTop: spacing.md,
+    gap: spacing.sm,
+  },
+  inlinePickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 });
