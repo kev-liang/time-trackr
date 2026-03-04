@@ -2,6 +2,8 @@ import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { analytics } from "@/lib/analytics";
+
 export type Weekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun";
 
 export type DaySchedule = {
@@ -60,13 +62,25 @@ export const useAlarmStore = create<AlarmState & AlarmActions>()(
       frequencyUnit: "minutes",
       schedule: defaultSchedule,
 
-      setEnabled: (enabled) => set({ enabled }),
+      setEnabled: (enabled) => {
+        set({ enabled });
+        analytics.capture("alarm_toggled", { enabled });
+      },
 
-      muteUntil: (until) => set({ mutedUntil: until }),
+      muteUntil: (until) => {
+        set({ mutedUntil: until });
+        if (until) analytics.capture("alarm_muted");
+      },
 
-      setFrequencyValue: (value) => set({ frequency: value }),
+      setFrequencyValue: (value) => {
+        set({ frequency: value });
+        analytics.capture("alarm_frequency_changed", { value, unit: get().frequencyUnit });
+      },
 
-      setFrequencyUnit: (unit) => set({ frequencyUnit: unit }),
+      setFrequencyUnit: (unit) => {
+        set({ frequencyUnit: unit });
+        analytics.capture("alarm_frequency_changed", { value: get().frequency, unit });
+      },
 
       toggleDay: (day) =>
         set((state) => ({

@@ -27,6 +27,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   loadActivities: async () => {
     const activities = await api.fetchActivities();
     set({ activities });
+    analytics.capture("activities_loaded", { count: activities.length });
   },
 
   addActivity: async (activity) => {
