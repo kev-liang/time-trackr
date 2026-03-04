@@ -5,7 +5,7 @@ import { colors, spacing, textStyles } from "@/theme";
 export function EmptyInsights() {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>No activities logged today</Text>
+      <Text style={styles.text}>No activities logged</Text>
     </View>
   );
 }
