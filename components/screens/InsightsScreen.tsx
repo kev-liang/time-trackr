@@ -7,6 +7,7 @@ import { EmptyInsights } from "@/components/insights/EmptyInsights";
 import { HourlyBarChart } from "@/components/insights/HourlyBarChart";
 import { InsightList } from "@/components/insights/InsightList";
 import { PeriodToggle, type Period } from "@/components/insights/PeriodToggle";
+import { Card } from "@/components/ux/Card";
 import {
   buildActivityTotals,
   buildHourSlots,
@@ -77,9 +78,9 @@ export function InsightsScreen() {
             <>
               <HourlyBarChart slots={hourSlots} />
 
-              <Text style={styles.sectionHeading}>Activities</Text>
-
-              <InsightList items={activityTotals} />
+              <Card title="Activities">
+                <InsightList items={activityTotals} />
+              </Card>
             </>
           )}
         </ScrollView>
@@ -105,9 +106,5 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  sectionHeading: {
-    ...textStyles.subtitle,
-    color: colors.text,
   },
 });
