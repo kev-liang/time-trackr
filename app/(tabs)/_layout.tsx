@@ -20,6 +20,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="insights"
+        options={{
+          title: 'Insights',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="chart.bar" color={color} />,
+        }}
+      />
+      <Tabs.Screen
         name="alarms"
         options={{
           title: 'Notifications',

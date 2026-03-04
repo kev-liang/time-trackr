@@ -25,6 +25,7 @@ const MAPPING = {
   'person': 'person-outline',
   'person.fill': 'person',
   'clock': 'schedule',
+  'chart.bar': 'bar-chart',
 } as IconMapping;
 
 /**
