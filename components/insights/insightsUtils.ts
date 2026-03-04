@@ -3,6 +3,7 @@ import { durationMinutes } from "@/utils/activityTime";
 
 export type Segment = { color: string; minutes: number };
 export type HourSlot = { hour: number; segments: Segment[] };
+export type DaySlot = { dayIndex: number; dayLabel: string; segments: Segment[] };
 export type ActivityTotal = { title: string; color: string; minutes: number };
 
 export function formatDuration(minutes: number): string {
@@ -61,6 +62,61 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
   for (let slot in slots) {
     console.log(slot, slots[slot]);
   }
+  return slots;
+}
+
+export function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun, 1=Mon ... 6=Sat
+  const diff = day === 0 ? -6 : 1 - day; // shift to Monday
+  d.setDate(d.getDate() + diff);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+export function formatWeekTitle(weekStart: Date): string {
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  const startMonth = weekStart.toLocaleDateString("en-US", { month: "short" });
+  const endMonth = weekEnd.toLocaleDateString("en-US", { month: "short" });
+  const startDay = weekStart.getDate();
+  const endDay = weekEnd.getDate();
+  if (startMonth === endMonth) {
+    return `${startMonth} ${startDay}–${endDay}`;
+  }
+  return `${startMonth} ${startDay}–${endMonth} ${endDay}`;
+}
+
+export function buildDaySlots(weekStart: Date, activities: Activity[]): DaySlot[] {
+  const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const slots: DaySlot[] = Array.from({ length: 7 }, (_, i) => ({
+    dayIndex: i,
+    dayLabel: DAY_LABELS[i],
+    segments: [],
+  }));
+
+  const weekStartMs = new Date(weekStart).setHours(0, 0, 0, 0);
+
+  for (const activity of activities) {
+    const actStart = new Date(activity.start);
+    actStart.setHours(0, 0, 0, 0);
+    const dayIndex = Math.round((actStart.getTime() - weekStartMs) / (24 * 60 * 60 * 1000));
+    if (dayIndex < 0 || dayIndex > 6) continue;
+
+    const minutes = durationMinutes(activity.start, activity.end);
+    const slot = slots[dayIndex];
+    const existing = slot.segments.find((s) => s.color === activity.color);
+    if (existing) {
+      existing.minutes += minutes;
+    } else {
+      slot.segments.push({ color: activity.color, minutes });
+    }
+  }
+
+  for (const slot of slots) {
+    slot.segments.sort((a, b) => b.minutes - a.minutes);
+  }
+
   return slots;
 }
 

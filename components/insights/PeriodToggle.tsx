@@ -20,9 +20,12 @@ export function PeriodToggle({ value, onChange }: Props) {
           Day
         </Text>
       </Pressable>
-      <View style={[styles.pill, styles.pillDisabled]}>
-        <Text style={[styles.text, styles.textDisabled]}>Week</Text>
-      </View>
+      <Pressable
+        style={[styles.pill, value === "week" && styles.pillActive]}
+        onPress={() => onChange("week")}
+      >
+        <Text style={[styles.text, value === "week" && styles.textActive]}>Week</Text>
+      </Pressable>
     </View>
   );
 }
@@ -48,17 +51,11 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  pillDisabled: {
-    opacity: 0.4,
-  },
   text: {
     ...textStyles.bodySemiBold,
     color: colors.textSecondary,
   },
   textActive: {
     color: colors.text,
-  },
-  textDisabled: {
-    color: colors.textSecondary,
   },
 });
