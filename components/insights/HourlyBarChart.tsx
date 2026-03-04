@@ -33,6 +33,9 @@ export function HourlyBarChart({ slots }: Props) {
                   style={[styles.barWrapper, { width: BAR_WIDTH, marginRight: BAR_GAP }]}
                 >
                   <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
+                    {slot.hour % 3 === 0 && (
+                      <View style={styles.tickLine} />
+                    )}
                     <View style={[styles.bar, { height: barHeight }]}>
                       {[...slot.segments].reverse().map((seg, i) => {
                         const segHeight = (seg.minutes / 60) * BAR_MAX_HEIGHT;
@@ -83,6 +86,14 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     flexDirection: "column",
     justifyContent: "flex-end",
+  },
+  tickLine: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: 1,
+    height: BAR_MAX_HEIGHT,
+    backgroundColor: colors.border,
   },
   label: {
     ...textStyles.caption,

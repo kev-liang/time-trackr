@@ -13,6 +13,21 @@ export function formatDuration(minutes: number): string {
   return `${h}h ${m}m`;
 }
 
+export function formatDateTitle(date: Date): string {
+  const weekday = date.toLocaleDateString("en-US", { weekday: "short" });
+  const month = date.toLocaleDateString("en-US", { month: "short" });
+  const day = date.getDate();
+  const suffix =
+    day % 10 === 1 && day !== 11
+      ? "st"
+      : day % 10 === 2 && day !== 12
+        ? "nd"
+        : day % 10 === 3 && day !== 13
+          ? "rd"
+          : "th";
+  return `${weekday}, ${month} ${day}${suffix}`;
+}
+
 export function formatHourLabel(hour: number): string {
   if (hour === 0) return "12A";
   if (hour < 12) return `${hour}A`;

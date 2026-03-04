@@ -9,7 +9,7 @@ import { PeriodToggle, type Period } from "@/components/insights/PeriodToggle";
 import {
   buildActivityTotals,
   buildHourSlots,
-  formatDuration,
+  formatDateTitle,
 } from "@/components/insights/insightsUtils";
 import { ThemedView } from "@/components/themed-view";
 import { useActivityStore } from "@/stores/useActivityStore";
@@ -36,11 +36,6 @@ export function InsightsScreen() {
     [todayActivities],
   );
 
-  const totalMinutes = useMemo(
-    () => activityTotals.reduce((s, a) => s + a.minutes, 0),
-    [activityTotals],
-  );
-
   const isEmpty = todayActivities.length === 0;
 
   return (
@@ -52,15 +47,12 @@ export function InsightsScreen() {
         >
           <PeriodToggle value={period} onChange={setPeriod} />
 
+          <Text style={styles.dateTitle}>{formatDateTitle(new Date())}</Text>
+
           {isEmpty ? (
             <EmptyInsights />
           ) : (
             <>
-              <View style={styles.heroRow}>
-                <Text style={styles.heroTime}>{formatDuration(totalMinutes)}</Text>
-                <Text style={styles.heroLabel}>Today</Text>
-              </View>
-
               <HourlyBarChart slots={hourSlots} />
 
               <View style={styles.divider} />
@@ -83,16 +75,9 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xl,
     gap: spacing.lg,
   },
-  heroRow: {
-    gap: 2,
-  },
-  heroTime: {
+  dateTitle: {
     ...textStyles.title,
     color: colors.text,
-  },
-  heroLabel: {
-    ...textStyles.body,
-    color: colors.textSecondary,
   },
   divider: {
     height: 1,
