@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { EmptyInsights } from "@/components/insights/EmptyInsights";
 import { HourlyBarChart } from "@/components/insights/HourlyBarChart";
 import { InsightList } from "@/components/insights/InsightList";
 import { PeriodToggle, type Period } from "@/components/insights/PeriodToggle";
@@ -52,9 +53,7 @@ export function InsightsScreen() {
           <PeriodToggle value={period} onChange={setPeriod} />
 
           {isEmpty ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyText}>No activities logged today</Text>
-            </View>
+            <EmptyInsights />
           ) : (
             <>
               <View style={styles.heroRow}>
@@ -98,13 +97,5 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: colors.border,
-  },
-  emptyState: {
-    alignItems: "center",
-    marginTop: spacing.xxl,
-  },
-  emptyText: {
-    ...textStyles.body,
-    color: colors.textSecondary,
   },
 });

@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 import { analytics } from "@/lib/analytics";
 import * as api from "@/lib/supabase-activities";
+import { durationMinutes } from "@/utils/activityTime";
 
 export type Activity = {
   id: string;
@@ -33,10 +34,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   addActivity: async (activity) => {
     const created = await api.insertActivity(activity);
     set((state) => ({ activities: [...state.activities, created] }));
-    const durationMinutes = Math.round(
-      (new Date(activity.end).getTime() - new Date(activity.start).getTime()) / 60000,
-    );
-    analytics.capture("activity_created", { duration_minutes: durationMinutes, color: activity.color });
+    analytics.capture("activity_created", { duration_minutes: Math.round(durationMinutes(activity.start, activity.end)), color: activity.color });
   },
 
   removeActivity: async (id) => {

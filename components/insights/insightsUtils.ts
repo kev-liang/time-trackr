@@ -1,4 +1,5 @@
 import type { Activity } from "@/stores/useActivityStore";
+import { durationMinutes } from "@/utils/activityTime";
 
 export type Segment = { color: string; minutes: number };
 export type HourSlot = { hour: number; segments: Segment[] };
@@ -49,8 +50,7 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
 export function buildActivityTotals(activities: Activity[]): ActivityTotal[] {
   const map = new Map<string, ActivityTotal>();
   for (const a of activities) {
-    const minutes =
-      (new Date(a.end).getTime() - new Date(a.start).getTime()) / 60000;
+    const minutes = durationMinutes(a.start, a.end);
     const existing = map.get(a.title);
     if (existing) {
       existing.minutes += minutes;
