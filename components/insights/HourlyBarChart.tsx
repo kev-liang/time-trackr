@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
 import { colors, spacing, textStyles } from "@/theme";
@@ -14,26 +13,12 @@ type Props = {
 };
 
 export function HourlyBarChart({ slots }: Props) {
-  const activeSlots = useMemo(() => {
-    const first = slots.findIndex((s) => s.segments.length > 0);
-    const last = slots.reduce(
-      (acc, s, i) => (s.segments.length > 0 ? i : acc),
-      -1,
-    );
-    if (first === -1) return [];
-    const from = Math.max(0, first - 1);
-    const to = Math.min(23, last + 1);
-    return slots.slice(from, to + 1);
-  }, [slots]);
-
-  if (activeSlots.length === 0) return null;
-
   return (
     <View style={styles.container}>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View style={styles.inner}>
           <View style={styles.barsRow}>
-            {activeSlots.map((slot) => {
+            {slots.map((slot) => {
               const totalMinutes = slot.segments.reduce(
                 (s, seg) => s + seg.minutes,
                 0,
@@ -61,7 +46,7 @@ export function HourlyBarChart({ slots }: Props) {
                     </View>
                   </View>
                   <Text style={styles.label}>
-                    {slot.hour % 3 === 0 ? formatHourLabel(slot.hour) : ""}
+                    {slot.hour % 6 === 0 ? formatHourLabel(slot.hour) : ""}
                   </Text>
                 </View>
               );
@@ -90,6 +75,7 @@ const styles = StyleSheet.create({
   },
   barContainer: {
     justifyContent: "flex-end",
+    width: "100%",
   },
   bar: {
     width: "100%",

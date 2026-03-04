@@ -43,7 +43,9 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
       }
     }
   }
-
+  for (let slot in slots) {
+    console.log(slot, slots[slot]);
+  }
   return slots;
 }
 
