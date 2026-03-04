@@ -77,7 +77,7 @@ export function InsightsScreen() {
             <>
               <HourlyBarChart slots={hourSlots} />
 
-              <View style={styles.divider} />
+              <Text style={styles.sectionHeading}>Activities</Text>
 
               <InsightList items={activityTotals} />
             </>
@@ -106,8 +106,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
+  sectionHeading: {
+    ...textStyles.subtitle,
+    color: colors.text,
   },
 });

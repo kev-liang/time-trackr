@@ -4,7 +4,7 @@ import { colors, textStyles } from "@/theme";
 
 import { formatHourLabel, type HourSlot } from "./insightsUtils";
 
-const BAR_MAX_HEIGHT = 80;
+const BAR_MAX_HEIGHT = 120;
 const BAR_WIDTH = 14;
 const BAR_GAP = 3;
 
@@ -98,6 +98,6 @@ const styles = StyleSheet.create({
     ...textStyles.caption,
     color: colors.textSecondary,
     textAlign: "center",
-    fontSize: 8,
+    fontSize: 10,
   },
 });

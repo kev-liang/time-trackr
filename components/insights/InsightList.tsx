@@ -32,9 +32,9 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 3,
+    height: 20,
+    borderRadius: 2,
   },
   title: {
     ...textStyles.body,
