@@ -1,5 +1,6 @@
 import { create } from "zustand";
 
+import { analytics } from "@/lib/analytics";
 import * as api from "@/lib/supabase-activities";
 
 export type Activity = {
@@ -31,6 +32,10 @@ export const useActivityStore = create<ActivityStore>((set) => ({
   addActivity: async (activity) => {
     const created = await api.insertActivity(activity);
     set((state) => ({ activities: [...state.activities, created] }));
+    const durationMinutes = Math.round(
+      (new Date(activity.end).getTime() - new Date(activity.start).getTime()) / 60000,
+    );
+    analytics.capture("activity_created", { duration_minutes: durationMinutes, color: activity.color });
   },
 
   removeActivity: async (id) => {
@@ -38,6 +43,7 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     set((state) => ({
       activities: state.activities.filter((a) => a.id !== id),
     }));
+    analytics.capture("activity_deleted");
   },
 
   updateActivity: async (id, updates) => {
@@ -47,5 +53,6 @@ export const useActivityStore = create<ActivityStore>((set) => ({
         a.id === id ? { ...a, ...updates } : a,
       ),
     }));
+    analytics.capture("activity_updated", { fields_changed: Object.keys(updates) });
   },
 }));

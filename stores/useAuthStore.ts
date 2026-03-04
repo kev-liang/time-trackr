@@ -1,6 +1,7 @@
 import type { Session } from "@supabase/supabase-js";
 import { create } from "zustand";
 
+import { analytics } from "@/lib/analytics";
 import {
   getSession,
   onAuthStateChange,
@@ -30,6 +31,7 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     getSession().then(async (session) => {
       if (!session) {
         await signInAnonymously();
+        analytics.capture("auth_signed_in", { method: "anonymous" });
       } else {
         set({ session, loading: false });
       }
@@ -37,6 +39,11 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
     const subscription = onAuthStateChange((session) => {
       set({ session, loading: false });
+      if (session) {
+        analytics.identify(session.user.id, {
+          is_anonymous: session.user.is_anonymous ?? true,
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -44,13 +51,16 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
 
   signInWithApple: async () => {
     await appleSignIn();
+    analytics.capture("auth_signed_in", { method: "apple" });
   },
 
   signInWithGoogle: async (idToken: string) => {
     await googleSignIn(idToken);
+    analytics.capture("auth_signed_in", { method: "google" });
   },
 
   signOut: async () => {
+    analytics.capture("auth_signed_out");
     await authSignOut();
     set({ session: null });
   },
