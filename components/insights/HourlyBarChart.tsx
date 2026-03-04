@@ -1,6 +1,6 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
-import { colors, spacing, textStyles } from "@/theme";
+import { colors, textStyles } from "@/theme";
 
 import { formatHourLabel, type HourSlot } from "./insightsUtils";
 
@@ -14,75 +14,74 @@ type Props = {
 
 export function HourlyBarChart({ slots }: Props) {
   return (
-    <View style={styles.container}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View style={styles.inner}>
-          <View style={styles.barsRow}>
-            {slots.map((slot) => {
-              const totalMinutes = slot.segments.reduce(
-                (s, seg) => s + seg.minutes,
-                0,
-              );
-              const barHeight = Math.min(
-                (totalMinutes / 60) * BAR_MAX_HEIGHT,
-                BAR_MAX_HEIGHT,
-              );
-              return (
-                <View
-                  key={slot.hour}
-                  style={[styles.barWrapper, { width: BAR_WIDTH, marginRight: BAR_GAP }]}
-                >
-                  <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
-                    {slot.hour % 3 === 0 && (
-                      <View style={styles.tickLine} />
-                    )}
-                    <View style={[styles.bar, { height: barHeight }]}>
-                      {[...slot.segments].reverse().map((seg, i) => {
-                        const segHeight = (seg.minutes / 60) * BAR_MAX_HEIGHT;
-                        return (
-                          <View
-                            key={i}
-                            style={{ height: segHeight, backgroundColor: seg.color, width: "100%" }}
-                          />
-                        );
-                      })}
-                    </View>
-                  </View>
-                  <Text style={styles.label}>
-                    {slot.hour % 6 === 0 ? formatHourLabel(slot.hour) : ""}
-                  </Text>
+    <View>
+      <View style={styles.barsRow}>
+        {slots.map((slot) => {
+          const totalMinutes = slot.segments.reduce(
+            (s, seg) => s + seg.minutes,
+            0,
+          );
+          const barHeight = Math.min(
+            (totalMinutes / 60) * BAR_MAX_HEIGHT,
+            BAR_MAX_HEIGHT,
+          );
+          return (
+            <View key={slot.hour} style={styles.barWrapper}>
+              <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
+                {slot.hour % 3 === 0 && (
+                  <View style={styles.tickLine} />
+                )}
+                <View style={[styles.bar, { height: barHeight }]}>
+                  {[...slot.segments].reverse().map((seg, i) => {
+                    const segHeight = (seg.minutes / 60) * BAR_MAX_HEIGHT;
+                    return (
+                      <View
+                        key={i}
+                        style={{ height: segHeight, backgroundColor: seg.color, width: "100%" }}
+                      />
+                    );
+                  })}
                 </View>
-              );
-            })}
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
+      <View style={styles.labelsRow}>
+        {slots.map((slot) => (
+          <View key={slot.hour} style={styles.barWrapper}>
+            <Text style={styles.label}>
+              {slot.hour % 6 === 0 ? formatHourLabel(slot.hour) : ""}
+            </Text>
           </View>
-        </View>
-      </ScrollView>
+        ))}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginHorizontal: -spacing.md,
-    paddingHorizontal: spacing.md,
-  },
-  inner: {
-    paddingRight: spacing.md,
-  },
   barsRow: {
     flexDirection: "row",
     alignItems: "flex-end",
+    gap: BAR_GAP,
+  },
+  labelsRow: {
+    flexDirection: "row",
+    marginTop: 4,
   },
   barWrapper: {
+    flex: 1,
     alignItems: "center",
   },
   barContainer: {
     justifyContent: "flex-end",
-    width: "100%",
+    width: BAR_WIDTH,
   },
   bar: {
-    width: "100%",
-    borderRadius: 3,
+    width: BAR_WIDTH,
+    borderRadius: 2,
     overflow: "hidden",
     flexDirection: "column",
     justifyContent: "flex-end",
@@ -98,9 +97,7 @@ const styles = StyleSheet.create({
   label: {
     ...textStyles.caption,
     color: colors.textSecondary,
-    marginTop: 4,
     textAlign: "center",
-    width: BAR_WIDTH + 10,
-    marginLeft: -5,
+    fontSize: 8,
   },
 });
