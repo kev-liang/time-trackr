@@ -28,6 +28,7 @@ import { toLocalDateTimeString } from "@/utils/time";
 
 export type ActivityTimelineHandle = {
   goToToday: () => void;
+  getSizeByDuration: (minutes: number) => { height: number } | undefined;
 };
 
 type Props = {
@@ -50,6 +51,8 @@ function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
       const hour = now.getHours() + now.getMinutes() / 60;
       calendarRef.current?.goToHour(Math.max(0, hour), true);
     },
+    getSizeByDuration: (minutes: number) =>
+      calendarRef.current?.getSizeByDuration(minutes),
   }));
   const [pickerOpen, setPickerOpen] = useState(false);
 

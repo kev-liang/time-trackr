@@ -296,7 +296,7 @@ export function AddEventBottomSheet({
                   setPickerField(pickerField === "start" ? null : "start")
                 }
               >
-                <AppText variant="bodySemiBold">
+                <AppText variant="bodySemiBold" color={timeError ? "#EF4444" : undefined}>
                   {formatTimeDisplay(startTime)}
                 </AppText>
               </Pressable>
@@ -326,7 +326,7 @@ export function AddEventBottomSheet({
                   setPickerField(pickerField === "end" ? null : "end")
                 }
               >
-                <AppText variant="bodySemiBold">
+                <AppText variant="bodySemiBold" color={timeError ? "#EF4444" : undefined}>
                   {formatTimeDisplay(endTime)}
                 </AppText>
               </Pressable>
