@@ -6,8 +6,8 @@ import {
   getSession,
   onAuthStateChange,
   signInAnonymously,
-  signInWithApple as appleSignIn,
-  signInWithGoogle as googleSignIn,
+  // signInWithApple as appleSignIn,
+  // signInWithGoogle as googleSignIn,
   signOut as authSignOut,
 } from "@/lib/supabase-auth";
 
@@ -18,8 +18,8 @@ type AuthState = {
 
 type AuthActions = {
   initialize: () => () => void;
-  signInWithApple: () => Promise<void>;
-  signInWithGoogle: (idToken: string) => Promise<void>;
+  // signInWithApple: () => Promise<void>;
+  // signInWithGoogle: (idToken: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -49,15 +49,15 @@ export const useAuthStore = create<AuthState & AuthActions>((set) => ({
     return () => subscription.unsubscribe();
   },
 
-  signInWithApple: async () => {
-    await appleSignIn();
-    analytics.capture("auth_signed_in", { method: "apple" });
-  },
+  // signInWithApple: async () => {
+  // 	await appleSignIn();
+  // 	analytics.capture("auth_signed_in", { method: "apple" });
+  // },
 
-  signInWithGoogle: async (idToken: string) => {
-    await googleSignIn(idToken);
-    analytics.capture("auth_signed_in", { method: "google" });
-  },
+  // signInWithGoogle: async (idToken: string) => {
+  // 	await googleSignIn(idToken);
+  // 	analytics.capture("auth_signed_in", { method: "google" });
+  // },
 
   signOut: async () => {
     analytics.capture("auth_signed_out");

@@ -1,46 +1,49 @@
-import * as AppleAuthentication from "expo-apple-authentication";
-import * as Crypto from "expo-crypto";
+// import * as AppleAuthentication from "expo-apple-authentication";
+// import * as Crypto from "expo-crypto";
 
 import { supabase } from "@/lib/supabase";
 
-export async function signInWithApple() {
-  const nonce = Math.random().toString(36).substring(2, 10);
-  const hashedNonce = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    nonce,
-  );
+// NOTE: When re-enabling account logins, use supabase.auth.linkIdentity() instead
+// of signInWithIdToken so anonymous user data is preserved under the same user ID.
 
-  const credential = await AppleAuthentication.signInAsync({
-    requestedScopes: [
-      AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
-      AppleAuthentication.AppleAuthenticationScope.EMAIL,
-    ],
-    nonce: hashedNonce,
-  });
+// export async function signInWithApple() {
+// 	const nonce = Math.random().toString(36).substring(2, 10);
+// 	const hashedNonce = await Crypto.digestStringAsync(
+// 		Crypto.CryptoDigestAlgorithm.SHA256,
+// 		nonce,
+// 	);
+//
+// 	const credential = await AppleAuthentication.signInAsync({
+// 		requestedScopes: [
+// 			AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+// 			AppleAuthentication.AppleAuthenticationScope.EMAIL,
+// 		],
+// 		nonce: hashedNonce,
+// 	});
+//
+// 	if (!credential.identityToken) {
+// 		throw new Error("No identity token returned from Apple");
+// 	}
+//
+// 	const { data, error } = await supabase.auth.signInWithIdToken({
+// 		provider: "apple",
+// 		token: credential.identityToken,
+// 		nonce,
+// 	});
+//
+// 	if (error) throw error;
+// 	return data;
+// }
 
-  if (!credential.identityToken) {
-    throw new Error("No identity token returned from Apple");
-  }
-
-  const { data, error } = await supabase.auth.signInWithIdToken({
-    provider: "apple",
-    token: credential.identityToken,
-    nonce,
-  });
-
-  if (error) throw error;
-  return data;
-}
-
-export async function signInWithGoogle(idToken: string) {
-  const { data, error } = await supabase.auth.signInWithIdToken({
-    provider: "google",
-    token: idToken,
-  });
-
-  if (error) throw error;
-  return data;
-}
+// export async function signInWithGoogle(idToken: string) {
+// 	const { data, error } = await supabase.auth.signInWithIdToken({
+// 		provider: "google",
+// 		token: idToken,
+// 	});
+//
+// 	if (error) throw error;
+// 	return data;
+// }
 
 export async function signInAnonymously() {
   const { data, error } = await supabase.auth.signInAnonymously();
