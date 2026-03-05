@@ -16,7 +16,6 @@ import {
 } from "@/components/activities/ActivityTimeline";
 import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet";
 import { AddEventFAB } from "@/components/activities/AddEventFab";
-import { CalendarEmptyState } from "@/components/activities/CalendarEmptyState";
 import { TodayFAB } from "@/components/activities/TodayFAB";
 import { ThemedView } from "@/components/themed-view";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
@@ -37,7 +36,6 @@ export function ActivityScreen() {
   }, [loadActivities]);
 
   const timelineRef = useRef<ActivityTimelineHandle>(null);
-  const [emptyStateDismissed, setEmptyStateDismissed] = useState(false);
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
   const isToday = selectedDate === today;
@@ -63,7 +61,7 @@ export function ActivityScreen() {
   const nowCardTop = useMemo(() => {
     const hourHeight = timelineRef.current?.getSizeByDuration(60)?.height ?? 60;
     return CALENDAR_HEADER_HEIGHT + (new Date().getMinutes() / 60) * hourHeight;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timelineHeight.value]);
 
   const handlePositionsCalculated = useCallback(
@@ -106,12 +104,6 @@ export function ActivityScreen() {
               sheetSnapHeight={300}
               onDateChanged={setSelectedDate}
             />
-            {activities.length === 0 && !emptyStateDismissed && (
-              <CalendarEmptyState
-                style={{ top: nowCardTop }}
-                onDismiss={() => setEmptyStateDismissed(true)}
-              />
-            )}
           </Animated.View>
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
           <AddEventFAB onPress={handleOpen} />
