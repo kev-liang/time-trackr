@@ -3,7 +3,11 @@ import { durationMinutes } from "@/utils/activityTime";
 
 export type Segment = { color: string; minutes: number };
 export type HourSlot = { hour: number; segments: Segment[] };
-export type DaySlot = { dayIndex: number; dayLabel: string; segments: Segment[] };
+export type DaySlot = {
+  dayIndex: number;
+  dayLabel: string;
+  segments: Segment[];
+};
 export type ActivityTotal = { title: string; color: string; minutes: number };
 
 export function formatDuration(minutes: number): string {
@@ -59,9 +63,6 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
       }
     }
   }
-  for (let slot in slots) {
-    console.log(slot, slots[slot]);
-  }
   return slots;
 }
 
@@ -87,7 +88,10 @@ export function formatWeekTitle(weekStart: Date): string {
   return `${startMonth} ${startDay}–${endMonth} ${endDay}`;
 }
 
-export function buildDaySlots(weekStart: Date, activities: Activity[]): DaySlot[] {
+export function buildDaySlots(
+  weekStart: Date,
+  activities: Activity[],
+): DaySlot[] {
   const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   const slots: DaySlot[] = Array.from({ length: 7 }, (_, i) => ({
     dayIndex: i,
@@ -100,7 +104,9 @@ export function buildDaySlots(weekStart: Date, activities: Activity[]): DaySlot[
   for (const activity of activities) {
     const actStart = new Date(activity.start);
     actStart.setHours(0, 0, 0, 0);
-    const dayIndex = Math.round((actStart.getTime() - weekStartMs) / (24 * 60 * 60 * 1000));
+    const dayIndex = Math.round(
+      (actStart.getTime() - weekStartMs) / (24 * 60 * 60 * 1000),
+    );
     if (dayIndex < 0 || dayIndex > 6) continue;
 
     const minutes = durationMinutes(activity.start, activity.end);
