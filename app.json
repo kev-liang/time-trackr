@@ -1,20 +1,20 @@
 {
   "expo": {
-    "name": "TimeTrackr",
+    "name": "TimeTracer",
     "slug": "time-trackr",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "timetrackr",
+    "scheme": "timetracer",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kliang.timetrackr",
+      "bundleIdentifier": "com.kliang.timetracer",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
-        "NSUserNotificationUsageDescription": "TimeTrackr uses notifications to remind you to log your activities.",
-        "NSCalendarsUsageDescription": "TimeTrackr uses the calendar to display your activity timeline.",
+        "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
+        "NSCalendarsUsageDescription": "TimeTracer uses the calendar to display your activity timeline.",
         "UIBackgroundModes": ["fetch", "remote-notification"]
       }
     },
@@ -27,7 +27,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.kliang.timetrackr",
+      "package": "com.kliang.timetracer",
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",

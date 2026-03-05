@@ -100,8 +100,8 @@ export async function scheduleNotifications(state: AlarmState): Promise<void> {
   for (const fireDate of fireTimes) {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "TimeTrackr Check",
-        body: "What have you been working on?",
+        title: "TimeTracer",
+        body: "What have you been doing?",
         sound: true,
         data: { action: NOTIFICATION_ACTIONS.LOG_TIME },
       },

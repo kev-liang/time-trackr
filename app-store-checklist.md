@@ -1,6 +1,6 @@
-# App Store Checklist — TimeTrackr
+# App Store Checklist — TimeTracer
 
-Bundle ID: `com.kliang.timetrackr` | Version: `1.0.0` | EAS Project: `904d3d32-5ba9-4205-8b3c-df04da9ba0e0`
+Bundle ID: `com.kliang.timetracer` | Version: `1.0.0` | EAS Project: `904d3d32-5ba9-4205-8b3c-df04da9ba0e0`
 
 ---
 
@@ -40,8 +40,8 @@ eas build --platform android --profile production
 ## iOS — App Store Connect
 
 ### App Record
-- [ ] App created in App Store Connect (bundle ID: `com.kliang.timetrackr`)
-- [ ] App name: **TimeTrackr**
+- [ ] App created in App Store Connect (bundle ID: `com.kliang.timetracer`)
+- [ ] App name: **TimeTracer**
 - [ ] Primary language set
 - [ ] Category set (e.g., Productivity)
 - [ ] Content rights confirmed (no third-party content)
@@ -83,8 +83,8 @@ eas build --platform android --profile production
 ## Android — Google Play Console
 
 ### App Record
-- [ ] App created in Play Console (package: `com.kliang.timetrackr`)
-- [ ] App name: **TimeTrackr**
+- [ ] App created in Play Console (package: `com.kliang.timetracer`)
+- [ ] App name: **TimeTracer**
 - [ ] Default language set
 - [ ] App category: Productivity (or similar)
 
