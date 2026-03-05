@@ -1,9 +1,10 @@
 import { AlarmMuteDropdown } from "@/components/alarms/AlarmMuteDropdown";
 import { NextAlarmDisplay } from "@/components/alarms/NextAlarmDisplay";
 import { AppText } from "@/components/ux/AppText";
+import { Toggle } from "@/components/ux/Toggle";
 import { useAlarmStore } from "@/stores/useAlarmStore";
-import { colors, spacing } from "@/theme";
-import { StyleSheet, Switch, View } from "react-native";
+import { spacing } from "@/theme";
+import { StyleSheet, View } from "react-native";
 
 export function AlarmSettingsSection() {
   const enabled = useAlarmStore((s) => s.enabled);
@@ -13,11 +14,7 @@ export function AlarmSettingsSection() {
     <View style={styles.container}>
       <View style={styles.row}>
         <AppText variant="bodySemiBold">Enabled</AppText>
-        <Switch
-          value={enabled}
-          onValueChange={setEnabled}
-          trackColor={{ true: colors.tint }}
-        />
+        <Toggle value={enabled} onValueChange={setEnabled} />
       </View>
       <NextAlarmDisplay />
       {/* <View style={styles.divider} /> */}

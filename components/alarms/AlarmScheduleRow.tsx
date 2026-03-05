@@ -1,8 +1,9 @@
 import { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Switch, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
+import { Toggle } from "@/components/ux/Toggle";
 import { useAlarmStore, type Weekday } from "@/stores/useAlarmStore";
 import { colors, spacing } from "@/theme";
 
@@ -64,11 +65,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         <AppText variant="bodySemiBold" style={styles.dayLabel}>
           {day}
         </AppText>
-        <Switch
-          value={schedule.active}
-          onValueChange={handleToggle}
-          trackColor={{ true: colors.tint }}
-        />
+        <Toggle value={schedule.active} onValueChange={handleToggle} />
         <Pressable
           onPress={() => handleTimePress("startTime")}
           disabled={!schedule.active}
