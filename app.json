@@ -7,14 +7,12 @@
     "icon": "./assets/images/icon.png",
     "scheme": "timetracer",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.kliang.timetracer",
       "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
-        "NSCalendarsUsageDescription": "TimeTracer uses the calendar to display your activity timeline.",
         "UIBackgroundModes": ["fetch", "remote-notification"]
       }
     },
@@ -25,7 +23,6 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.kliang.timetracer",
       "googleServicesFile": "./google-services.json",
@@ -49,9 +46,7 @@
           "defaultChannel": "default"
         }
       ],
-      [
-        "expo-task-manager"
-      ],
+      ["expo-task-manager"],
       [
         "expo-splash-screen",
         {

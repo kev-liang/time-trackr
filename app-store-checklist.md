@@ -69,7 +69,6 @@ eas build --platform android --profile production
   - Analytics/usage data (PostHog) declared
   - Auth data (Supabase anonymous + Apple Sign-In) declared
 - [ ] NSUserNotificationUsageDescription present (done in `app.json`)
-- [ ] NSCalendarsUsageDescription present (done in `app.json`)
 - [ ] Apple Sign-In entitlement configured in EAS / Apple Developer portal
 
 ### Submission
