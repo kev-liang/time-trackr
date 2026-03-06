@@ -17,7 +17,6 @@ export function AlarmSettingsSection() {
         <Toggle value={enabled} onValueChange={setEnabled} />
       </View>
       <NextAlarmDisplay />
-      {/* <View style={styles.divider} /> */}
       <View style={styles.muteAlarmContainer}>
         <AlarmMuteDropdown />
       </View>

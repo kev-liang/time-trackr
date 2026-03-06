@@ -9,8 +9,6 @@ import { colors, fonts, spacing } from "@/theme";
 
 const MUTE_OPTIONS = [
   { label: "Not muted", value: "none" },
-  { label: "15 minutes", value: "15m" },
-  { label: "30 minutes", value: "30m" },
   { label: "1 hour", value: "1h" },
   { label: "Until next day", value: "next_day" },
   { label: "Until I turn it on", value: "indefinite" },
@@ -18,6 +16,7 @@ const MUTE_OPTIONS = [
 
 export function AlarmMuteDropdown() {
   const mutedUntil = useAlarmStore((s) => s.mutedUntil);
+  const muteOption = useAlarmStore((s) => s.muteOption);
   const enabled = useAlarmStore((s) => s.enabled);
   const muteUntil = useAlarmStore((s) => s.muteUntil);
   const setEnabled = useAlarmStore((s) => s.setEnabled);
@@ -25,36 +24,29 @@ export function AlarmMuteDropdown() {
   const currentValue = !enabled
     ? "indefinite"
     : mutedUntil
-      ? "custom"
+      ? (muteOption ?? "none")
       : "none";
 
   const handleChange = useCallback(
     (item: { value: string }) => {
       switch (item.value) {
         case "none":
-          muteUntil(null);
-          setEnabled(true);
-          break;
-        case "15m":
-          muteUntil(moment().add(15, "minutes").toISOString());
-          setEnabled(true);
-          break;
-        case "30m":
-          muteUntil(moment().add(30, "minutes").toISOString());
+          muteUntil(null, null);
           setEnabled(true);
           break;
         case "1h":
-          muteUntil(moment().add(1, "hour").toISOString());
+          muteUntil(moment().add(1, "hour").toISOString(), "1h");
           setEnabled(true);
           break;
         case "next_day":
           muteUntil(
             moment().add(1, "day").startOf("day").toISOString(),
+            "next_day",
           );
           setEnabled(true);
           break;
         case "indefinite":
-          muteUntil(null);
+          muteUntil(null, null);
           setEnabled(false);
           break;
       }

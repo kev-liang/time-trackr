@@ -27,6 +27,7 @@ type FrequencyUnit = "minutes" | "hours";
 export type AlarmState = {
   enabled: boolean;
   mutedUntil: string | null;
+  muteOption: string | null;
   frequency: number;
   frequencyUnit: FrequencyUnit;
   schedule: Record<Weekday, DaySchedule>;
@@ -34,7 +35,7 @@ export type AlarmState = {
 
 type AlarmActions = {
   setEnabled: (enabled: boolean) => void;
-  muteUntil: (until: string | null) => void;
+  muteUntil: (until: string | null, option?: string | null) => void;
   setFrequencyValue: (value: number) => void;
   setFrequencyUnit: (unit: FrequencyUnit) => void;
   toggleDay: (day: Weekday) => void;
@@ -58,6 +59,7 @@ export const useAlarmStore = create<AlarmState & AlarmActions>()(
     (set, get) => ({
       enabled: true,
       mutedUntil: null,
+      muteOption: null,
       frequency: 30,
       frequencyUnit: "minutes",
       schedule: defaultSchedule,
@@ -67,8 +69,8 @@ export const useAlarmStore = create<AlarmState & AlarmActions>()(
         analytics.capture("alarm_toggled", { enabled });
       },
 
-      muteUntil: (until) => {
-        set({ mutedUntil: until });
+      muteUntil: (until, option = null) => {
+        set({ mutedUntil: until, muteOption: option });
         if (until) analytics.capture("alarm_muted");
       },
 
@@ -109,7 +111,7 @@ export const useAlarmStore = create<AlarmState & AlarmActions>()(
       clearExpiredMute: () => {
         const { mutedUntil } = get();
         if (mutedUntil && new Date(mutedUntil) <= new Date()) {
-          set({ mutedUntil: null });
+          set({ mutedUntil: null, muteOption: null });
         }
       },
     }),
@@ -119,6 +121,7 @@ export const useAlarmStore = create<AlarmState & AlarmActions>()(
       partialize: (state) => ({
         enabled: state.enabled,
         mutedUntil: state.mutedUntil,
+        muteOption: state.muteOption,
         frequency: state.frequency,
         frequencyUnit: state.frequencyUnit,
         schedule: state.schedule,
