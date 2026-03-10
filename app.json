@@ -4,10 +4,15 @@
     "slug": "time-trackr",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/ios-light.png",
     "scheme": "timetracer",
     "userInterfaceStyle": "light",
     "ios": {
+      "icon": {
+        "light": "./assets/icons/ios-light.png",
+        "dark": "./assets/icons/ios-dark.png",
+        "tinted": "./assets/icons/ios-tinted.png"
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.kliang.timetracer",
       "googleServicesFile": "./GoogleService-Info.plist",
@@ -19,9 +24,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/icons/adaptive-icon.png"
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kliang.timetracer",
@@ -41,7 +44,7 @@
       [
         "expo-notifications",
         {
-          "icon": "./assets/images/icon.png",
+          "icon": "./assets/icons/ios-light.png",
           "color": "#A3CCF5",
           "defaultChannel": "default"
         }
@@ -50,11 +53,12 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/icons/splash-icon-light.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff",
           "dark": {
+            "image": "./assets/icons/splash-icon-dark.png",
             "backgroundColor": "#ffffff"
           }
         }
