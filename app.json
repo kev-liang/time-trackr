@@ -15,7 +15,6 @@
       },
       "supportsTablet": true,
       "bundleIdentifier": "com.kliang.timetracer",
-      "googleServicesFile": "./GoogleService-Info.plist",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
         "UIBackgroundModes": ["fetch", "remote-notification"]
@@ -28,7 +27,6 @@
       },
       "predictiveBackGestureEnabled": false,
       "package": "com.kliang.timetracer",
-      "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.VIBRATE",
