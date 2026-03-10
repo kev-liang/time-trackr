@@ -18,7 +18,7 @@ export function AlarmsScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.content}>
-          <AppText variant="title">Notifications</AppText>
+          <AppText variant="title">Reminders</AppText>
 
           <Card>
             <AlarmSettingsSection />
