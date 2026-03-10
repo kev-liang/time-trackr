@@ -67,7 +67,8 @@ export default function RootLayout() {
   useEffect(() => {
     if (!fontsLoaded) return;
     async function handleOnboarding() {
-      const onboarded = await hasCompletedOnboarding();
+      const FORCE_ONBOARDING = true; // TODO: remove before release
+      const onboarded = !FORCE_ONBOARDING && await hasCompletedOnboarding();
       if (!onboarded) {
         router.replace('/onboarding');
       }

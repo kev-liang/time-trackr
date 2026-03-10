@@ -57,11 +57,11 @@ export function OnboardingScreen() {
     setLoading(true);
     await markOnboardingDone();
     const granted = await requestPermissions();
+    router.replace("/(tabs)/alarms");
     if (granted) {
-      await scheduleNotifications(useAlarmStore.getState());
-      await registerBackgroundReschedule();
+      scheduleNotifications(useAlarmStore.getState());
+      registerBackgroundReschedule();
     }
-    router.replace("/(tabs)");
   }
 
   async function handleSkip() {
