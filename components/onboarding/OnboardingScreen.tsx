@@ -1,7 +1,6 @@
 import { router } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -10,40 +9,25 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { AppText } from "@/components/ux/AppText";
 import { PaginationDots } from "@/components/ux/PaginationDots";
-import { registerBackgroundReschedule } from "@/lib/notificationScheduler";
-import { requestPermissions, scheduleNotifications } from "@/lib/notifications";
-import { useAlarmStore } from "@/stores/useAlarmStore";
+import { markOnboardingDone } from "@/lib/onboarding";
 import { colors, spacing } from "@/theme";
 
 import { OnboardingPage } from "./OnboardingPage";
-
-const ONBOARDING_KEY = "onboarding_done";
-
-export async function markOnboardingDone() {
-  await AsyncStorage.setItem(ONBOARDING_KEY, "1");
-}
-
-export async function hasCompletedOnboarding(): Promise<boolean> {
-  const val = await AsyncStorage.getItem(ONBOARDING_KEY);
-  return val !== null;
-}
 import { ONBOARDING_PAGES } from "./onboardingData";
 
-const LAST_INDEX = ONBOARDING_PAGES.length - 1;
+export { hasCompletedOnboarding, markOnboardingDone } from "@/lib/onboarding";
 
 export function OnboardingScreen() {
   const { width } = useWindowDimensions();
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   const isFirst = currentIndex === 0;
-  const isLast = currentIndex === LAST_INDEX;
+  const currentPage = ONBOARDING_PAGES[currentIndex];
+  const FooterComponent = currentPage.footerComponent;
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -58,28 +42,12 @@ export function OnboardingScreen() {
   }
 
   function handleContinue() {
-    if (currentIndex < LAST_INDEX) scrollTo(currentIndex + 1);
+    if (currentIndex < ONBOARDING_PAGES.length - 1) scrollTo(currentIndex + 1);
   }
 
   async function handleSkip() {
     await markOnboardingDone();
     router.replace("/(tabs)");
-  }
-
-  async function handleNotNow() {
-    await markOnboardingDone();
-    router.replace("/(tabs)");
-  }
-
-  async function handleSetUpReminders() {
-    setLoading(true);
-    await markOnboardingDone();
-    const granted = await requestPermissions();
-    router.replace("/(tabs)/alarms");
-    if (granted) {
-      scheduleNotifications(useAlarmStore.getState());
-      registerBackgroundReschedule();
-    }
   }
 
   function handleMomentumScrollEnd(e: any) {
@@ -101,11 +69,7 @@ export function OnboardingScreen() {
           <AppText variant="bodySemiBold">Back</AppText>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.headerButton}
-          onPress={handleSkip}
-          hitSlop={8}
-        >
+        <TouchableOpacity style={styles.headerButton} onPress={handleSkip} hitSlop={8}>
           <AppText variant="bodySemiBold">Skip</AppText>
           <IconSymbol name="chevron.right" size={16} color={colors.text} />
         </TouchableOpacity>
@@ -134,34 +98,8 @@ export function OnboardingScreen() {
       <View style={styles.bottom}>
         <PaginationDots count={ONBOARDING_PAGES.length} activeIndex={currentIndex} />
 
-        {isLast ? (
-          <>
-            <TouchableOpacity
-              style={[styles.button, styles.primaryButton]}
-              onPress={handleSetUpReminders}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.background} />
-              ) : (
-                <AppText variant="bodySemiBold" color={colors.background}>
-                  Set up reminders
-                </AppText>
-              )}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={handleNotNow}
-              disabled={loading}
-              hitSlop={8}
-              style={styles.notNow}
-            >
-              <AppText variant="bodySemiBold" color={colors.textSecondary}>
-                Not now
-              </AppText>
-            </TouchableOpacity>
-          </>
+        {FooterComponent ? (
+          <FooterComponent onContinue={handleContinue} />
         ) : (
           <TouchableOpacity
             style={[styles.button, styles.primaryButton]}
@@ -214,9 +152,5 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: colors.tint,
-  },
-  notNow: {
-    alignItems: "center",
-    paddingVertical: spacing.xs,
   },
 });

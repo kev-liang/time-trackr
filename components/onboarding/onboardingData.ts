@@ -1,7 +1,16 @@
+import type { ComponentType } from "react";
+
+import { RemindersFooter } from "./RemindersFooter";
+
+export type FooterProps = {
+  onContinue: () => void;
+};
+
 export type OnboardingPageData = {
   title: string;
   description: string;
   iconName: string;
+  footerComponent?: ComponentType<FooterProps>;
 };
 
 export const ONBOARDING_PAGES: OnboardingPageData[] = [
@@ -22,5 +31,6 @@ export const ONBOARDING_PAGES: OnboardingPageData[] = [
     description:
       "Get nudged at the right times so your activity log stays accurate. Set your own schedule.",
     iconName: "bell.fill",
+    footerComponent: RemindersFooter,
   },
 ];
