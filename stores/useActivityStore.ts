@@ -16,6 +16,7 @@ export type Activity = {
 
 type ActivityStore = {
   activities: Activity[];
+  isLoading: boolean;
   loadActivities: () => Promise<void>;
   addActivity: (activity: Omit<Activity, "id">) => Promise<void>;
   removeActivity: (id: string) => Promise<void>;
@@ -24,10 +25,12 @@ type ActivityStore = {
 
 export const useActivityStore = create<ActivityStore>((set) => ({
   activities: [],
+  isLoading: false,
 
   loadActivities: async () => {
+    set({ isLoading: true });
     const activities = await api.fetchActivities();
-    set({ activities });
+    set({ activities, isLoading: false });
     analytics.capture("activities_loaded", { count: activities.length });
   },
 

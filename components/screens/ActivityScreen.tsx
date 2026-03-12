@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -30,6 +30,7 @@ const CALENDAR_HEADER_HEIGHT = 52;
 export function ActivityScreen() {
   const loadActivities = useActivityStore((s) => s.loadActivities);
   const activities = useActivityStore((s) => s.activities);
+  const isLoading = useActivityStore((s) => s.isLoading);
 
   useEffect(() => {
     loadActivities();
@@ -105,6 +106,14 @@ export function ActivityScreen() {
               onDateChanged={setSelectedDate}
             />
           </Animated.View>
+          {isLoading && (
+            <View style={styles.loadingOverlay} pointerEvents="none">
+              <Image
+                source={require("@/assets/clock-loading.gif")}
+                style={styles.loadingGif}
+              />
+            </View>
+          )}
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
           <AddEventFAB onPress={handleOpen} />
         </SafeAreaView>
@@ -120,5 +129,14 @@ export function ActivityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingGif: {
+    width: 80,
+    height: 80,
   },
 });
