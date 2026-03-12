@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -18,6 +18,7 @@ import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet
 import { AddEventFAB } from "@/components/activities/AddEventFab";
 import { TodayFAB } from "@/components/activities/TodayFAB";
 import { ThemedView } from "@/components/themed-view";
+import { LoadingScreen } from "@/components/ux/LoadingScreen";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
@@ -106,14 +107,7 @@ export function ActivityScreen() {
               onDateChanged={setSelectedDate}
             />
           </Animated.View>
-          {isLoading && (
-            <View style={styles.loadingOverlay} pointerEvents="none">
-              <Image
-                source={require("@/assets/clock-loading.gif")}
-                style={styles.loadingGif}
-              />
-            </View>
-          )}
+          {isLoading && <LoadingScreen />}
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
           <AddEventFAB onPress={handleOpen} />
         </SafeAreaView>
@@ -130,13 +124,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  loadingOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingGif: {
-    width: 80,
-    height: 80,
-  },
+
 });
