@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.kliang.timetracer",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
-        "UIBackgroundModes": ["fetch", "remote-notification"]
+        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
