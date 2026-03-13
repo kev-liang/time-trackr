@@ -52,7 +52,7 @@ export function HourlyBarChart({ slots }: Props) {
         {slots.map((slot) => (
           <View key={slot.hour} style={styles.barWrapper}>
             <Text style={styles.label}>
-              {slot.hour % 6 === 0 ? formatHourLabel(slot.hour) : ""}
+              {slot.hour % 3 === 0 ? formatHourLabel(slot.hour) : ""}
             </Text>
           </View>
         ))}
@@ -99,5 +99,6 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     fontSize: 10,
+    width: 24,
   },
 });
