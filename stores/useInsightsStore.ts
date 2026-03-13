@@ -17,6 +17,7 @@ type InsightsStore = {
   period: Period;
   selectedDate: Date;
   setPeriod: (period: Period) => void;
+  setSelectedDate: (date: Date) => void;
   goToNext: () => void;
   goToPrev: () => void;
 };
@@ -26,6 +27,7 @@ export const useInsightsStore = create<InsightsStore>((set, get) => ({
   selectedDate: new Date(),
 
   setPeriod: (period) => set({ period }),
+  setSelectedDate: (date) => set({ selectedDate: date }),
 
   goToNext: () => {
     const { selectedDate, period } = get();

@@ -1,4 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "expo-router";
+import { useCallback } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -20,7 +22,14 @@ import { useInsightsData, useInsightsStore } from "@/stores/useInsightsStore";
 import { colors, spacing, textStyles } from "@/theme";
 
 export function InsightsScreen() {
-  const { period, setPeriod, goToPrev, goToNext } = useInsightsStore();
+  const { period, setPeriod, goToPrev, goToNext, setSelectedDate } =
+    useInsightsStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      setSelectedDate(new Date());
+    }, [setSelectedDate]),
+  );
   const {
     hourSlots,
     daySlots,
