@@ -1,14 +1,14 @@
-import { Image, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { colors, fonts } from "@/theme";
+import { ClockLoading } from "@/components/ux/ClockLoading";
 
 export function LoadingScreen() {
   return (
     <View style={styles.container} pointerEvents="none">
-      <Image
-        source={require("@/assets/primary-loading.gif")}
-        style={styles.gif}
-      />
+      <View style={styles.clock}>
+        <ClockLoading />
+      </View>
       <Text style={styles.text}>Loading...</Text>
     </View>
   );
@@ -21,9 +21,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "white",
   },
-  gif: {
+  clock: {
     width: 80,
     height: 80,
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: {
     marginTop: 12,

@@ -33,7 +33,7 @@ export function ActivityScreen() {
   const activities = useActivityStore((s) => s.activities);
   const isLoading = useActivityStore((s) => s.isLoading);
   const [calendarReady, setCalendarReady] = useState(false);
-  const showLoading = isLoading || !calendarReady;
+  const showLoading = true;
 
   useEffect(() => {
     loadActivities();

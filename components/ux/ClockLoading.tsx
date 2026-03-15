@@ -2,28 +2,21 @@ import { colors } from "@/theme";
 import React, { useEffect } from "react";
 import Animated, {
   Easing,
-  useAnimatedProps,
+  useAnimatedStyle,
   useSharedValue,
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { Ellipse, Rect, Svg } from "react-native-svg";
+import { StyleSheet, View } from "react-native";
+import { Ellipse, Svg } from "react-native-svg";
 
-const AnimatedRect = Animated.createAnimatedComponent(Rect);
-
-const cx = 512;
-const cy = 512;
-const HEIGHT_OFFSET = 44;
-
-const minuteHandWidth = 90;
-const minuteHandHeight = 215.508;
-const hourHandWidth = 90;
-const hourHandHeight = 280.508;
+const SIZE = 80;
+const MINUTE_HAND_H = 12;
+const HOUR_HAND_H = 18;
+const HAND_WIDTH = 6;
 
 const minuteStartAngle = -45;
 const hourStartAngle = 45;
-
-// Milliseconds per full rotation
 const MINUTE_HAND_SPEED = 2000;
 const HOUR_HAND_SPEED = 4000;
 
@@ -32,75 +25,102 @@ export const ClockLoading: React.FC = () => {
   const hourRotation = useSharedValue(hourStartAngle);
 
   useEffect(() => {
-    // Clockwise: +360 per cycle
+    // Counter-clockwise
     minuteRotation.value = withRepeat(
-      withTiming(minuteStartAngle + 360, {
+      withTiming(minuteStartAngle - 360, {
         duration: MINUTE_HAND_SPEED,
         easing: Easing.linear,
       }),
-      -1, // infinite
+      -1,
       false,
     );
 
-    // Counter-clockwise: -360 per cycle
+    // Clockwise
     hourRotation.value = withRepeat(
-      withTiming(hourStartAngle - 360, {
+      withTiming(hourStartAngle + 360, {
         duration: HOUR_HAND_SPEED,
         easing: Easing.linear,
       }),
-      -1, // infinite
+      -1,
       false,
     );
   }, []);
 
-  const minuteAnimatedProps = useAnimatedProps(() => ({
-    rotation: minuteRotation.value,
+  const minuteStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: minuteRotation.value + "deg" }],
   }));
 
-  const hourAnimatedProps = useAnimatedProps(() => ({
-    rotation: hourRotation.value,
+  const hourStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: hourRotation.value + "deg" }],
   }));
 
   return (
-    <Svg viewBox="0 0 1024 1024" style={{ width: "80%", aspectRatio: 1 }}>
-      {/* Clock face */}
-      <Ellipse
-        cx={cx}
-        cy={cy}
-        rx={399.04688}
-        ry={393.21976}
-        fill="none"
-        stroke="white"
-        strokeWidth={85.0574}
-      />
+    <View style={styles.container}>
+      <Svg width={SIZE} height={SIZE} style={StyleSheet.absoluteFill}>
+        <Ellipse
+          cx={SIZE / 2}
+          cy={SIZE / 2}
+          rx={30}
+          ry={30}
+          fill="none"
+          stroke={colors.primary}
+          strokeWidth={6}
+        />
+      </Svg>
 
-      {/* Minute hand — clockwise */}
-      <AnimatedRect
-        x={cx - minuteHandWidth / 2}
-        y={cy - minuteHandHeight}
-        width={minuteHandWidth}
-        height={minuteHandHeight + HEIGHT_OFFSET}
-        rx={45}
-        ry={45}
-        fill="white"
-        originX={cx}
-        originY={cy}
-        animatedProps={minuteAnimatedProps}
-      />
+      {/* Minute hand — counter-clockwise. Pivot container is SIZE×SIZE centered on clock;
+          paddingTop pushes the hand down so its base sits exactly at the clock center,
+          making the container center the rotation pivot. */}
+      <Animated.View
+        style={[
+          styles.handPivot,
+          { paddingTop: SIZE / 2 - MINUTE_HAND_H + HAND_WIDTH },
+          minuteStyle,
+        ]}
+      >
+        <View style={styles.minuteHand} />
+      </Animated.View>
 
-      {/* Hour hand — counter-clockwise */}
-      <AnimatedRect
-        x={cx - hourHandWidth / 2}
-        y={cy - hourHandHeight}
-        width={hourHandWidth}
-        height={hourHandHeight + HEIGHT_OFFSET}
-        rx={45}
-        ry={45.254}
-        fill={colors.primary}
-        originX={cx}
-        originY={cy}
-        animatedProps={hourAnimatedProps}
-      />
-    </Svg>
+      {/* Hour hand — clockwise */}
+      <Animated.View
+        style={[
+          styles.handPivot,
+          { paddingTop: SIZE / 2 - HOUR_HAND_H + HAND_WIDTH },
+          hourStyle,
+        ]}
+      >
+        <View style={styles.hourHand} />
+      </Animated.View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    width: SIZE,
+    height: SIZE,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  // Full-size absolute overlay; its center = clock center = rotation pivot
+  handPivot: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: SIZE,
+    height: SIZE,
+    alignItems: "center",
+  },
+  minuteHand: {
+    width: HAND_WIDTH,
+    height: MINUTE_HAND_H,
+    borderRadius: HAND_WIDTH / 2,
+    backgroundColor: colors.primary,
+  },
+  hourHand: {
+    width: HAND_WIDTH,
+    height: HOUR_HAND_H,
+    borderRadius: HAND_WIDTH / 2,
+    backgroundColor: colors.primary,
+  },
+});
