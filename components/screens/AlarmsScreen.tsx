@@ -12,7 +12,6 @@ import { colors, spacing } from "@/theme";
 
 export function AlarmsScreen() {
   const enabled = useAlarmStore((s) => s.enabled);
-  const setEnabled = useAlarmStore((s) => s.setEnabled);
 
   return (
     <ThemedView style={styles.container}>
@@ -25,6 +24,15 @@ export function AlarmsScreen() {
           </Card>
 
           <Card title="Frequency">
+            {!enabled && (
+              <AppText
+                variant="body"
+                color={colors.textSecondary}
+                style={{ marginBottom: spacing.sm }}
+              >
+                Enable reminders to edit frequency
+              </AppText>
+            )}
             <AlarmFrequencyInput />
           </Card>
 

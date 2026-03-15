@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
@@ -34,12 +34,17 @@ type AlarmScheduleRowProps = {
 };
 
 export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
+  const enabled = useAlarmStore((s) => s.enabled);
   const schedule = useAlarmStore((s) => s.schedule[day]);
   const toggleDay = useAlarmStore((s) => s.toggleDay);
   const setDayStartTime = useAlarmStore((s) => s.setDayStartTime);
   const setDayEndTime = useAlarmStore((s) => s.setDayEndTime);
 
   const [pickerField, setPickerField] = useState<PickerField | null>(null);
+
+  useEffect(() => {
+    if (!enabled) setPickerField(null);
+  }, [enabled]);
 
   const handleToggle = useCallback(() => toggleDay(day), [day, toggleDay]);
 
@@ -65,10 +70,10 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         <AppText variant="bodySemiBold" style={styles.dayLabel}>
           {day}
         </AppText>
-        <Toggle value={schedule.active} onValueChange={handleToggle} />
+        <Toggle value={schedule.active} onValueChange={handleToggle} disabled={!enabled} />
         <Pressable
           onPress={() => handleTimePress("startTime")}
-          disabled={!schedule.active}
+          disabled={!enabled || !schedule.active}
           style={[
             styles.timeButton,
             pickerField === "startTime" && styles.timeButtonActive,
@@ -76,7 +81,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         >
           <AppText
             variant="body"
-            color={schedule.active ? colors.text : colors.textSecondary}
+            color={enabled && schedule.active ? colors.text : colors.textSecondary}
           >
             {formatTimeDisplay(schedule.startTime)}
           </AppText>
@@ -86,7 +91,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         </AppText>
         <Pressable
           onPress={() => handleTimePress("endTime")}
-          disabled={!schedule.active}
+          disabled={!enabled || !schedule.active}
           style={[
             styles.timeButton,
             pickerField === "endTime" && styles.timeButtonActive,
@@ -94,14 +99,14 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         >
           <AppText
             variant="body"
-            color={schedule.active ? colors.text : colors.textSecondary}
+            color={enabled && schedule.active ? colors.text : colors.textSecondary}
           >
             {formatTimeDisplay(schedule.endTime)}
           </AppText>
         </Pressable>
       </View>
 
-      {pickerField && (
+      {enabled && pickerField && (
         <TimeSpinnerPicker
           key={pickerField}
           value={timeToDate(

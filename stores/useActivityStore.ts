@@ -25,7 +25,7 @@ type ActivityStore = {
 
 export const useActivityStore = create<ActivityStore>((set) => ({
   activities: [],
-  isLoading: false,
+  isLoading: true,
 
   loadActivities: async () => {
     set({ isLoading: true });

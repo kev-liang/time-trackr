@@ -17,6 +17,7 @@ export const colors = {
   tint: palette.blue500,
   border: palette.gray300,
   icon: palette.gray500,
+  primary: palette.blue500,
 } as const;
 
 export type ColorToken = keyof typeof colors;

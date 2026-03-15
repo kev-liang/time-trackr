@@ -34,10 +34,11 @@ export type ActivityTimelineHandle = {
 type Props = {
   sheetSnapHeight?: number;
   onDateChanged?: (date: string) => void;
+  onLoad?: () => void;
 };
 
 export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
-function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
+function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged, onLoad }, ref) {
   const calendarRef = useRef<CalendarKitHandle>(null);
   const { events, today, theme, unavailableHours } = useActivityTimeline();
   const [selectedDate, setSelectedDate] = useState(today);
@@ -247,6 +248,7 @@ function ActivityTimeline({ sheetSnapHeight = 0, onDateChanged }, ref) {
       onDragEventEnd={handleDragEventEnd}
       onDragSelectedEventEnd={handleDragSelectedEventEnd}
       onDateChanged={handleDateChanged}
+      onLoad={onLoad}
       overlapEventsSpacing={8}
       rightEdgeSpacing={0}
       start={0}

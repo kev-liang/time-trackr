@@ -57,7 +57,7 @@ const defaultSchedule: Record<Weekday, DaySchedule> = {
 export const useAlarmStore = create<AlarmState & AlarmActions>()(
   persist(
     (set, get) => ({
-      enabled: true,
+      enabled: false,
       mutedUntil: null,
       muteOption: null,
       frequency: 30,

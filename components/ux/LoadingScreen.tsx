@@ -1,4 +1,6 @@
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
+
+import { colors, fonts } from "@/theme";
 
 export function LoadingScreen() {
   return (
@@ -7,6 +9,7 @@ export function LoadingScreen() {
         source={require("@/assets/primary-loading.gif")}
         style={styles.gif}
       />
+      <Text style={styles.text}>Loading...</Text>
     </View>
   );
 }
@@ -16,9 +19,16 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "white",
   },
   gif: {
     width: 80,
     height: 80,
+  },
+  text: {
+    marginTop: 12,
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    color: colors.textSecondary,
   },
 });

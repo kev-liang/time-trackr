@@ -12,6 +12,7 @@ const UNIT_OPTIONS = [
 ];
 
 export function AlarmFrequencyInput() {
+  const enabled = useAlarmStore((s) => s.enabled);
   const frequency = useAlarmStore((s) => s.frequency);
   const frequencyUnit = useAlarmStore((s) => s.frequencyUnit);
   const setFrequencyValue = useAlarmStore((s) => s.setFrequencyValue);
@@ -40,22 +41,24 @@ export function AlarmFrequencyInput() {
     <View style={styles.container}>
       <AppText variant="bodySemiBold">Every</AppText>
       <TextInput
-        style={styles.numberInput}
+        style={[styles.numberInput, !enabled && styles.inputDisabled]}
         value={frequency > 0 ? frequency.toString() : ""}
         onChangeText={handleValueChange}
         keyboardType="number-pad"
         placeholder="30"
         placeholderTextColor={colors.textSecondary}
+        editable={enabled}
       />
       <Dropdown
         style={styles.dropdown}
-        selectedTextStyle={styles.selectedText}
+        selectedTextStyle={[styles.selectedText, !enabled && styles.textDisabled]}
         itemTextStyle={styles.itemText}
         data={UNIT_OPTIONS}
         labelField="label"
         valueField="value"
         value={frequencyUnit}
         onChange={handleUnitChange}
+        disable={!enabled}
       />
     </View>
   );
@@ -78,6 +81,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     width: 64,
     textAlign: "center",
+  },
+  inputDisabled: {
+    color: colors.textSecondary,
+  },
+  textDisabled: {
+    color: colors.textSecondary,
   },
   dropdown: {
     flex: 1,

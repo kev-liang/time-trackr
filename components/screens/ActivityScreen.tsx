@@ -32,6 +32,8 @@ export function ActivityScreen() {
   const loadActivities = useActivityStore((s) => s.loadActivities);
   const activities = useActivityStore((s) => s.activities);
   const isLoading = useActivityStore((s) => s.isLoading);
+  const [calendarReady, setCalendarReady] = useState(false);
+  const showLoading = isLoading || !calendarReady;
 
   useEffect(() => {
     loadActivities();
@@ -105,9 +107,10 @@ export function ActivityScreen() {
               ref={timelineRef}
               sheetSnapHeight={300}
               onDateChanged={setSelectedDate}
+              onLoad={() => setCalendarReady(true)}
             />
           </Animated.View>
-          {isLoading && <LoadingScreen />}
+          {showLoading && <LoadingScreen />}
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
           <AddEventFAB onPress={handleOpen} />
         </SafeAreaView>
