@@ -11,8 +11,8 @@ import { StyleSheet, View } from "react-native";
 import { Ellipse, Svg } from "react-native-svg";
 
 const SIZE = 80;
-const MINUTE_HAND_H = 12;
-const HOUR_HAND_H = 18;
+const MINUTE_HAND_H = 17;
+const HOUR_HAND_H = 23;
 const HAND_WIDTH = 6;
 
 const minuteStartAngle = -45;
@@ -74,7 +74,7 @@ export const ClockLoading: React.FC = () => {
       <Animated.View
         style={[
           styles.handPivot,
-          { paddingTop: SIZE / 2 - MINUTE_HAND_H + HAND_WIDTH },
+          { paddingTop: SIZE / 2 - MINUTE_HAND_H + HAND_WIDTH / 2 },
           minuteStyle,
         ]}
       >
@@ -85,7 +85,7 @@ export const ClockLoading: React.FC = () => {
       <Animated.View
         style={[
           styles.handPivot,
-          { paddingTop: SIZE / 2 - HOUR_HAND_H + HAND_WIDTH },
+          { paddingTop: SIZE / 2 - HOUR_HAND_H + HAND_WIDTH / 2 },
           hourStyle,
         ]}
       >
