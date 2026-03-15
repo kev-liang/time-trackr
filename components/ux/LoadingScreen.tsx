@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 
-import { colors, fonts } from "@/theme";
 import { ClockLoading } from "@/components/ux/ClockLoading";
+import { colors, fonts } from "@/theme";
 
 export function LoadingScreen() {
   return (
@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontFamily: fonts.regular,
     fontSize: 14,
-    color: colors.textSecondary,
+    color: colors.primary,
+    fontWeight: "bold",
   },
 });

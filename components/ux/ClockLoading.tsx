@@ -1,5 +1,6 @@
 import { colors } from "@/theme";
 import React, { useEffect } from "react";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -7,7 +8,6 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { StyleSheet, View } from "react-native";
 import { Ellipse, Svg } from "react-native-svg";
 
 const SIZE = 80;
@@ -17,17 +17,19 @@ const HAND_WIDTH = 6;
 
 const minuteStartAngle = -45;
 const hourStartAngle = 45;
-const MINUTE_HAND_SPEED = 2000;
-const HOUR_HAND_SPEED = 4000;
+const MINUTE_HAND_SPEED = 3000;
+const HOUR_HAND_SPEED = 1500;
 
 export const ClockLoading: React.FC = () => {
-  const minuteRotation = useSharedValue(minuteStartAngle);
-  const hourRotation = useSharedValue(hourStartAngle);
+  // Start at 0; start angles are applied in the style so ±360 targets
+  // always represent a full revolution regardless of how many loops have run.
+  const minuteRotation = useSharedValue(0);
+  const hourRotation = useSharedValue(0);
 
   useEffect(() => {
     // Counter-clockwise
     minuteRotation.value = withRepeat(
-      withTiming(minuteStartAngle - 360, {
+      withTiming(-360, {
         duration: MINUTE_HAND_SPEED,
         easing: Easing.linear,
       }),
@@ -37,7 +39,7 @@ export const ClockLoading: React.FC = () => {
 
     // Clockwise
     hourRotation.value = withRepeat(
-      withTiming(hourStartAngle + 360, {
+      withTiming(360, {
         duration: HOUR_HAND_SPEED,
         easing: Easing.linear,
       }),
@@ -47,11 +49,11 @@ export const ClockLoading: React.FC = () => {
   }, []);
 
   const minuteStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: minuteRotation.value + "deg" }],
+    transform: [{ rotate: minuteStartAngle + minuteRotation.value + "deg" }],
   }));
 
   const hourStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: hourRotation.value + "deg" }],
+    transform: [{ rotate: hourStartAngle + hourRotation.value + "deg" }],
   }));
 
   return (
