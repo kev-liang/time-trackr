@@ -69,3 +69,15 @@ export async function deleteActivity(id: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function bulkRenameActivities(
+  oldTitle: string,
+  newTitle: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("activities")
+    .update({ title: newTitle })
+    .eq("title", oldTitle);
+
+  if (error) throw error;
+}

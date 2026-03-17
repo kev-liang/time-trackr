@@ -38,6 +38,7 @@ type AutocompleteTextInputProps = {
   onChangeText: (text: string) => void;
   onSelect: (item: AutocompleteItem) => void;
   onCreate?: (label: string, color: string) => void;
+  onEdit?: (item: AutocompleteItem) => void;
   placeholder?: string;
   rightComponent?: ReactNode;
   TextInputComponent?: ComponentType<TextInputProps>;
@@ -50,6 +51,7 @@ export function AutocompleteTextInput({
   onChangeText,
   onSelect,
   onCreate,
+  onEdit,
   placeholder,
   rightComponent,
   TextInputComponent = TextInput,
@@ -186,7 +188,7 @@ export function AutocompleteTextInput({
         {rightComponent}
       </View>
       {open && (
-        <AutocompleteDropdown data={listData} onSelect={handleSelect} />
+        <AutocompleteDropdown data={listData} onSelect={handleSelect} onEdit={onEdit} />
       )}
     </View>
   );

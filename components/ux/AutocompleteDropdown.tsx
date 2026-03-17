@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Keyboard, Pressable, StyleSheet, View } from "react-native";
 
@@ -16,11 +17,13 @@ type DropdownItem = {
 type AutocompleteDropdownProps = {
   data: DropdownItem[];
   onSelect: (item: DropdownItem) => void;
+  onEdit?: (item: DropdownItem) => void;
 };
 
 export function AutocompleteDropdown({
   data,
   onSelect,
+  onEdit,
 }: AutocompleteDropdownProps) {
   return (
     <BottomSheetFlatList<DropdownItem>
@@ -31,7 +34,6 @@ export function AutocompleteDropdown({
       ListHeaderComponent={DropdownHeader}
       ItemSeparatorComponent={Separator}
       renderItem={({ item }) =>
-        // TODO: should move this out of this file and pass as props
         item.id === CREATE_ID ? (
           <Pressable
             style={({ pressed }) => [
@@ -48,10 +50,18 @@ export function AutocompleteDropdown({
           </Pressable>
         ) : (
           <Pressable
-            style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
+            style={({ pressed }) => [styles.row, styles.existingRow, pressed && styles.rowPressed]}
             onPress={() => { Keyboard.dismiss(); onSelect(item); }}
           >
             <Chip label={item.label} color={item.color ?? colors.tint} />
+            {onEdit && (
+              <Pressable
+                hitSlop={8}
+                onPress={() => { Keyboard.dismiss(); onEdit(item); }}
+              >
+                <Ionicons name="pencil" size={16} color={colors.textSecondary} />
+              </Pressable>
+            )}
           </Pressable>
         )
       }
@@ -99,6 +109,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
+  },
+  existingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   createRow: {
     flexDirection: "row",

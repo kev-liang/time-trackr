@@ -21,6 +21,7 @@ type ActivityStore = {
   addActivity: (activity: Omit<Activity, "id">) => Promise<void>;
   removeActivity: (id: string) => Promise<void>;
   updateActivity: (id: string, updates: Partial<Omit<Activity, "id">>) => Promise<void>;
+  renameActivityTitle: (oldTitle: string, newTitle: string) => Promise<void>;
 };
 
 export const useActivityStore = create<ActivityStore>((set) => ({
@@ -56,5 +57,14 @@ export const useActivityStore = create<ActivityStore>((set) => ({
       ),
     }));
     analytics.capture("activity_updated", { fields_changed: Object.keys(updates) });
+  },
+
+  renameActivityTitle: async (oldTitle, newTitle) => {
+    await api.bulkRenameActivities(oldTitle, newTitle);
+    set((state) => ({
+      activities: state.activities.map((a) =>
+        a.title === oldTitle ? { ...a, title: newTitle } : a,
+      ),
+    }));
   },
 }));
