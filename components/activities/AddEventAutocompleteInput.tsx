@@ -25,6 +25,7 @@ export function AddEventAutocompleteInput({
   const rawItems = useActivityHistoryStore((s) => s.items);
   const addItem = useActivityHistoryStore((s) => s.addItem);
   const renameItem = useActivityHistoryStore((s) => s.renameItem);
+  const removeItem = useActivityHistoryStore((s) => s.removeItem);
   const renameActivityTitle = useActivityStore((s) => s.renameActivityTitle);
 
   const [editingItem, setEditingItem] = useState<AutocompleteItem | null>(null);
@@ -69,6 +70,7 @@ export function AddEventAutocompleteInput({
         onSelect={onSelect}
         onCreate={handleCreate}
         onEdit={setEditingItem}
+        onDelete={(item) => removeItem(item.id)}
         placeholder="Add Title"
         TextInputComponent={BottomSheetTextInput}
         initialItem={initialItem}

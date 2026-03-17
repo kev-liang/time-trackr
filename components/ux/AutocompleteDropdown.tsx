@@ -18,12 +18,14 @@ type AutocompleteDropdownProps = {
   data: DropdownItem[];
   onSelect: (item: DropdownItem) => void;
   onEdit?: (item: DropdownItem) => void;
+  onDelete?: (item: DropdownItem) => void;
 };
 
 export function AutocompleteDropdown({
   data,
   onSelect,
   onEdit,
+  onDelete,
 }: AutocompleteDropdownProps) {
   return (
     <BottomSheetFlatList<DropdownItem>
@@ -54,14 +56,24 @@ export function AutocompleteDropdown({
             onPress={() => { Keyboard.dismiss(); onSelect(item); }}
           >
             <Chip label={item.label} color={item.color ?? colors.tint} />
-            {onEdit && (
-              <Pressable
-                hitSlop={8}
-                onPress={() => { Keyboard.dismiss(); onEdit(item); }}
-              >
-                <Ionicons name="pencil" size={16} color={colors.textSecondary} />
-              </Pressable>
-            )}
+            <View style={styles.actions}>
+              {onEdit && (
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => { Keyboard.dismiss(); onEdit(item); }}
+                >
+                  <Ionicons name="pencil" size={16} color={colors.textSecondary} />
+                </Pressable>
+              )}
+              {onDelete && (
+                <Pressable
+                  hitSlop={8}
+                  onPress={() => { Keyboard.dismiss(); onDelete(item); }}
+                >
+                  <Ionicons name="close" size={16} color={colors.textSecondary} />
+                </Pressable>
+              )}
+            </View>
           </Pressable>
         )
       }
@@ -114,6 +126,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
   createRow: {
     flexDirection: "row",
