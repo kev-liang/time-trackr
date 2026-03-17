@@ -17,7 +17,10 @@
       "bundleIdentifier": "com.kliang.timetracer",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
-        "UIBackgroundModes": ["fetch", "remote-notification"],
+        "UIBackgroundModes": [
+          "fetch",
+          "remote-notification"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -48,7 +51,9 @@
           "defaultChannel": "default"
         }
       ],
-      ["expo-task-manager"],
+      [
+        "expo-task-manager"
+      ],
       [
         "expo-splash-screen",
         {
@@ -72,7 +77,8 @@
             "privacyManifestAggregationEnabled": true
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
