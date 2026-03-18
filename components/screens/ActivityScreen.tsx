@@ -20,6 +20,7 @@ import { TodayFAB } from "@/components/activities/TodayFAB";
 import { ThemedView } from "@/components/themed-view";
 import { LoadingScreen } from "@/components/ux/LoadingScreen";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 
@@ -32,12 +33,14 @@ export function ActivityScreen() {
   const loadActivities = useActivityStore((s) => s.loadActivities);
   const activities = useActivityStore((s) => s.activities);
   const isLoading = useActivityStore((s) => s.isLoading);
+  const loadItems = useActivityHistoryStore((s) => s.loadItems);
   const [calendarReady, setCalendarReady] = useState(false);
   const showLoading = isLoading || !calendarReady;
 
   useEffect(() => {
     loadActivities();
-  }, [loadActivities]);
+    loadItems();
+  }, [loadActivities, loadItems]);
 
   const timelineRef = useRef<ActivityTimelineHandle>(null);
   const today = new Date().toISOString().split("T")[0];

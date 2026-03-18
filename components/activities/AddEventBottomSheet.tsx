@@ -22,6 +22,14 @@ function formatTimeDisplay(date: Date): string {
   return `${h12}:${m} ${period}`;
 }
 
+function formatDateDisplay(date: Date): string {
+  return date.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
 interface AddEventBottomSheetProps {
   animatedPosition: SharedValue<number>;
   onPositionsCalculated?: (minPosition: number, maxPosition: number) => void;
@@ -31,7 +39,7 @@ export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
-  const snapPoints = useMemo(() => [300, 560], []);
+  const snapPoints = useMemo(() => [300], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
@@ -290,16 +298,24 @@ export function AddEventBottomSheet({
               <AppText variant="body" color={colors.textSecondary}>
                 Start
               </AppText>
-              <Pressable
-                style={styles.timeButton}
-                onPress={() =>
-                  setPickerField(pickerField === "start" ? null : "start")
-                }
-              >
-                <AppText variant="bodySemiBold" color={timeError ? "#EF4444" : undefined}>
-                  {formatTimeDisplay(startTime)}
+              <View style={styles.timeButtonGroup}>
+                <AppText variant="bodySemiBold" color={colors.textSecondary}>
+                  {formatDateDisplay(startTime)}
                 </AppText>
-              </Pressable>
+                <Pressable
+                  style={styles.timeButton}
+                  onPress={() =>
+                    setPickerField(pickerField === "start" ? null : "start")
+                  }
+                >
+                  <AppText
+                    variant="bodySemiBold"
+                    color={timeError ? "#EF4444" : undefined}
+                  >
+                    {formatTimeDisplay(startTime)}
+                  </AppText>
+                </Pressable>
+              </View>
             </View>
           </Pressable>
           {pickerField === "start" && (
@@ -320,16 +336,24 @@ export function AddEventBottomSheet({
               <AppText variant="body" color={colors.textSecondary}>
                 End
               </AppText>
-              <Pressable
-                style={styles.timeButton}
-                onPress={() =>
-                  setPickerField(pickerField === "end" ? null : "end")
-                }
-              >
-                <AppText variant="bodySemiBold" color={timeError ? "#EF4444" : undefined}>
-                  {formatTimeDisplay(endTime)}
+              <View style={styles.timeButtonGroup}>
+                <AppText variant="bodySemiBold" color={colors.textSecondary}>
+                  {formatDateDisplay(endTime)}
                 </AppText>
-              </Pressable>
+                <Pressable
+                  style={styles.timeButton}
+                  onPress={() =>
+                    setPickerField(pickerField === "end" ? null : "end")
+                  }
+                >
+                  <AppText
+                    variant="bodySemiBold"
+                    color={timeError ? "#EF4444" : undefined}
+                  >
+                    {formatTimeDisplay(endTime)}
+                  </AppText>
+                </Pressable>
+              </View>
             </View>
           </Pressable>
           {pickerField === "end" && (
@@ -343,7 +367,11 @@ export function AddEventBottomSheet({
             </View>
           )}
           {timeError && (
-            <AppText variant="body" color="#EF4444" style={{ paddingHorizontal: spacing.xl }}>
+            <AppText
+              variant="body"
+              color="#EF4444"
+              style={{ paddingHorizontal: spacing.xl }}
+            >
               {timeError}
             </AppText>
           )}
@@ -354,8 +382,7 @@ export function AddEventBottomSheet({
         visible={showDeleteConfirm}
         title="Delete Event"
         body="Are you sure you want to delete this event?"
-        confirmLabel="Delete"
-        onConfirm={handleConfirmDelete}
+        onDelete={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
       />
     </>
@@ -398,6 +425,11 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     backgroundColor: colors.surface,
     borderRadius: 8,
+  },
+  timeButtonGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
   headerActions: {
     flexDirection: "row",

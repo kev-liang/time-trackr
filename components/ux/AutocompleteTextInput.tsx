@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -14,7 +15,6 @@ import {
 } from "react-native";
 
 import { AutocompleteDropdown, CREATE_ID } from "@/components/ux/AutocompleteDropdown";
-import { AppText } from "@/components/ux/AppText";
 import { Chip } from "@/components/ux/Chip";
 import { colors, fonts, spacing } from "@/theme";
 import { ACTIVITY_COLORS } from "@/utils/consts";
@@ -61,8 +61,9 @@ export function AutocompleteTextInput({
 }: AutocompleteTextInputProps) {
   const [open, setOpen] = useState(false);
   const [localValue, setLocalValue] = useState(value);
-  const [selectedChips, setSelectedChips] = useState<AutocompleteItem[]>([]);
+  const [selectedChip, setSelectedChip] = useState<AutocompleteItem | null>(null);
   const [stagedColor, setStagedColor] = useState<string | null>(null);
+  const prevChipRef = useRef<AutocompleteItem | null>(null);
 
   useEffect(() => {
     setLocalValue(value);
@@ -71,23 +72,21 @@ export function AutocompleteTextInput({
 
   useEffect(() => {
     if (initialItem) {
-      setSelectedChips([initialItem]);
+      setSelectedChip(initialItem);
+      prevChipRef.current = initialItem;
       setLocalValue("");
     } else {
-      setSelectedChips([]);
+      setSelectedChip(null);
+      prevChipRef.current = null;
     }
   }, [initialItem]);
 
   const filtered = useMemo(() => {
-    const selectedIds = new Set(selectedChips.map((c) => c.id));
-    const selectedLabels = new Set(selectedChips.map((c) => c.label.toLowerCase()));
     const base = localValue
       ? items.filter((item) => fuzzyMatch(localValue, item.label))
       : items;
-    return base.filter(
-      (item) => !selectedIds.has(item.id) && !selectedLabels.has(item.label.toLowerCase()),
-    );
-  }, [localValue, items, selectedChips]);
+    return base;
+  }, [localValue, items]);
 
   const listData = useMemo(() => {
     const trimmed = localValue.trim();
@@ -103,7 +102,8 @@ export function AutocompleteTextInput({
         ? { ...item, id: `created:${item.label}`, color }
         : item;
       if (isNew) onCreate?.(item.label, color!);
-      setSelectedChips((prev) => [...prev, chip]);
+      setSelectedChip(chip);
+      prevChipRef.current = chip;
       onSelect(chip);
       onChangeText("");
       setLocalValue("");
@@ -122,24 +122,27 @@ export function AutocompleteTextInput({
     handleSelect(exact ?? { id: CREATE_ID, label: trimmed });
   }, [localValue, items, handleSelect]);
 
-  const handleRemoveChip = useCallback((id: string) => {
-    setSelectedChips((prev) => prev.filter((c) => c.id !== id));
+  const handleFocus = useCallback(() => {
+    setSelectedChip((current) => {
+      prevChipRef.current = current;
+      return null;
+    });
+    setOpen(true);
   }, []);
-
-  const handleKeyPress = useCallback(
-    (e: { nativeEvent: { key: string } }) => {
-      if (e.nativeEvent.key === "Backspace" && !localValue && selectedChips.length > 0) {
-        setSelectedChips((prev) => prev.slice(0, -1));
-      }
-    },
-    [localValue, selectedChips.length],
-  );
-
-  const handleFocus = useCallback(() => setOpen(true), []);
 
   const handleBlur = useCallback(() => {
-    setTimeout(() => setOpen(false), 150);
-  }, []);
+    setTimeout(() => {
+      setOpen(false);
+      setSelectedChip((current) => {
+        if (current === null && prevChipRef.current !== null) {
+          onChangeText("");
+          setLocalValue("");
+          return prevChipRef.current;
+        }
+        return current;
+      });
+    }, 150);
+  }, [onChangeText]);
 
   const onChangeTextLocal = useCallback(
     (text: string) => {
@@ -161,29 +164,21 @@ export function AutocompleteTextInput({
             rightComponent ? styles.inputContainerWithRight : undefined,
           ]}
         >
-          {selectedChips.map((chip) => (
+          {selectedChip && (
             <Chip
-              key={chip.id}
-              label={chip.label}
-              color={chip.color ?? colors.tint}
-              onPress={() => handleRemoveChip(chip.id)}
-              rightComponent={
-                <AppText variant="body" color="rgba(255,255,255,0.75)">
-                  {" ×"}
-                </AppText>
-              }
+              label={selectedChip.label}
+              color={selectedChip.color ?? colors.tint}
             />
-          ))}
+          )}
           <TextInputComponent
             style={styles.textInput}
             value={localValue}
             onChangeText={onChangeTextLocal}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            onKeyPress={handleKeyPress}
             onSubmitEditing={handleSubmitEditing}
             submitBehavior="submit"
-            placeholder={selectedChips.length === 0 ? placeholder : undefined}
+            placeholder={selectedChip === null ? placeholder : undefined}
             placeholderTextColor={colors.textSecondary}
           />
         </View>

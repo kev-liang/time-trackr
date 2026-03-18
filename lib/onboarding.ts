@@ -10,3 +10,4 @@ export async function hasCompletedOnboarding(): Promise<boolean> {
   const val = await AsyncStorage.getItem(ONBOARDING_KEY);
   return val !== null;
 }
+

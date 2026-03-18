@@ -55,11 +55,18 @@ export const useActivityHistoryStore = create<ActivityHistoryStore>(
 
     updateLastUsed: async (id, date) => {
       await api.updateActivityHistoryItem(id, { last_used: date });
-      set((state) => ({
-        items: state.items.map((i) =>
+      set((state) => {
+        const updated = state.items.map((i) =>
           i.id === id ? { ...i, lastUsed: date } : i,
-        ),
-      }));
+        );
+        updated.sort((a, b) => {
+          if (!a.lastUsed && !b.lastUsed) return 0;
+          if (!a.lastUsed) return 1;
+          if (!b.lastUsed) return -1;
+          return b.lastUsed.localeCompare(a.lastUsed);
+        });
+        return { items: updated };
+      });
     },
 
     renameItem: async (id, name) => {

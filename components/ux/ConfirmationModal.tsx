@@ -1,4 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
+import { type ReactNode } from "react";
 import { Modal, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
@@ -7,10 +8,10 @@ import { colors, spacing } from "@/theme";
 type ConfirmationModalProps = {
   visible: boolean;
   title: string;
-  body: string;
-  confirmLabel?: string;
+  body: ReactNode;
+  deleteLabel?: string;
   cancelLabel?: string;
-  onConfirm: () => void;
+  onDelete: () => void;
   onCancel: () => void;
 };
 
@@ -18,9 +19,9 @@ export function ConfirmationModal({
   visible,
   title,
   body,
-  confirmLabel = "Confirm",
+  deleteLabel = "Delete",
   cancelLabel = "Cancel",
-  onConfirm,
+  onDelete,
   onCancel,
 }: ConfirmationModalProps) {
   return (
@@ -41,19 +42,17 @@ export function ConfirmationModal({
             </Pressable>
           </View>
 
-          <AppText variant="body" color={colors.textSecondary} style={styles.body}>
-            {body}
-          </AppText>
+          <View style={styles.body}>{body}</View>
 
           <View style={styles.actions}>
             <Pressable style={styles.cancelButton} onPress={onCancel}>
-              <AppText variant="bodySemiBold" color={colors.textSecondary}>
+              <AppText variant="bodySemiBold" color="textSecondary">
                 {cancelLabel}
               </AppText>
             </Pressable>
-            <Pressable style={styles.confirmButton} onPress={onConfirm}>
-              <AppText variant="bodySemiBold" color="#EF4444">
-                {confirmLabel}
+            <Pressable style={styles.deleteButton} onPress={onDelete}>
+              <AppText variant="bodySemiBold" style={styles.deleteLabel}>
+                {deleteLabel}
               </AppText>
             </Pressable>
           </View>
@@ -88,20 +87,30 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   body: {
-    lineHeight: 22,
+    gap: 8,
   },
   actions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: spacing.md,
+    gap: spacing.sm,
     paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
   cancelButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
-  confirmButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+  deleteButton: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    backgroundColor: "#EF4444",
+  },
+  deleteLabel: {
+    color: "#FFFFFF",
   },
 });

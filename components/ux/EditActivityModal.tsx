@@ -1,6 +1,14 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Modal, Platform, Pressable, StyleSheet, TextInput, View } from "react-native";
+import {
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { colors, fonts, spacing } from "@/theme";
@@ -47,6 +55,17 @@ export function EditActivityModal({
             </Pressable>
           </View>
 
+          <View style={styles.warningSection}>
+            <AppText
+              variant="body"
+              color="textSecondary"
+              style={styles.warningText}
+            >
+              Editing this activity will change past activities in the Calendar
+              and Insights tab.
+            </AppText>
+          </View>
+
           <TextInput
             style={styles.input}
             value={name}
@@ -58,18 +77,18 @@ export function EditActivityModal({
 
           <View style={styles.actions}>
             <Pressable style={styles.cancelButton} onPress={onCancel}>
-              <AppText variant="bodySemiBold" color={colors.textSecondary}>
+              <AppText variant="bodySemiBold" color="textSecondary">
                 Cancel
               </AppText>
             </Pressable>
             <Pressable
-              style={[styles.confirmButton, !canSubmit && styles.confirmButtonDisabled]}
+              style={[
+                styles.confirmButton,
+                !canSubmit && styles.confirmButtonDisabled,
+              ]}
               onPress={() => canSubmit && onConfirm(name.trim())}
             >
-              <AppText
-                variant="bodySemiBold"
-                color={canSubmit ? colors.tint : colors.textSecondary}
-              >
+              <AppText variant="bodySemiBold" style={{ color: colors.background }}>
                 Edit
               </AppText>
             </Pressable>
@@ -104,6 +123,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
+  warningSection: {
+    gap: spacing.sm,
+    paddingBottom: spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+  },
+  warningText: {
+    lineHeight: 22,
+  },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -117,16 +145,21 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    gap: spacing.md,
+    gap: spacing.sm,
     paddingTop: spacing.sm,
   },
   cancelButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   confirmButton: {
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderRadius: 8,
+    backgroundColor: colors.tint,
   },
   confirmButtonDisabled: {
     opacity: 0.4,

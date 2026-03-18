@@ -5,6 +5,8 @@ import {
   AutocompleteTextInput,
   type AutocompleteItem,
 } from "@/components/ux/AutocompleteTextInput";
+import { AppText } from "@/components/ux/AppText";
+import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
 import { EditActivityModal } from "@/components/ux/EditActivityModal";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useActivityStore } from "@/stores/useActivityStore";
@@ -26,9 +28,11 @@ export function AddEventAutocompleteInput({
   const addItem = useActivityHistoryStore((s) => s.addItem);
   const renameItem = useActivityHistoryStore((s) => s.renameItem);
   const removeItem = useActivityHistoryStore((s) => s.removeItem);
+  const updateLastUsed = useActivityHistoryStore((s) => s.updateLastUsed);
   const renameActivityTitle = useActivityStore((s) => s.renameActivityTitle);
 
   const [editingItem, setEditingItem] = useState<AutocompleteItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<AutocompleteItem | null>(null);
 
   const historyItems = useMemo(
     () => rawItems.map((i) => ({ id: i.id, label: i.name, color: i.color })),
@@ -41,10 +45,20 @@ export function AddEventAutocompleteInput({
         (i) => i.name.toLowerCase() === label.toLowerCase(),
       );
       if (!exists) {
-        addItem({ name: label, pinned: false, color });
+        addItem({ name: label, pinned: false, color, lastUsed: new Date().toISOString() });
       }
     },
     [rawItems, addItem],
+  );
+
+  const handleSelect = useCallback(
+    (item: AutocompleteItem) => {
+      if (!item.id.startsWith("created:")) {
+        updateLastUsed(item.id, new Date().toISOString());
+      }
+      onSelect(item);
+    },
+    [onSelect, updateLastUsed],
   );
 
   const handleEditConfirm = useCallback(
@@ -67,10 +81,10 @@ export function AddEventAutocompleteInput({
         items={historyItems}
         value={value}
         onChangeText={onChangeText}
-        onSelect={onSelect}
+        onSelect={handleSelect}
         onCreate={handleCreate}
         onEdit={setEditingItem}
-        onDelete={(item) => removeItem(item.id)}
+        onDelete={setDeletingItem}
         placeholder="Add Title"
         TextInputComponent={BottomSheetTextInput}
         initialItem={initialItem}
@@ -80,6 +94,25 @@ export function AddEventAutocompleteInput({
         initialName={editingItem?.label ?? ""}
         onConfirm={handleEditConfirm}
         onCancel={() => setEditingItem(null)}
+      />
+      <ConfirmationModal
+        visible={deletingItem !== null}
+        title="Delete Activity Suggestion"
+        body={
+          <>
+            <AppText variant="body" color="textSecondary">
+              Are you sure you want to delete this activity suggestion?
+            </AppText>
+            <AppText variant="body" color="textSecondary">
+              Past Calendar events and Insights will not be affected.
+            </AppText>
+          </>
+        }
+        onDelete={() => {
+          if (deletingItem) removeItem(deletingItem.id);
+          setDeletingItem(null);
+        }}
+        onCancel={() => setDeletingItem(null)}
       />
     </>
   );
