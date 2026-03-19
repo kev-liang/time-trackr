@@ -11,7 +11,6 @@ import {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   Easing,
-  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -45,18 +44,17 @@ export function InsightsScreen() {
       const outX = direction === "next" ? -SLIDE_DISTANCE : SLIDE_DISTANCE;
       const inX = direction === "next" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
       const action = direction === "next" ? goToNext : goToPrev;
-      const timing = { duration: 180, easing: Easing.in(Easing.cubic) };
-      translateX.value = withTiming(outX, timing, (finished) => {
-        "worklet";
-        if (finished) {
-          runOnJS(action)();
-          translateX.value = inX;
-          translateX.value = withTiming(0, {
-            duration: 180,
-            easing: Easing.out(Easing.cubic),
+      translateX.value = withTiming(outX, { duration: 180, easing: Easing.in(Easing.cubic) });
+      setTimeout(() => {
+        action();
+        translateX.value = inX;
+        // Double rAF ensures React commits the new data before the slide-in starts
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            translateX.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic) });
           });
-        }
-      });
+        });
+      }, 200);
     },
     [goToNext, goToPrev, translateX],
   );
