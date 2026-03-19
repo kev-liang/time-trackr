@@ -8,7 +8,7 @@ import Animated, {
 
 import { colors, textStyles } from "@/theme";
 
-import type { DaySlot } from "./insightsUtils";
+import type { DaySlot, Segment } from "./insightsUtils";
 import { buildGridLines, WeeklyGridLines, WeeklyYAxis } from "./WeeklyGridLines";
 
 const BAR_MAX_HEIGHT = 120;
@@ -23,6 +23,27 @@ type Props = {
   clearHighlight: () => void;
 };
 
+type SegmentProps = {
+  seg: Segment;
+  segHeight: number;
+  isDimmed: boolean;
+  onPress: () => void;
+  onLongPress: () => void;
+  clearHighlight: () => void;
+};
+
+function WeekBarSegment({ seg, segHeight, isDimmed, onPress, onLongPress, clearHighlight }: SegmentProps) {
+  const longPressActive = useRef(false);
+  return (
+    <Pressable
+      onPress={onPress}
+      onLongPress={() => { longPressActive.current = true; onLongPress(); }}
+      onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
+      style={{ height: segHeight, width: "100%", backgroundColor: seg.color, opacity: isDimmed ? 0.35 : 1 }}
+    />
+  );
+}
+
 type BarProps = {
   slot: DaySlot;
   maxMinutes: number;
@@ -30,13 +51,11 @@ type BarProps = {
   isHighlighted: boolean;
   isDimmed: boolean;
   highlightedTitles: Set<string> | null;
-  onPress: () => void;
-  onLongPress: () => void;
+  setHighlightedTitles: (titles: Set<string> | null) => void;
   clearHighlight: () => void;
 };
 
-function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, highlightedTitles, onPress, onLongPress, clearHighlight }: BarProps) {
-  const longPressActive = useRef(false);
+function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, highlightedTitles, setHighlightedTitles, clearHighlight }: BarProps) {
   const totalMinutes = slot.segments.reduce((s, seg) => s + seg.minutes, 0);
   const barHeight = maxMinutes > 0 ? (totalMinutes / maxMinutes) * BAR_MAX_HEIGHT : 0;
 
@@ -50,32 +69,28 @@ function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, hig
 
   return (
     <View style={styles.barWrapper}>
-      <Pressable
-        onPress={onPress}
-        onLongPress={() => { longPressActive.current = true; onLongPress(); }}
-        onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
-        style={styles.barContainer}
-      >
+      <View style={styles.barContainer}>
         <View style={{ height: BAR_MAX_HEIGHT, justifyContent: "flex-end" }}>
           <Animated.View style={[styles.bar, { height: barHeight }, animatedStyle]}>
             {[...slot.segments].reverse().map((seg, i) => {
               const segHeight = maxMinutes > 0 ? (seg.minutes / maxMinutes) * BAR_MAX_HEIGHT : 0;
-              const segDimmed = highlightedTitles !== null && !highlightedTitles.has(seg.title);
+              const isSegHighlighted = highlightedTitles !== null && highlightedTitles.has(seg.title);
+              const isSegDimmed = highlightedTitles !== null && !highlightedTitles.has(seg.title);
               return (
-                <View
+                <WeekBarSegment
                   key={i}
-                  style={{
-                    height: segHeight,
-                    backgroundColor: seg.color,
-                    width: "100%",
-                    opacity: segDimmed ? 0.35 : 1,
-                  }}
+                  seg={seg}
+                  segHeight={segHeight}
+                  isDimmed={isSegDimmed}
+                  onPress={() => isSegHighlighted ? clearHighlight() : setHighlightedTitles(new Set([seg.title]))}
+                  onLongPress={() => setHighlightedTitles(new Set([seg.title]))}
+                  clearHighlight={clearHighlight}
                 />
               );
             })}
           </Animated.View>
         </View>
-      </Pressable>
+      </View>
       <Text
         style={[
           styles.label,
@@ -115,8 +130,7 @@ export function WeeklyBarChart({ slots, maxMinutes, todayDayIndex, highlightedTi
                   isHighlighted={isHighlighted}
                   isDimmed={isDimmed}
                   highlightedTitles={highlightedTitles}
-                  onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
-                  onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
+                  setHighlightedTitles={setHighlightedTitles}
                   clearHighlight={clearHighlight}
                 />
               );

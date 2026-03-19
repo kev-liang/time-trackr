@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { EmptyInsights } from "@/components/insights/EmptyInsights";
@@ -26,6 +27,18 @@ export function InsightsScreen() {
     useInsightsStore();
   const [highlightedTitles, setHighlightedTitles] = useState<Set<string> | null>(null);
   const clearHighlight = useCallback(() => setHighlightedTitles(null), []);
+
+  const swipeGesture = Gesture.Pan()
+    .activeOffsetX([-20, 20])
+    .failOffsetY([-10, 10])
+    .onEnd((e) => {
+      if (e.translationX < -50) {
+        goToNext();
+      } else if (e.translationX > 50) {
+        goToPrev();
+      }
+    })
+    .runOnJS(true);
 
   useFocusEffect(
     useCallback(() => {
@@ -46,11 +59,12 @@ export function InsightsScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
+        <GestureDetector gesture={swipeGesture}>
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
         >
-          <PeriodToggle value={period} onChange={setPeriod} />
+          <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
 
           <View style={styles.dateNav}>
             <TouchableOpacity onPress={goToPrev}>
@@ -98,6 +112,7 @@ export function InsightsScreen() {
             </>
           )}
         </ScrollView>
+        </GestureDetector>
       </SafeAreaView>
     </ThemedView>
   );
