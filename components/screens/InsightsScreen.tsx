@@ -9,6 +9,11 @@ import {
   View,
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { EmptyInsights } from "@/components/insights/EmptyInsights";
@@ -22,29 +27,46 @@ import { Card } from "@/components/ux/Card";
 import { useInsightsData, useInsightsStore } from "@/stores/useInsightsStore";
 import { colors, spacing, textStyles } from "@/theme";
 
+const SLIDE_DISTANCE = 350;
+
 export function InsightsScreen() {
   const { period, setPeriod, goToPrev, goToNext, setSelectedDate } =
     useInsightsStore();
   const [highlightedTitles, setHighlightedTitles] = useState<Set<string> | null>(null);
   const clearHighlight = useCallback(() => setHighlightedTitles(null), []);
 
+  const translateX = useSharedValue(0);
+
+  // Runs on JS thread — update data immediately then slide new content in
+  const navigate = useCallback(
+    (direction: "next" | "prev") => {
+      const inX = direction === "next" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
+      const action = direction === "next" ? goToNext : goToPrev;
+      action();
+      translateX.value = inX;
+      translateX.value = withSpring(0, { damping: 22, stiffness: 280 });
+    },
+    [goToNext, goToPrev, translateX],
+  );
+
   const swipeGesture = Gesture.Pan()
     .activeOffsetX([-20, 20])
     .failOffsetY([-10, 10])
+    .runOnJS(true)
     .onEnd((e) => {
       if (e.translationX < -50) {
-        goToNext();
+        navigate("next");
       } else if (e.translationX > 50) {
-        goToPrev();
+        navigate("prev");
       }
-    })
-    .runOnJS(true);
+    });
 
   useFocusEffect(
     useCallback(() => {
       setSelectedDate(new Date());
     }, [setSelectedDate]),
   );
+
   const {
     hourSlots,
     daySlots,
@@ -56,62 +78,68 @@ export function InsightsScreen() {
     isToday,
   } = useInsightsData();
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
         <GestureDetector gesture={swipeGesture}>
-        <ScrollView
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-        >
-          <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
+          <ScrollView
+            contentContainerStyle={styles.content}
+            showsVerticalScrollIndicator={false}
+          >
+            <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
 
-          <View style={styles.dateNav}>
-            <TouchableOpacity onPress={goToPrev}>
-              <Ionicons name="chevron-back" size={24} color={colors.text} />
-            </TouchableOpacity>
-            <View style={styles.dateTitleContainer}>
-              <Text style={styles.dateTitle}>{dateTitle}</Text>
-              {isToday && <InsightsChip label="Today" />}
-            </View>
-            <TouchableOpacity onPress={goToNext}>
-              <Ionicons name="chevron-forward" size={24} color={colors.text} />
-            </TouchableOpacity>
-          </View>
+            <Animated.View style={[styles.animatedContent, animatedStyle]}>
+              <View style={styles.dateNav}>
+                <TouchableOpacity onPress={() => navigate("prev")}>
+                  <Ionicons name="chevron-back" size={24} color={colors.text} />
+                </TouchableOpacity>
+                <View style={styles.dateTitleContainer}>
+                  <Text style={styles.dateTitle}>{dateTitle}</Text>
+                  {isToday && <InsightsChip label="Today" />}
+                </View>
+                <TouchableOpacity onPress={() => navigate("next")}>
+                  <Ionicons name="chevron-forward" size={24} color={colors.text} />
+                </TouchableOpacity>
+              </View>
 
-          {isEmpty ? (
-            <EmptyInsights />
-          ) : (
-            <>
-              {period === "week" ? (
-                <WeeklyBarChart
-                  slots={daySlots}
-                  maxMinutes={maxMinutes}
-                  todayDayIndex={todayDayIndex}
-                  highlightedTitles={highlightedTitles}
-                  setHighlightedTitles={setHighlightedTitles}
-                  clearHighlight={clearHighlight}
-                />
+              {isEmpty ? (
+                <EmptyInsights />
               ) : (
-                <HourlyBarChart
-                  slots={hourSlots}
-                  highlightedTitles={highlightedTitles}
-                  setHighlightedTitles={setHighlightedTitles}
-                  clearHighlight={clearHighlight}
-                />
-              )}
+                <>
+                  {period === "week" ? (
+                    <WeeklyBarChart
+                      slots={daySlots}
+                      maxMinutes={maxMinutes}
+                      todayDayIndex={todayDayIndex}
+                      highlightedTitles={highlightedTitles}
+                      setHighlightedTitles={setHighlightedTitles}
+                      clearHighlight={clearHighlight}
+                    />
+                  ) : (
+                    <HourlyBarChart
+                      slots={hourSlots}
+                      highlightedTitles={highlightedTitles}
+                      setHighlightedTitles={setHighlightedTitles}
+                      clearHighlight={clearHighlight}
+                    />
+                  )}
 
-              <Card title="Activities">
-                <InsightList
-                  items={activityTotals}
-                  highlightedTitles={highlightedTitles}
-                  setHighlightedTitles={setHighlightedTitles}
-                  clearHighlight={clearHighlight}
-                />
-              </Card>
-            </>
-          )}
-        </ScrollView>
+                  <Card title="Activities">
+                    <InsightList
+                      items={activityTotals}
+                      highlightedTitles={highlightedTitles}
+                      setHighlightedTitles={setHighlightedTitles}
+                      clearHighlight={clearHighlight}
+                    />
+                  </Card>
+                </>
+              )}
+            </Animated.View>
+          </ScrollView>
         </GestureDetector>
       </SafeAreaView>
     </ThemedView>
@@ -125,6 +153,9 @@ const styles = StyleSheet.create({
   content: {
     padding: spacing.md,
     paddingBottom: spacing.xl,
+    gap: spacing.lg,
+  },
+  animatedContent: {
     gap: spacing.lg,
   },
   dateTitle: {
