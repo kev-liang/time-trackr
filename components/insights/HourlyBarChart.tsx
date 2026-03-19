@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -25,16 +26,18 @@ type BarProps = {
   isHighlighted: boolean;
   isDimmed: boolean;
   highlightedTitles: Set<string> | null;
+  onPress: () => void;
   onLongPress: () => void;
-  onPressOut: () => void;
+  clearHighlight: () => void;
 };
 
-function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onLongPress, onPressOut }: BarProps) {
+function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onPress, onLongPress, clearHighlight }: BarProps) {
+  const longPressActive = useRef(false);
   const totalMinutes = slot.segments.reduce((s, seg) => s + seg.minutes, 0);
   const barHeight = Math.min((totalMinutes / 60) * BAR_MAX_HEIGHT, BAR_MAX_HEIGHT);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(isDimmed ? 0.2 : 1, { duration: 150 }),
+    opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
     transform: [
       { translateY: withSpring(isHighlighted ? -(barHeight * 0.1) : 0, { damping: 18, stiffness: 250 }) },
       { scaleY: withSpring(isHighlighted ? 1.2 : 1, { damping: 18, stiffness: 250 }) },
@@ -44,8 +47,9 @@ function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onLongPress
 
   return (
     <Pressable
-      onLongPress={onLongPress}
-      onPressOut={onPressOut}
+      onPress={onPress}
+      onLongPress={() => { longPressActive.current = true; onLongPress(); }}
+      onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
       hitSlop={{ top: 16, bottom: 16 }}
       style={styles.barWrapper}
     >
@@ -90,8 +94,9 @@ export function HourlyBarChart({ slots, highlightedTitles, setHighlightedTitles,
               isHighlighted={isHighlighted}
               isDimmed={isDimmed}
               highlightedTitles={highlightedTitles}
+              onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
               onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
-              onPressOut={clearHighlight}
+              clearHighlight={clearHighlight}
             />
           );
         })}

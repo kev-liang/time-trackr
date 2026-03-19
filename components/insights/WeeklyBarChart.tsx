@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -29,16 +30,18 @@ type BarProps = {
   isHighlighted: boolean;
   isDimmed: boolean;
   highlightedTitles: Set<string> | null;
+  onPress: () => void;
   onLongPress: () => void;
-  onPressOut: () => void;
+  clearHighlight: () => void;
 };
 
-function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, highlightedTitles, onLongPress, onPressOut }: BarProps) {
+function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, highlightedTitles, onPress, onLongPress, clearHighlight }: BarProps) {
+  const longPressActive = useRef(false);
   const totalMinutes = slot.segments.reduce((s, seg) => s + seg.minutes, 0);
   const barHeight = maxMinutes > 0 ? (totalMinutes / maxMinutes) * BAR_MAX_HEIGHT : 0;
 
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(isDimmed ? 0.2 : 1, { duration: 150 }),
+    opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
     transform: [
       { translateY: withSpring(isHighlighted ? -(barHeight * 0.075) : 0, { damping: 18, stiffness: 250 }) },
       { scaleY: withSpring(isHighlighted ? 1.15 : 1, { damping: 18, stiffness: 250 }) },
@@ -47,7 +50,12 @@ function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, hig
 
   return (
     <View style={styles.barWrapper}>
-      <Pressable onLongPress={onLongPress} onPressOut={onPressOut} style={styles.barContainer}>
+      <Pressable
+        onPress={onPress}
+        onLongPress={() => { longPressActive.current = true; onLongPress(); }}
+        onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
+        style={styles.barContainer}
+      >
         <View style={{ height: BAR_MAX_HEIGHT, justifyContent: "flex-end" }}>
           <Animated.View style={[styles.bar, { height: barHeight }, animatedStyle]}>
             {[...slot.segments].reverse().map((seg, i) => {
@@ -107,8 +115,9 @@ export function WeeklyBarChart({ slots, maxMinutes, todayDayIndex, highlightedTi
                   isHighlighted={isHighlighted}
                   isDimmed={isDimmed}
                   highlightedTitles={highlightedTitles}
+                  onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
                   onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
-                  onPressOut={clearHighlight}
+                  clearHighlight={clearHighlight}
                 />
               );
             })}

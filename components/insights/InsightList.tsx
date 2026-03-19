@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -20,18 +21,25 @@ type ItemProps = {
   item: ActivityTotal;
   isHighlighted: boolean;
   isDimmed: boolean;
+  onPress: () => void;
   onLongPress: () => void;
-  onPressOut: () => void;
+  clearHighlight: () => void;
 };
 
-function InsightListItem({ item, isHighlighted, isDimmed, onLongPress, onPressOut }: ItemProps) {
+function InsightListItem({ item, isHighlighted, isDimmed, onPress, onLongPress, clearHighlight }: ItemProps) {
+  const longPressActive = useRef(false);
+
   const animatedStyle = useAnimatedStyle(() => ({
-    opacity: withTiming(isDimmed ? 0.25 : 1, { duration: 150 }),
+    opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
     transform: [{ scale: withSpring(isHighlighted ? 1.05 : 1, { damping: 18, stiffness: 250 }) }],
   }));
 
   return (
-    <Pressable onLongPress={onLongPress} onPressOut={onPressOut}>
+    <Pressable
+      onPress={onPress}
+      onLongPress={() => { longPressActive.current = true; onLongPress(); }}
+      onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
+    >
       <Animated.View style={[styles.row, animatedStyle]}>
         <View style={[styles.dot, { backgroundColor: item.color, width: isHighlighted ? 5 : 3 }]} />
         <Text style={styles.title} numberOfLines={1}>{item.title}</Text>
@@ -44,16 +52,20 @@ function InsightListItem({ item, isHighlighted, isDimmed, onLongPress, onPressOu
 export function InsightList({ items, highlightedTitles, setHighlightedTitles, clearHighlight }: Props) {
   return (
     <View style={styles.list}>
-      {items.map((a) => (
-        <InsightListItem
-          key={a.title}
-          item={a}
-          isHighlighted={highlightedTitles !== null && highlightedTitles.has(a.title)}
-          isDimmed={highlightedTitles !== null && !highlightedTitles.has(a.title)}
-          onLongPress={() => setHighlightedTitles(new Set([a.title]))}
-          onPressOut={clearHighlight}
-        />
-      ))}
+      {items.map((a) => {
+        const isHighlighted = highlightedTitles !== null && highlightedTitles.has(a.title);
+        return (
+          <InsightListItem
+            key={a.title}
+            item={a}
+            isHighlighted={isHighlighted}
+            isDimmed={highlightedTitles !== null && !highlightedTitles.has(a.title)}
+            onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set([a.title]))}
+            onLongPress={() => setHighlightedTitles(new Set([a.title]))}
+            clearHighlight={clearHighlight}
+          />
+        );
+      })}
     </View>
   );
 }
