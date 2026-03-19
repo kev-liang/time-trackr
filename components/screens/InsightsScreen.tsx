@@ -48,13 +48,10 @@ export function InsightsScreen() {
       setTimeout(() => {
         action();
         translateX.value = inX;
-        // Double rAF ensures React commits the new data before the slide-in starts
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            translateX.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic) });
-          });
+          translateX.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic) });
         });
-      }, 200);
+      }, 180);
     },
     [goToNext, goToPrev, translateX],
   );
@@ -102,6 +99,7 @@ export function InsightsScreen() {
           >
             <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
 
+            <View style={styles.slideClip}>
             <Animated.View style={[styles.animatedContent, animatedStyle]}>
               <View style={styles.dateNav}>
                 <TouchableOpacity onPress={() => navigate("prev")}>
@@ -149,6 +147,7 @@ export function InsightsScreen() {
                 </>
               )}
             </Animated.View>
+            </View>
           </ScrollView>
         </GestureDetector>
       </SafeAreaView>
@@ -164,6 +163,9 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     paddingBottom: spacing.xl,
     gap: spacing.lg,
+  },
+  slideClip: {
+    overflow: "hidden",
   },
   animatedContent: {
     gap: spacing.lg,
