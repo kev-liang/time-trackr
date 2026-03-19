@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -24,6 +24,8 @@ import { colors, spacing, textStyles } from "@/theme";
 export function InsightsScreen() {
   const { period, setPeriod, goToPrev, goToNext, setSelectedDate } =
     useInsightsStore();
+  const [highlightedTitles, setHighlightedTitles] = useState<Set<string> | null>(null);
+  const clearHighlight = useCallback(() => setHighlightedTitles(null), []);
 
   useFocusEffect(
     useCallback(() => {
@@ -72,13 +74,26 @@ export function InsightsScreen() {
                   slots={daySlots}
                   maxMinutes={maxMinutes}
                   todayDayIndex={todayDayIndex}
+                  highlightedTitles={highlightedTitles}
+                  setHighlightedTitles={setHighlightedTitles}
+                  clearHighlight={clearHighlight}
                 />
               ) : (
-                <HourlyBarChart slots={hourSlots} />
+                <HourlyBarChart
+                  slots={hourSlots}
+                  highlightedTitles={highlightedTitles}
+                  setHighlightedTitles={setHighlightedTitles}
+                  clearHighlight={clearHighlight}
+                />
               )}
 
               <Card title="Activities">
-                <InsightList items={activityTotals} />
+                <InsightList
+                  items={activityTotals}
+                  highlightedTitles={highlightedTitles}
+                  setHighlightedTitles={setHighlightedTitles}
+                  clearHighlight={clearHighlight}
+                />
               </Card>
             </>
           )}

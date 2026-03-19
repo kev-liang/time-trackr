@@ -1,4 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
 import { colors, textStyles } from "@/theme";
 
@@ -10,40 +15,84 @@ const BAR_GAP = 3;
 
 type Props = {
   slots: HourSlot[];
+  highlightedTitles: Set<string> | null;
+  setHighlightedTitles: (titles: Set<string> | null) => void;
+  clearHighlight: () => void;
 };
 
-export function HourlyBarChart({ slots }: Props) {
+type BarProps = {
+  slot: HourSlot;
+  isHighlighted: boolean;
+  isDimmed: boolean;
+  highlightedTitles: Set<string> | null;
+  onLongPress: () => void;
+  onPressOut: () => void;
+};
+
+function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onLongPress, onPressOut }: BarProps) {
+  const totalMinutes = slot.segments.reduce((s, seg) => s + seg.minutes, 0);
+  const barHeight = Math.min((totalMinutes / 60) * BAR_MAX_HEIGHT, BAR_MAX_HEIGHT);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: withTiming(isDimmed ? 0.2 : 1, { duration: 150 }),
+    transform: [
+      { translateY: withSpring(isHighlighted ? -(barHeight * 0.1) : 0, { damping: 18, stiffness: 250 }) },
+      { scaleY: withSpring(isHighlighted ? 1.2 : 1, { damping: 18, stiffness: 250 }) },
+      { scaleX: withSpring(isHighlighted ? 1.2 : 1, { damping: 18, stiffness: 250 }) },
+    ],
+  }));
+
+  return (
+    <Pressable
+      onLongPress={onLongPress}
+      onPressOut={onPressOut}
+      hitSlop={{ top: 16, bottom: 16 }}
+      style={styles.barWrapper}
+    >
+      <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
+        {slot.hour % 3 === 0 && <View style={styles.tickLine} />}
+        <Animated.View style={[styles.bar, { height: barHeight }, animatedStyle]}>
+          {[...slot.segments].reverse().map((seg, i) => {
+            const segHeight = (seg.minutes / 60) * BAR_MAX_HEIGHT;
+            const segDimmed = highlightedTitles !== null && !highlightedTitles.has(seg.title);
+            return (
+              <View
+                key={i}
+                style={{
+                  height: segHeight,
+                  backgroundColor: seg.color,
+                  width: "100%",
+                  opacity: segDimmed ? 0.35 : 1,
+                }}
+              />
+            );
+          })}
+        </Animated.View>
+      </View>
+    </Pressable>
+  );
+}
+
+export function HourlyBarChart({ slots, highlightedTitles, setHighlightedTitles, clearHighlight }: Props) {
   return (
     <View>
       <View style={styles.barsRow}>
         {slots.map((slot) => {
-          const totalMinutes = slot.segments.reduce(
-            (s, seg) => s + seg.minutes,
-            0,
-          );
-          const barHeight = Math.min(
-            (totalMinutes / 60) * BAR_MAX_HEIGHT,
-            BAR_MAX_HEIGHT,
-          );
+          const titlesInBar = new Set(slot.segments.map((s) => s.title));
+          const isHighlighted =
+            highlightedTitles !== null &&
+            [...highlightedTitles].some((t) => titlesInBar.has(t));
+          const isDimmed = highlightedTitles !== null && !isHighlighted;
           return (
-            <View key={slot.hour} style={styles.barWrapper}>
-              <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
-                {slot.hour % 3 === 0 && (
-                  <View style={styles.tickLine} />
-                )}
-                <View style={[styles.bar, { height: barHeight }]}>
-                  {[...slot.segments].reverse().map((seg, i) => {
-                    const segHeight = (seg.minutes / 60) * BAR_MAX_HEIGHT;
-                    return (
-                      <View
-                        key={i}
-                        style={{ height: segHeight, backgroundColor: seg.color, width: "100%" }}
-                      />
-                    );
-                  })}
-                </View>
-              </View>
-            </View>
+            <HourBar
+              key={slot.hour}
+              slot={slot}
+              isHighlighted={isHighlighted}
+              isDimmed={isDimmed}
+              highlightedTitles={highlightedTitles}
+              onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
+              onPressOut={clearHighlight}
+            />
           );
         })}
       </View>

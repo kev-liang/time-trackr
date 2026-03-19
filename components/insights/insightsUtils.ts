@@ -1,7 +1,7 @@
 import type { Activity } from "@/stores/useActivityStore";
 import { durationMinutes } from "@/utils/activityTime";
 
-export type Segment = { color: string; minutes: number };
+export type Segment = { color: string; minutes: number; title: string };
 export type HourSlot = { hour: number; segments: Segment[] };
 export type DaySlot = {
   dayIndex: number;
@@ -59,7 +59,7 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
       const overlapEnd = Math.min(endMs, slotEndMs);
       const minutes = (overlapEnd - overlapStart) / 60000;
       if (minutes > 0.5) {
-        slots[h].segments.push({ color: activity.color, minutes });
+        slots[h].segments.push({ color: activity.color, minutes, title: activity.title });
       }
     }
   }
@@ -111,11 +111,11 @@ export function buildDaySlots(
 
     const minutes = durationMinutes(activity.start, activity.end);
     const slot = slots[dayIndex];
-    const existing = slot.segments.find((s) => s.color === activity.color);
+    const existing = slot.segments.find((s) => s.title === activity.title);
     if (existing) {
       existing.minutes += minutes;
     } else {
-      slot.segments.push({ color: activity.color, minutes });
+      slot.segments.push({ color: activity.color, minutes, title: activity.title });
     }
   }
 
