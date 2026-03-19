@@ -10,9 +10,11 @@ import {
 } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
+  Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -40,11 +42,21 @@ export function InsightsScreen() {
   // Runs on JS thread — update data immediately then slide new content in
   const navigate = useCallback(
     (direction: "next" | "prev") => {
+      const outX = direction === "next" ? -SLIDE_DISTANCE : SLIDE_DISTANCE;
       const inX = direction === "next" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
       const action = direction === "next" ? goToNext : goToPrev;
-      action();
-      translateX.value = inX;
-      translateX.value = withSpring(0, { damping: 22, stiffness: 280 });
+      const timing = { duration: 180, easing: Easing.in(Easing.cubic) };
+      translateX.value = withTiming(outX, timing, (finished) => {
+        "worklet";
+        if (finished) {
+          runOnJS(action)();
+          translateX.value = inX;
+          translateX.value = withTiming(0, {
+            duration: 180,
+            easing: Easing.out(Easing.cubic),
+          });
+        }
+      });
     },
     [goToNext, goToPrev, translateX],
   );
