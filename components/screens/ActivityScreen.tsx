@@ -41,21 +41,21 @@ export function ActivityScreen() {
   }, [loadActivities, loadItems]);
 
   const timelineRef = useRef<ActivityTimelineHandle>(null);
-  const today = new Date().toISOString().split("T")[0];
+  const today = moment().local().format("YYYY-MM-DD");
   const [selectedDate, setSelectedDate] = useState(today);
   const isToday = selectedDate === today;
 
   const handleOpen = useCallback(() => {
     const start = isToday
-      ? new Date()
-      : moment(selectedDate).startOf("day").add(12, "hours").toDate();
+      ? moment().local().toDate()
+      : moment(selectedDate).local().startOf("day").add(12, "hours").toDate();
     const end = new Date(start.getTime() + 60 * MS_PER_MINUTE);
     useActivityEditStore.getState().openCreate(start, end);
   }, [isToday, selectedDate]);
 
   const handleGoToToday = useCallback(() => {
     timelineRef.current?.goToToday();
-    setSelectedDate(new Date().toISOString().split("T")[0]);
+    setSelectedDate(moment().local().format("YYYY-MM-DD"));
   }, []);
 
   const bottomSheetAnimatedPosition = useSharedValue(0);
