@@ -44,6 +44,7 @@ export function InsightsScreen() {
       const outX = direction === "next" ? -SLIDE_DISTANCE : SLIDE_DISTANCE;
       const inX = direction === "next" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
       const action = direction === "next" ? goToNext : goToPrev;
+      clearHighlight();
       translateX.value = withTiming(outX, { duration: 180, easing: Easing.in(Easing.cubic) });
       setTimeout(() => {
         action();
