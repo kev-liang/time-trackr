@@ -4,6 +4,7 @@ import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
 import { AppText } from "@/components/ux/AppText";
@@ -39,6 +40,7 @@ export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
+  const { top: topInset } = useSafeAreaInsets();
   const snapPoints = useMemo(() => [300], []);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
@@ -246,6 +248,7 @@ export function AddEventBottomSheet({
         ref={bottomSheetRef}
         snapPoints={snapPoints}
         enablePanDownToClose
+        topInset={topInset}
         handleIndicatorStyle={styles.indicator}
         backgroundStyle={styles.background}
         onDismiss={clearEditing}
