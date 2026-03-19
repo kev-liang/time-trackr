@@ -23,7 +23,7 @@ configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 import { hasCompletedOnboarding } from "@/components/screens/OnboardingScreen";
 import { useAlarmScheduler } from "@/hooks/useAlarmScheduler";
 import { useNotificationResponse } from "@/hooks/useNotificationResponse";
-import { requestPermissions, scheduleNotifications } from "@/lib/notifications";
+import { hasPermissions, scheduleNotifications } from "@/lib/notifications";
 import { registerBackgroundReschedule } from "@/lib/notificationScheduler";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -56,7 +56,7 @@ export default function RootLayout() {
       const onboarded = await hasCompletedOnboarding();
       if (!onboarded) return;
       useAlarmStore.getState().clearExpiredMute();
-      const granted = await requestPermissions();
+      const granted = await hasPermissions();
       if (granted) {
         await scheduleNotifications(useAlarmStore.getState());
         await registerBackgroundReschedule();

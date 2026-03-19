@@ -12,27 +12,38 @@ import {
 
 import { AppText } from "@/components/ux/AppText";
 import { colors, fonts, spacing } from "@/theme";
+import { ACTIVITY_COLORS } from "@/utils/consts";
+
+const COLOR_SWATCHES = Object.values(ACTIVITY_COLORS);
 
 type EditActivityModalProps = {
   visible: boolean;
   initialName: string;
-  onConfirm: (newName: string) => void;
+  initialColor?: string;
+  onConfirm: (newName: string, newColor: string) => void;
   onCancel: () => void;
 };
 
 export function EditActivityModal({
   visible,
   initialName,
+  initialColor,
   onConfirm,
   onCancel,
 }: EditActivityModalProps) {
   const [name, setName] = useState(initialName);
+  const [color, setColor] = useState(initialColor ?? COLOR_SWATCHES[0]);
 
   useEffect(() => {
-    if (visible) setName(initialName);
-  }, [visible, initialName]);
+    if (visible) {
+      setName(initialName);
+      setColor(initialColor ?? COLOR_SWATCHES[0]);
+    }
+  }, [visible, initialName, initialColor]);
 
-  const canSubmit = name.trim().length > 0 && name.trim() !== initialName;
+  const nameChanged = name.trim().length > 0 && name.trim() !== initialName;
+  const colorChanged = color !== initialColor;
+  const canSubmit = name.trim().length > 0 && (nameChanged || colorChanged);
 
   return (
     <Modal
@@ -72,8 +83,27 @@ export function EditActivityModal({
             onChangeText={setName}
             autoFocus
             selectTextOnFocus
-            onSubmitEditing={() => canSubmit && onConfirm(name.trim())}
+            onSubmitEditing={() => canSubmit && onConfirm(name.trim(), color)}
           />
+
+          <View style={styles.swatchRow}>
+            {COLOR_SWATCHES.map((swatchColor) => {
+              const isSelected = color === swatchColor;
+              return (
+                <Pressable
+                  key={swatchColor}
+                  hitSlop={6}
+                  onPress={() => setColor(swatchColor)}
+                  style={[
+                    styles.swatchOuter,
+                    isSelected && { borderColor: swatchColor },
+                  ]}
+                >
+                  <View style={[styles.swatchInner, { backgroundColor: swatchColor }]} />
+                </Pressable>
+              );
+            })}
+          </View>
 
           <View style={styles.actions}>
             <Pressable style={styles.cancelButton} onPress={onCancel}>
@@ -86,7 +116,7 @@ export function EditActivityModal({
                 styles.confirmButton,
                 !canSubmit && styles.confirmButtonDisabled,
               ]}
-              onPress={() => canSubmit && onConfirm(name.trim())}
+              onPress={() => canSubmit && onConfirm(name.trim(), color)}
             >
               <AppText variant="bodySemiBold" style={{ color: colors.background }}>
                 Edit
@@ -141,6 +171,25 @@ const styles = StyleSheet.create({
     fontFamily: fonts.regular,
     fontSize: 16,
     color: colors.text,
+  },
+  swatchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  swatchOuter: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderWidth: 2,
+    borderColor: "transparent",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  swatchInner: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
   actions: {
     flexDirection: "row",

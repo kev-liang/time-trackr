@@ -18,6 +18,7 @@ type ActivityHistoryStore = {
   togglePin: (id: string) => Promise<void>;
   updateLastUsed: (id: string, date: string) => Promise<void>;
   renameItem: (id: string, name: string) => Promise<void>;
+  updateItemColor: (id: string, color: string) => Promise<void>;
 };
 
 export const useActivityHistoryStore = create<ActivityHistoryStore>(
@@ -76,6 +77,15 @@ export const useActivityHistoryStore = create<ActivityHistoryStore>(
           i.id === id ? { ...i, name } : i,
         ),
       }));
+    },
+
+    updateItemColor: async (id, color) => {
+      set((state) => ({
+        items: state.items.map((i) =>
+          i.id === id ? { ...i, color } : i,
+        ),
+      }));
+      await api.updateActivityHistoryItem(id, { color });
     },
   }),
 );

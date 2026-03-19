@@ -36,6 +36,11 @@ export async function requestPermissions(): Promise<boolean> {
   return status === "granted";
 }
 
+export async function hasPermissions(): Promise<boolean> {
+  const { status } = await Notifications.getPermissionsAsync();
+  return status === "granted";
+}
+
 /**
  * Pure function: compute up to `limit` future fire times from `from`
  * based on the alarm schedule state.

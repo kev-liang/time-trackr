@@ -81,3 +81,15 @@ export async function bulkRenameActivities(
 
   if (error) throw error;
 }
+
+export async function bulkRecolorActivities(
+  title: string,
+  color: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("activities")
+    .update({ color })
+    .eq("title", title);
+
+  if (error) throw error;
+}

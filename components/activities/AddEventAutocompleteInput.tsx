@@ -30,6 +30,8 @@ export function AddEventAutocompleteInput({
   const removeItem = useActivityHistoryStore((s) => s.removeItem);
   const updateLastUsed = useActivityHistoryStore((s) => s.updateLastUsed);
   const renameActivityTitle = useActivityStore((s) => s.renameActivityTitle);
+  const recolorActivitiesByTitle = useActivityStore((s) => s.recolorActivitiesByTitle);
+  const updateItemColor = useActivityHistoryStore((s) => s.updateItemColor);
 
   const [editingItem, setEditingItem] = useState<AutocompleteItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<AutocompleteItem | null>(null);
@@ -62,17 +64,23 @@ export function AddEventAutocompleteInput({
   );
 
   const handleEditConfirm = useCallback(
-    async (newName: string) => {
+    async (newName: string, newColor: string) => {
       if (!editingItem) return;
       const historyEntry = rawItems.find((i) => i.id === editingItem.id);
       if (!historyEntry) return;
-      await Promise.all([
-        renameActivityTitle(historyEntry.name, newName),
-        renameItem(historyEntry.id, newName),
-      ]);
+      const ops: Promise<void>[] = [];
+      if (newName !== historyEntry.name) {
+        ops.push(renameActivityTitle(historyEntry.name, newName));
+        ops.push(renameItem(historyEntry.id, newName));
+      }
+      if (newColor !== historyEntry.color) {
+        ops.push(recolorActivitiesByTitle(historyEntry.name, newColor));
+        ops.push(updateItemColor(historyEntry.id, newColor));
+      }
+      await Promise.all(ops);
       setEditingItem(null);
     },
-    [editingItem, rawItems, renameActivityTitle, renameItem],
+    [editingItem, rawItems, renameActivityTitle, renameItem, recolorActivitiesByTitle, updateItemColor],
   );
 
   return (
@@ -92,6 +100,7 @@ export function AddEventAutocompleteInput({
       <EditActivityModal
         visible={editingItem !== null}
         initialName={editingItem?.label ?? ""}
+        initialColor={editingItem?.color}
         onConfirm={handleEditConfirm}
         onCancel={() => setEditingItem(null)}
       />

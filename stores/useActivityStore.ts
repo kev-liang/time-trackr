@@ -22,6 +22,7 @@ type ActivityStore = {
   removeActivity: (id: string) => Promise<void>;
   updateActivity: (id: string, updates: Partial<Omit<Activity, "id">>) => Promise<void>;
   renameActivityTitle: (oldTitle: string, newTitle: string) => Promise<void>;
+  recolorActivitiesByTitle: (title: string, color: string) => Promise<void>;
 };
 
 export const useActivityStore = create<ActivityStore>((set) => ({
@@ -66,5 +67,14 @@ export const useActivityStore = create<ActivityStore>((set) => ({
         a.title === oldTitle ? { ...a, title: newTitle } : a,
       ),
     }));
+  },
+
+  recolorActivitiesByTitle: async (title, color) => {
+    set((state) => ({
+      activities: state.activities.map((a) =>
+        a.title === title ? { ...a, color } : a,
+      ),
+    }));
+    await api.bulkRecolorActivities(title, color);
   },
 }));

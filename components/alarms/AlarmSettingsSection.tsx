@@ -2,6 +2,8 @@ import { AlarmMuteDropdown } from "@/components/alarms/AlarmMuteDropdown";
 import { NextAlarmDisplay } from "@/components/alarms/NextAlarmDisplay";
 import { AppText } from "@/components/ux/AppText";
 import { Toggle } from "@/components/ux/Toggle";
+import { registerBackgroundReschedule } from "@/lib/notificationScheduler";
+import { requestPermissions } from "@/lib/notifications";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { spacing } from "@/theme";
 import { StyleSheet, View } from "react-native";
@@ -10,11 +12,22 @@ export function AlarmSettingsSection() {
   const enabled = useAlarmStore((s) => s.enabled);
   const setEnabled = useAlarmStore((s) => s.setEnabled);
 
+  async function handleToggle(value: boolean) {
+    if (value) {
+      const granted = await requestPermissions();
+      if (!granted) return;
+      setEnabled(true);
+      registerBackgroundReschedule();
+    } else {
+      setEnabled(false);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
         <AppText variant="bodySemiBold">Enabled</AppText>
-        <Toggle value={enabled} onValueChange={setEnabled} />
+        <Toggle value={enabled} onValueChange={handleToggle} />
       </View>
       <NextAlarmDisplay />
       <View style={styles.muteAlarmContainer}>
