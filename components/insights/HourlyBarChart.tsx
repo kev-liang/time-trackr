@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
@@ -39,9 +38,9 @@ function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onPress, on
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
     transform: [
-      { translateY: withSpring(isHighlighted ? -(barHeight * 0.1) : 0, { damping: 18, stiffness: 250 }) },
-      { scaleY: withSpring(isHighlighted ? 1.2 : 1, { damping: 18, stiffness: 250 }) },
-      { scaleX: withSpring(isHighlighted ? 1.2 : 1, { damping: 18, stiffness: 250 }) },
+      { translateY: withTiming(isHighlighted ? -(barHeight * 0.1) : 0, { duration: 200 }) },
+      { scaleY: withTiming(isHighlighted ? 1.2 : 1, { duration: 200 }) },
+      { scaleX: withTiming(isHighlighted ? 1.2 : 1, { duration: 200 }) },
     ],
   }));
 

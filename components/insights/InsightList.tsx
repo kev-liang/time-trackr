@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
@@ -31,7 +30,7 @@ function InsightListItem({ item, isHighlighted, isDimmed, onPress, onLongPress, 
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
-    transform: [{ scale: withSpring(isHighlighted ? 1.05 : 1, { damping: 18, stiffness: 250 }) }],
+    transform: [{ scale: withTiming(isHighlighted ? 1.05 : 1, { duration: 200 }) }],
   }));
 
   return (

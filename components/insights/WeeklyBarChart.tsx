@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
-  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
@@ -62,8 +61,8 @@ function WeekBar({ slot, maxMinutes, todayDayIndex, isHighlighted, isDimmed, hig
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: withTiming(isDimmed ? 0.5 : 1, { duration: 150 }),
     transform: [
-      { translateY: withSpring(isHighlighted ? -(barHeight * 0.075) : 0, { damping: 18, stiffness: 250 }) },
-      { scaleY: withSpring(isHighlighted ? 1.15 : 1, { damping: 18, stiffness: 250 }) },
+      { translateY: withTiming(isHighlighted ? -(barHeight * 0.075) : 0, { duration: 200 }) },
+      { scaleY: withTiming(isHighlighted ? 1.15 : 1, { duration: 200 }) },
     ],
   }));
 
