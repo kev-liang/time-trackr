@@ -1,4 +1,5 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { useFocusEffect } from "expo-router";
 import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -57,6 +58,12 @@ export function ActivityScreen() {
     timelineRef.current?.goToToday();
     setSelectedDate(moment().local().format("YYYY-MM-DD"));
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      handleGoToToday();
+    }, [handleGoToToday]),
+  );
 
   const bottomSheetAnimatedPosition = useSharedValue(0);
   const sheetMinPosition = useSharedValue(0);

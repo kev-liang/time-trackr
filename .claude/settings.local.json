@@ -9,7 +9,8 @@
       "Bash(npm run build)",
       "Bash(node:*)",
       "Bash(npm install:*)",
-      "Bash(find /k/code/time-trackr -type f \\\\\\( -name \"*onboard*\" -o -name \"*welcome*\" -o -name \"*intro*\" -o -name \"*tutorial*\" -o -name \"*first*\" \\\\\\) 2>/dev/null | head -20)"
+      "Bash(find /k/code/time-trackr -type f \\\\\\( -name \"*onboard*\" -o -name \"*welcome*\" -o -name \"*intro*\" -o -name \"*tutorial*\" -o -name \"*first*\" \\\\\\) 2>/dev/null | head -20)",
+      "Bash(ls k:/code/time-trackr/app/\\\\\\(tabs\\\\\\)/)"
     ]
   }
 }
