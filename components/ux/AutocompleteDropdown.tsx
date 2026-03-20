@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
 import { Keyboard, Pressable, StyleSheet, View } from "react-native";
 
@@ -62,7 +62,7 @@ export function AutocompleteDropdown({
                   hitSlop={8}
                   onPress={() => { Keyboard.dismiss(); onEdit(item); }}
                 >
-                  <Ionicons name="pencil" size={16} color={colors.textSecondary} />
+                  <MaterialCommunityIcons name="pencil" size={18} color={colors.textSecondary} />
                 </Pressable>
               )}
               {onDelete && (
@@ -70,7 +70,7 @@ export function AutocompleteDropdown({
                   hitSlop={8}
                   onPress={() => { Keyboard.dismiss(); onDelete(item); }}
                 >
-                  <Ionicons name="close" size={16} color={colors.textSecondary} />
+                  <MaterialCommunityIcons name="close" size={18} color={colors.textSecondary} />
                 </Pressable>
               )}
             </View>
