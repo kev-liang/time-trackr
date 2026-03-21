@@ -62,8 +62,14 @@ export function AutocompleteTextInput({
   const [open, setOpen] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [selectedChip, setSelectedChip] = useState<AutocompleteItem | null>(null);
+  const selectedChipRef = useRef<AutocompleteItem | null>(null);
   const [stagedColor, setStagedColor] = useState<string | null>(null);
   const prevChipRef = useRef<AutocompleteItem | null>(null);
+
+  const updateSelectedChip = useCallback((chip: AutocompleteItem | null) => {
+    selectedChipRef.current = chip;
+    setSelectedChip(chip);
+  }, []);
 
   useEffect(() => {
     setLocalValue(value);
@@ -72,14 +78,14 @@ export function AutocompleteTextInput({
 
   useEffect(() => {
     if (initialItem) {
-      setSelectedChip(initialItem);
+      updateSelectedChip(initialItem);
       prevChipRef.current = initialItem;
       setLocalValue("");
     } else {
-      setSelectedChip(null);
+      updateSelectedChip(null);
       prevChipRef.current = null;
     }
-  }, [initialItem]);
+  }, [initialItem, updateSelectedChip]);
 
   const filtered = useMemo(() => {
     const base = localValue
@@ -102,7 +108,7 @@ export function AutocompleteTextInput({
         ? { ...item, id: `created:${item.label}`, color }
         : item;
       if (isNew) onCreate?.(item.label, color!);
-      setSelectedChip(chip);
+      updateSelectedChip(chip);
       prevChipRef.current = chip;
       onSelect(chip);
       onChangeText("");
@@ -110,7 +116,7 @@ export function AutocompleteTextInput({
       setStagedColor(null);
       setOpen(false);
     },
-    [onSelect, onCreate, onChangeText, stagedColor],
+    [onSelect, onCreate, onChangeText, stagedColor, updateSelectedChip],
   );
 
   const handleSubmitEditing = useCallback(() => {
@@ -123,26 +129,21 @@ export function AutocompleteTextInput({
   }, [localValue, items, handleSelect]);
 
   const handleFocus = useCallback(() => {
-    setSelectedChip((current) => {
-      prevChipRef.current = current;
-      return null;
-    });
+    prevChipRef.current = selectedChipRef.current;
+    updateSelectedChip(null);
     setOpen(true);
-  }, []);
+  }, [updateSelectedChip]);
 
   const handleBlur = useCallback(() => {
     setTimeout(() => {
       setOpen(false);
-      setSelectedChip((current) => {
-        if (current === null && prevChipRef.current !== null) {
-          onChangeText("");
-          setLocalValue("");
-          return prevChipRef.current;
-        }
-        return current;
-      });
+      if (selectedChipRef.current === null && prevChipRef.current !== null) {
+        updateSelectedChip(prevChipRef.current);
+        onChangeText("");
+        setLocalValue("");
+      }
     }, 150);
-  }, [onChangeText]);
+  }, [onChangeText, updateSelectedChip]);
 
   const onChangeTextLocal = useCallback(
     (text: string) => {
