@@ -74,6 +74,10 @@ export function AddEventBottomSheet({
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  const isProgrammaticDismiss = useRef(false);
+  const dismissedByPan = useRef(false);
 
   useEffect(() => {
     if (sheetOpen) {
@@ -132,10 +136,38 @@ export function AddEventBottomSheet({
   }, []);
 
   const handleDismiss = useCallback(() => {
-    bottomSheetRef.current?.dismiss();
+    setShowDiscardConfirm(true);
+  }, []);
+
+  const handleOnDismiss = useCallback(() => {
+    if (!isProgrammaticDismiss.current) {
+      dismissedByPan.current = true;
+      setShowDiscardConfirm(true);
+    } else {
+      clearEditing();
+    }
+    isProgrammaticDismiss.current = false;
+  }, [clearEditing]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowDiscardConfirm(false);
+    const wasPan = dismissedByPan.current;
+    dismissedByPan.current = false;
+    if (!wasPan) {
+      isProgrammaticDismiss.current = true;
+      bottomSheetRef.current?.dismiss();
+    }
     clearEditing();
     setHasDraft(false);
-  }, [clearEditing]);
+  }, [clearEditing, setHasDraft]);
+
+  const handleCancelDiscard = useCallback(() => {
+    setShowDiscardConfirm(false);
+    if (dismissedByPan.current) {
+      dismissedByPan.current = false;
+      bottomSheetRef.current?.present();
+    }
+  }, []);
 
   const handleDelete = useCallback(() => {
     setShowDeleteConfirm(true);
@@ -145,6 +177,7 @@ export function AddEventBottomSheet({
     if (!editingEventId) return;
     setShowDeleteConfirm(false);
     removeActivity(editingEventId);
+    isProgrammaticDismiss.current = true;
     bottomSheetRef.current?.dismiss();
     clearEditing();
   }, [editingEventId, removeActivity, clearEditing]);
@@ -171,6 +204,7 @@ export function AddEventBottomSheet({
         color: selectedColor,
       });
     }
+    isProgrammaticDismiss.current = true;
     bottomSheetRef.current?.dismiss();
     clearEditing();
   }, [
@@ -179,6 +213,7 @@ export function AddEventBottomSheet({
     selectedColor,
     startTime,
     endTime,
+    timeError,
     updateActivity,
     addActivity,
     clearEditing,
@@ -251,7 +286,7 @@ export function AddEventBottomSheet({
         topInset={topInset}
         handleIndicatorStyle={styles.indicator}
         backgroundStyle={styles.background}
-        onDismiss={clearEditing}
+        onDismiss={handleOnDismiss}
         animatedPosition={animatedPosition}
         onAnimate={handleAnimate}
         keyboardBehavior="fillParent"
@@ -384,9 +419,29 @@ export function AddEventBottomSheet({
       <ConfirmationModal
         visible={showDeleteConfirm}
         title="Delete Event"
-        body="Are you sure you want to delete this event?"
+        body={
+          <>
+            <AppText variant="body" color="textSecondary">
+              Are you sure you want to delete this event?
+            </AppText>
+          </>
+        }
         onDelete={handleConfirmDelete}
         onCancel={() => setShowDeleteConfirm(false)}
+      />
+
+      <ConfirmationModal
+        visible={showDiscardConfirm}
+        title="Discard Changes?"
+        body={
+          <AppText variant="body" color="textSecondary">
+            Your changes will be lost.
+          </AppText>
+        }
+        deleteLabel="Discard"
+        cancelLabel="Keep Editing"
+        onDelete={handleConfirmDiscard}
+        onCancel={handleCancelDiscard}
       />
     </>
   );
