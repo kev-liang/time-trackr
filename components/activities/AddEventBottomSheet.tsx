@@ -239,7 +239,7 @@ export function AddEventBottomSheet({
             color: editingEvent.color,
           }
         : undefined,
-    [editingEventId],
+    [editingEventId, editingEvent?.color, editingEvent?.title],
   );
 
   return (
