@@ -1,35 +1,19 @@
-import { Ionicons } from "@expo/vector-icons";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, TextInput } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AddEventAutocompleteInput } from "@/components/activities/AddEventAutocompleteInput";
+import { EventSheetHeader } from "@/components/activities/EventSheetHeader";
+import { TimePickerRow } from "@/components/activities/TimePickerRow";
 import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
-import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
-
-function formatTimeDisplay(date: Date): string {
-  const h = date.getHours();
-  const m = date.getMinutes().toString().padStart(2, "0");
-  const period = h >= 12 ? "PM" : "AM";
-  const h12 = h % 12 || 12;
-  return `${h12}:${m} ${period}`;
-}
-
-function formatDateDisplay(date: Date): string {
-  return date.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
-}
 
 interface AddEventBottomSheetProps {
   animatedPosition: SharedValue<number>;
@@ -293,26 +277,12 @@ export function AddEventBottomSheet({
         keyboardBlurBehavior="none"
       >
         <BottomSheetView style={styles.content}>
-          <View style={styles.header}>
-            <Pressable onPress={handleDismiss}>
-              <AppText variant="body" color={colors.tint}>
-                Cancel
-              </AppText>
-            </Pressable>
-            <AppText variant="bodySemiBold">
-              {isEditing ? "Edit Event" : "Add Event"}
-            </AppText>
-            <View style={styles.headerActions}>
-              {isEditing && (
-                <Pressable onPress={handleDelete} hitSlop={8}>
-                  <Ionicons name="trash-outline" size={22} color="#EF4444" />
-                </Pressable>
-              )}
-              <Pressable onPress={handleSave} hitSlop={8}>
-                <Ionicons name="save-outline" size={24} color={colors.tint} />
-              </Pressable>
-            </View>
-          </View>
+          <EventSheetHeader
+            isEditing={isEditing}
+            onCancel={handleDismiss}
+            onDelete={handleDelete}
+            onSave={handleSave}
+          />
           <Pressable style={styles.form} onPress={handleDismissKeyboard}>
             <AddEventAutocompleteInput
               value={localTitle}
@@ -331,79 +301,31 @@ export function AddEventBottomSheet({
                 {titleError}
               </AppText>
             )}
-
-            <View style={styles.timeRow}>
-              <AppText variant="body" color={colors.textSecondary}>
-                Start
-              </AppText>
-              <View style={styles.timeButtonGroup}>
-                <AppText variant="bodySemiBold" color={colors.textSecondary}>
-                  {formatDateDisplay(startTime)}
-                </AppText>
-                <Pressable
-                  style={styles.timeButton}
-                  onPress={() =>
-                    setPickerField(pickerField === "start" ? null : "start")
-                  }
-                >
-                  <AppText
-                    variant="bodySemiBold"
-                    color={timeError ? "#EF4444" : undefined}
-                  >
-                    {formatTimeDisplay(startTime)}
-                  </AppText>
-                </Pressable>
-              </View>
-            </View>
+            <TimePickerRow
+              label="Start"
+              time={startTime}
+              isOpen={pickerField === "start"}
+              hasError={!!timeError}
+              resetKey={resetKey}
+              onToggle={() =>
+                setPickerField(pickerField === "start" ? null : "start")
+              }
+              onChange={handleStartChange}
+            />
           </Pressable>
-          {pickerField === "start" && (
-            <View style={styles.inlinePicker}>
-              <TimeSpinnerPicker
-                key={`start-${resetKey}`}
-                value={startTime}
-                minuteInterval={5}
-                onChange={handleStartChange}
-              />
-            </View>
-          )}
-          <Pressable
-            style={styles.formContinued}
-            onPress={handleDismissKeyboard}
-          >
-            <View style={styles.timeRow}>
-              <AppText variant="body" color={colors.textSecondary}>
-                End
-              </AppText>
-              <View style={styles.timeButtonGroup}>
-                <AppText variant="bodySemiBold" color={colors.textSecondary}>
-                  {formatDateDisplay(endTime)}
-                </AppText>
-                <Pressable
-                  style={styles.timeButton}
-                  onPress={() =>
-                    setPickerField(pickerField === "end" ? null : "end")
-                  }
-                >
-                  <AppText
-                    variant="bodySemiBold"
-                    color={timeError ? "#EF4444" : undefined}
-                  >
-                    {formatTimeDisplay(endTime)}
-                  </AppText>
-                </Pressable>
-              </View>
-            </View>
+          <Pressable style={styles.formContinued} onPress={handleDismissKeyboard}>
+            <TimePickerRow
+              label="End"
+              time={endTime}
+              isOpen={pickerField === "end"}
+              hasError={!!timeError}
+              resetKey={resetKey}
+              onToggle={() =>
+                setPickerField(pickerField === "end" ? null : "end")
+              }
+              onChange={handleEndChange}
+            />
           </Pressable>
-          {pickerField === "end" && (
-            <View style={styles.inlinePicker}>
-              <TimeSpinnerPicker
-                key={`end-${resetKey}`}
-                value={endTime}
-                minuteInterval={5}
-                onChange={handleEndChange}
-              />
-            </View>
-          )}
           {timeError && (
             <AppText
               variant="body"
@@ -459,51 +381,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingBottom: spacing.md,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingBottom: spacing.md,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.border,
-  },
   form: {
     paddingTop: spacing.md,
     gap: spacing.md,
-  },
-  timeRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: spacing.xl,
-    paddingVertical: spacing.sm,
-  },
-  timeButton: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-  },
-  timeButtonGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
-  headerActions: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
-  inlinePicker: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-    paddingTop: spacing.md,
-    gap: spacing.sm,
-  },
-  inlinePickerHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   formContinued: {},
 });
