@@ -1,6 +1,7 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import { Keyboard, Pressable, StyleSheet, TextInput } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -48,13 +49,36 @@ export function AddEventBottomSheet({
     ? (activities.find((a) => a.id === editingEventId) ?? null)
     : null;
 
+  type SheetFormValues = {
+    title: string;
+    color: string;
+    startTime: Date;
+    endTime: Date;
+  };
+
+  const {
+    setValue,
+    reset,
+    resetField,
+    watch,
+    formState: { isDirty },
+  } = useForm<SheetFormValues>({
+    defaultValues: {
+      title: "",
+      color: colors.tint,
+      startTime: new Date(),
+      endTime: new Date(),
+    },
+  });
+
+  const selectedTitle = watch("title");
+  const selectedColor = watch("color");
+  const startTime = watch("startTime");
+  const endTime = watch("endTime");
+
   const [localTitle, setLocalTitle] = useState("");
-  const [selectedTitle, setSelectedTitle] = useState("");
-  const [selectedColor, setSelectedColor] = useState<string>(colors.tint);
   const [titleError, setTitleError] = useState<string | null>(null);
   const [timeError, setTimeError] = useState<string | null>(null);
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -72,14 +96,19 @@ export function AddEventBottomSheet({
   // Reset title and picker when switching between events or re-opening create mode.
   // sheetOpen in deps ensures the title clears when the sheet is re-opened for creation.
   useEffect(() => {
+    const now = draftStart ?? new Date();
+    const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
     if (editingEvent) {
       setLocalTitle("");
-      setSelectedTitle(editingEvent.title);
-      setSelectedColor(editingEvent.color);
+      reset({
+        title: editingEvent.title,
+        color: editingEvent.color,
+        startTime: new Date(editingEvent.start),
+        endTime: new Date(editingEvent.end),
+      });
     } else {
       setLocalTitle("");
-      setSelectedTitle("");
-      setSelectedColor(colors.tint);
+      reset({ title: "", color: colors.tint, startTime: now, endTime: later });
     }
     setTitleError(null);
     setTimeError(null);
@@ -87,15 +116,16 @@ export function AddEventBottomSheet({
   }, [editingEvent, sheetOpen]);
 
   // Sync times separately so drag-to-resize updates don't wipe the user's typed title.
+  // resetField updates the defaultValue baseline so drags don't mark the form dirty.
   useEffect(() => {
     if (editingEvent) {
-      setStartTime(new Date(editingEvent.start));
-      setEndTime(new Date(editingEvent.end));
+      resetField("startTime", { defaultValue: new Date(editingEvent.start) });
+      resetField("endTime", { defaultValue: new Date(editingEvent.end) });
     } else {
       const now = draftStart ?? new Date();
       const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
-      setStartTime(now);
-      setEndTime(later);
+      resetField("startTime", { defaultValue: now });
+      resetField("endTime", { defaultValue: later });
     }
     setResetKey((k) => k + 1);
   }, [editingEvent, draftStart, draftEnd]);
@@ -120,18 +150,27 @@ export function AddEventBottomSheet({
   }, []);
 
   const handleDismiss = useCallback(() => {
-    setShowDiscardConfirm(true);
-  }, []);
+    if (isDirty) {
+      setShowDiscardConfirm(true);
+    } else {
+      isProgrammaticDismiss.current = true;
+      bottomSheetRef.current?.dismiss();
+    }
+  }, [isDirty]);
 
   const handleOnDismiss = useCallback(() => {
     if (!isProgrammaticDismiss.current) {
-      dismissedByPan.current = true;
-      setShowDiscardConfirm(true);
+      if (isDirty) {
+        dismissedByPan.current = true;
+        setShowDiscardConfirm(true);
+      } else {
+        clearEditing();
+      }
     } else {
       clearEditing();
     }
     isProgrammaticDismiss.current = false;
-  }, [clearEditing]);
+  }, [clearEditing, isDirty]);
 
   const handleConfirmDiscard = useCallback(() => {
     setShowDiscardConfirm(false);
@@ -205,7 +244,7 @@ export function AddEventBottomSheet({
 
   const handleStartChange = useCallback(
     (date: Date) => {
-      setStartTime(date);
+      setValue("startTime", date, { shouldDirty: true });
       if (moment(date).isSameOrAfter(endTime)) {
         setTimeError("Start time must be before end time");
       } else {
@@ -218,7 +257,7 @@ export function AddEventBottomSheet({
 
   const handleEndChange = useCallback(
     (date: Date) => {
-      setEndTime(date);
+      setValue("endTime", date, { shouldDirty: true });
       if (moment(date).isSameOrBefore(startTime)) {
         setTimeError("Start time must be before end time");
       } else {
@@ -289,8 +328,8 @@ export function AddEventBottomSheet({
               onChangeText={setLocalTitle}
               initialItem={initialItem}
               onSelect={(item) => {
-                setSelectedTitle(item.label);
-                setSelectedColor(item.color ?? colors.tint);
+                setValue("title", item.label, { shouldDirty: true });
+                setValue("color", item.color ?? colors.tint, { shouldDirty: true });
                 setDraftColor(item.color ?? colors.tint);
                 setDraftTitle(item.label);
                 setTitleError(null);
@@ -313,7 +352,10 @@ export function AddEventBottomSheet({
               onChange={handleStartChange}
             />
           </Pressable>
-          <Pressable style={styles.formContinued} onPress={handleDismissKeyboard}>
+          <Pressable
+            style={styles.formContinued}
+            onPress={handleDismissKeyboard}
+          >
             <TimePickerRow
               label="End"
               time={endTime}
