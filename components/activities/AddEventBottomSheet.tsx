@@ -340,34 +340,29 @@ export function AddEventBottomSheet({
                 {titleError}
               </AppText>
             )}
-            <TimePickerRow
-              label="Start"
-              time={startTime}
-              isOpen={pickerField === "start"}
-              hasError={!!timeError}
-              resetKey={resetKey}
-              onToggle={() =>
-                setPickerField(pickerField === "start" ? null : "start")
-              }
-              onChange={handleStartChange}
-            />
           </Pressable>
-          <Pressable
-            style={styles.formContinued}
-            onPress={handleDismissKeyboard}
-          >
-            <TimePickerRow
-              label="End"
-              time={endTime}
-              isOpen={pickerField === "end"}
-              hasError={!!timeError}
-              resetKey={resetKey}
-              onToggle={() =>
-                setPickerField(pickerField === "end" ? null : "end")
-              }
-              onChange={handleEndChange}
-            />
-          </Pressable>
+          <TimePickerRow
+            label="Start"
+            time={startTime}
+            isOpen={pickerField === "start"}
+            hasError={!!timeError}
+            resetKey={resetKey}
+            onToggle={() =>
+              setPickerField(pickerField === "start" ? null : "start")
+            }
+            onChange={handleStartChange}
+          />
+          <TimePickerRow
+            label="End"
+            time={endTime}
+            isOpen={pickerField === "end"}
+            hasError={!!timeError}
+            resetKey={resetKey}
+            onToggle={() =>
+              setPickerField(pickerField === "end" ? null : "end")
+            }
+            onChange={handleEndChange}
+          />
           {timeError && (
             <AppText
               variant="body"
@@ -427,5 +422,4 @@ const styles = StyleSheet.create({
     paddingTop: spacing.md,
     gap: spacing.md,
   },
-  formContinued: {},
 });
