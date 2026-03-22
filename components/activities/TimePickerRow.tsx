@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
 import { TimeSpinnerPicker } from "@/components/ux/TimeSpinnerPicker";
@@ -49,7 +49,7 @@ export function TimePickerRow({
           <AppText variant="bodySemiBold" color={colors.textSecondary}>
             {formatDateDisplay(time)}
           </AppText>
-          <Pressable style={styles.timeButton} onPress={onToggle}>
+          <Pressable style={styles.timeButton} onPress={() => { Keyboard.dismiss(); onToggle(); }}>
             <AppText
               variant="bodySemiBold"
               color={hasError ? "#EF4444" : undefined}
