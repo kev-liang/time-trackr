@@ -26,7 +26,12 @@ export function AddEventBottomSheet({
   onPositionsCalculated,
 }: AddEventBottomSheetProps) {
   const { top: topInset } = useSafeAreaInsets();
-  const snapPoints = useMemo(() => [300], []);
+  const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
+  const pickerFieldRef = useRef<"start" | "end" | null>(null);
+  const snapPoints = useMemo(
+    () => [pickerField !== null ? 520 : 300],
+    [pickerField],
+  );
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
@@ -78,7 +83,6 @@ export function AddEventBottomSheet({
   const [localTitle, setLocalTitle] = useState("");
   const [titleError, setTitleError] = useState<string | null>(null);
   const [timeError, setTimeError] = useState<string | null>(null);
-  const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
   const [resetKey, setResetKey] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
@@ -139,16 +143,15 @@ export function AddEventBottomSheet({
   }, [editingEvent, draftStart, draftEnd]);
 
   useEffect(() => {
-    if (pickerField !== null) {
-      bottomSheetRef.current?.snapToIndex(1);
-    } else {
-      bottomSheetRef.current?.snapToIndex(0);
-    }
+    pickerFieldRef.current = pickerField;
+    bottomSheetRef.current?.snapToIndex(0);
   }, [pickerField]);
 
   useEffect(() => {
     const sub = Keyboard.addListener("keyboardDidHide", () => {
-      bottomSheetRef.current?.snapToIndex(0);
+      if (pickerFieldRef.current === null) {
+        bottomSheetRef.current?.snapToIndex(0);
+      }
     });
     return () => sub.remove();
   }, []);
@@ -337,7 +340,9 @@ export function AddEventBottomSheet({
               initialItem={initialItem}
               onSelect={(item) => {
                 setValue("title", item.label, { shouldDirty: true });
-                setValue("color", item.color ?? colors.tint, { shouldDirty: true });
+                setValue("color", item.color ?? colors.tint, {
+                  shouldDirty: true,
+                });
                 setDraftColor(item.color ?? colors.tint);
                 setDraftTitle(item.label);
                 setTitleError(null);

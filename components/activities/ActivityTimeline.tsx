@@ -10,6 +10,7 @@ import {
   type DraggingEventProps,
   type OnEventResponse,
   type PackedEvent,
+  type RenderHourProps,
   type SelectedEventType,
   type SizeAnimation,
 } from "@howljs/calendar-kit";
@@ -23,6 +24,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { Text } from "react-native";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
@@ -240,6 +242,16 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       [renderSelectedEventContent],
     );
 
+    const renderDraggingHour = useCallback((props: RenderHourProps) => {
+      const totalHours = Math.floor(props.minutes / 60);
+      const h = totalHours % 12 || 12;
+      const m = Math.floor(props.minutes % 60)
+        .toString()
+        .padStart(2, "0");
+      const ampm = totalHours >= 12 ? "PM" : "AM";
+      return <Text style={props.style}>{`${h}:${m} ${ampm}`}</Text>;
+    }, []);
+
     const handleDateChanged = useCallback(
       (date: string) => {
         setSelectedDate(date);
@@ -291,6 +303,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
           renderEvent={renderEvent}
           renderDraggableEvent={renderDraggableEvent}
           renderDraggingEvent={renderDraggingEvent}
+          renderDraggingHour={renderDraggingHour}
         />
       </CalendarContainer>
     );

@@ -1,11 +1,11 @@
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useState } from "react";
 
+import { AppText } from "@/components/ux/AppText";
 import {
   AutocompleteTextInput,
   type AutocompleteItem,
 } from "@/components/ux/AutocompleteTextInput";
-import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
 import { EditActivityModal } from "@/components/ux/EditActivityModal";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
@@ -30,11 +30,15 @@ export function AddEventAutocompleteInput({
   const removeItem = useActivityHistoryStore((s) => s.removeItem);
   const updateLastUsed = useActivityHistoryStore((s) => s.updateLastUsed);
   const renameActivityTitle = useActivityStore((s) => s.renameActivityTitle);
-  const recolorActivitiesByTitle = useActivityStore((s) => s.recolorActivitiesByTitle);
+  const recolorActivitiesByTitle = useActivityStore(
+    (s) => s.recolorActivitiesByTitle,
+  );
   const updateItemColor = useActivityHistoryStore((s) => s.updateItemColor);
 
   const [editingItem, setEditingItem] = useState<AutocompleteItem | null>(null);
-  const [deletingItem, setDeletingItem] = useState<AutocompleteItem | null>(null);
+  const [deletingItem, setDeletingItem] = useState<AutocompleteItem | null>(
+    null,
+  );
 
   const historyItems = useMemo(
     () => rawItems.map((i) => ({ id: i.id, label: i.name, color: i.color })),
@@ -47,7 +51,12 @@ export function AddEventAutocompleteInput({
         (i) => i.name.toLowerCase() === label.toLowerCase(),
       );
       if (!exists) {
-        addItem({ name: label, pinned: false, color, lastUsed: new Date().toISOString() });
+        addItem({
+          name: label,
+          pinned: false,
+          color,
+          lastUsed: new Date().toISOString(),
+        });
       }
     },
     [rawItems, addItem],
@@ -80,7 +89,14 @@ export function AddEventAutocompleteInput({
       await Promise.all(ops);
       setEditingItem(null);
     },
-    [editingItem, rawItems, renameActivityTitle, renameItem, recolorActivitiesByTitle, updateItemColor],
+    [
+      editingItem,
+      rawItems,
+      renameActivityTitle,
+      renameItem,
+      recolorActivitiesByTitle,
+      updateItemColor,
+    ],
   );
 
   return (
@@ -106,14 +122,14 @@ export function AddEventAutocompleteInput({
       />
       <ConfirmationModal
         visible={deletingItem !== null}
-        title="Delete Activity Suggestion"
+        title="Remove Suggestion"
         body={
           <>
             <AppText variant="body" color="textSecondary">
-              Are you sure you want to delete this activity suggestion?
+              This will be removed from your autocomplete suggestions.
             </AppText>
             <AppText variant="body" color="textSecondary">
-              Past Calendar events and Insights will not be affected.
+              Your logged activities and insights won't be affected.
             </AppText>
           </>
         }

@@ -25,7 +25,7 @@ export function AlarmScheduleCard({ onPickerOpen }: AlarmScheduleCardProps) {
       ))}
       {enabled && noActiveDays && (
         <AppText variant="caption" color={colors.textSecondary}>
-          No days selected and reminders won't fire.
+          Select at least one day for reminders to send.
         </AppText>
       )}
     </Card>

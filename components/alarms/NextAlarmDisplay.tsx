@@ -29,7 +29,7 @@ export function NextAlarmDisplay() {
 
   return (
     <View>
-      <AppText variant="body">Next Alarm: {nextAlarmLabel ?? "—"}</AppText>
+      <AppText variant="body">Next reminder: {nextAlarmLabel ?? "—"}</AppText>
     </View>
   );
 }
