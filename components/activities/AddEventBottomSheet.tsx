@@ -59,7 +59,6 @@ export function AddEventBottomSheet({
   const {
     setValue,
     reset,
-    resetField,
     watch,
     formState: { isDirty },
   } = useForm<SheetFormValues>({
@@ -116,16 +115,25 @@ export function AddEventBottomSheet({
   }, [editingEvent, sheetOpen]);
 
   // Sync times separately so drag-to-resize updates don't wipe the user's typed title.
-  // resetField updates the defaultValue baseline so drags don't mark the form dirty.
+  // keepDirtyValues preserves user-typed fields while resetting the time baseline.
   useEffect(() => {
     if (editingEvent) {
-      resetField("startTime", { defaultValue: new Date(editingEvent.start) });
-      resetField("endTime", { defaultValue: new Date(editingEvent.end) });
+      reset(
+        {
+          title: editingEvent.title,
+          color: editingEvent.color,
+          startTime: new Date(editingEvent.start),
+          endTime: new Date(editingEvent.end),
+        },
+        { keepDirtyValues: true },
+      );
     } else {
       const now = draftStart ?? new Date();
       const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
-      resetField("startTime", { defaultValue: now });
-      resetField("endTime", { defaultValue: later });
+      reset(
+        { title: "", color: colors.tint, startTime: now, endTime: later },
+        { keepDirtyValues: true },
+      );
     }
     setResetKey((k) => k + 1);
   }, [editingEvent, draftStart, draftEnd]);
