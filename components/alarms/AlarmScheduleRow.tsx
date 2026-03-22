@@ -42,6 +42,10 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
 
   const [pickerField, setPickerField] = useState<PickerField | null>(null);
 
+  const [startH, startM] = schedule.startTime.split(":").map(Number);
+  const [endH, endM] = schedule.endTime.split(":").map(Number);
+  const isOvernight = endH * 60 + endM <= startH * 60 + startM;
+
   useEffect(() => {
     if (!enabled) setPickerField(null);
   }, [enabled]);
@@ -70,7 +74,11 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         <AppText variant="bodySemiBold" style={styles.dayLabel}>
           {day}
         </AppText>
-        <Toggle value={schedule.active} onValueChange={handleToggle} disabled={!enabled} />
+        <Toggle
+          value={schedule.active}
+          onValueChange={handleToggle}
+          disabled={!enabled}
+        />
         <Pressable
           onPress={() => handleTimePress("startTime")}
           disabled={!enabled || !schedule.active}
@@ -81,7 +89,9 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         >
           <AppText
             variant="body"
-            color={enabled && schedule.active ? colors.text : colors.textSecondary}
+            color={
+              enabled && schedule.active ? colors.text : colors.textSecondary
+            }
           >
             {formatTimeDisplay(schedule.startTime)}
           </AppText>
@@ -99,12 +109,21 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
         >
           <AppText
             variant="body"
-            color={enabled && schedule.active ? colors.text : colors.textSecondary}
+            color={
+              enabled && schedule.active ? colors.text : colors.textSecondary
+            }
           >
             {formatTimeDisplay(schedule.endTime)}
           </AppText>
         </Pressable>
       </View>
+      {enabled && schedule.active && isOvernight && (
+        <View style={styles.nextDayChip}>
+          <AppText variant="caption" color={colors.tint}>
+            next day
+          </AppText>
+        </View>
+      )}
 
       {enabled && pickerField && (
         <TimeSpinnerPicker
@@ -140,5 +159,14 @@ const styles = StyleSheet.create({
   },
   timeButtonActive: {
     backgroundColor: colors.tint + "33",
+  },
+  nextDayChip: {
+    alignSelf: "flex-end",
+    backgroundColor: colors.tint + "22",
+    borderRadius: 4,
+    paddingHorizontal: spacing.xs,
+    paddingVertical: 2,
+    marginTop: 2,
+    marginRight: 12,
   },
 });
