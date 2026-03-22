@@ -25,6 +25,7 @@ import { useAlarmScheduler } from "@/hooks/useAlarmScheduler";
 import { useNotificationResponse } from "@/hooks/useNotificationResponse";
 import { hasPermissions, scheduleNotifications } from "@/lib/notifications";
 import { registerBackgroundReschedule } from "@/lib/notificationScheduler";
+import { initializePurchases, loginPurchases } from "@/lib/purchases";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { useAuthStore } from "@/stores/useAuthStore";
 
@@ -40,9 +41,20 @@ export default function RootLayout() {
 
   const router = useRouter();
   const initialize = useAuthStore((s) => s.initialize);
+  const session = useAuthStore((s) => s.session);
 
   useAlarmScheduler();
   useNotificationResponse();
+
+  useEffect(() => {
+    initializePurchases();
+  }, []);
+
+  useEffect(() => {
+    if (session?.user.id) {
+      loginPurchases(session.user.id);
+    }
+  }, [session?.user.id]);
 
   useEffect(() => {
     const unsubscribe = initialize();
@@ -87,6 +99,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" />
+          <Stack.Screen name="paywall" />
         </Stack>
         <StatusBar style="dark" />
       </ThemeProvider>

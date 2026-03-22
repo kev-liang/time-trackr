@@ -134,7 +134,7 @@ export async function scheduleNotifications(state: AlarmState): Promise<void> {
     await Notifications.scheduleNotificationAsync({
       content: {
         title: "TimeTracer",
-        body: "What have you been doing?",
+        body: "What have you been up to?",
         sound: true,
         data: { action: NOTIFICATION_ACTIONS.LOG_TIME },
       },

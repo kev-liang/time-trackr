@@ -47,7 +47,7 @@ export function OnboardingScreen() {
 
   async function handleSkip() {
     await markOnboardingDone();
-    router.replace("/(tabs)");
+    router.replace("/paywall");
   }
 
   function handleMomentumScrollEnd(e: any) {

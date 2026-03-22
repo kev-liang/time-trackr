@@ -14,12 +14,12 @@ export function RemindersFooter(_: FooterProps) {
   async function handleSetUpReminders() {
     setLoading(true);
     await markOnboardingDone();
-    router.replace("/(tabs)/alarms");
+    router.replace("/paywall");
   }
 
   async function handleNotNow() {
     await markOnboardingDone();
-    router.replace("/(tabs)");
+    router.replace("/paywall");
   }
 
   return (
