@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
@@ -31,9 +31,10 @@ function formatTimeDisplay(time: string): string {
 
 type AlarmScheduleRowProps = {
   day: Weekday;
+  onPickerOpen?: (rowY: number, rowHeight: number) => void;
 };
 
-export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
+export function AlarmScheduleRow({ day, onPickerOpen }: AlarmScheduleRowProps) {
   const enabled = useAlarmStore((s) => s.enabled);
   const schedule = useAlarmStore((s) => s.schedule[day]);
   const toggleDay = useAlarmStore((s) => s.toggleDay);
@@ -41,6 +42,18 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
   const setDayEndTime = useAlarmStore((s) => s.setDayEndTime);
 
   const [pickerField, setPickerField] = useState<PickerField | null>(null);
+  const containerRef = useRef<View>(null);
+
+  useEffect(() => {
+    if (pickerField && onPickerOpen) {
+      const timer = setTimeout(() => {
+        containerRef.current?.measureInWindow((_x, y, _w, h) => {
+          onPickerOpen(y, h);
+        });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [pickerField, onPickerOpen]);
 
   const [startH, startM] = schedule.startTime.split(":").map(Number);
   const [endH, endM] = schedule.endTime.split(":").map(Number);
@@ -69,7 +82,7 @@ export function AlarmScheduleRow({ day }: AlarmScheduleRowProps) {
   );
 
   return (
-    <View style={styles.container}>
+    <View ref={containerRef} style={styles.container}>
       <View style={styles.row}>
         <AppText variant="bodySemiBold" style={styles.dayLabel}>
           {day}

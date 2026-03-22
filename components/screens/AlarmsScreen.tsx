@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet } from "react-native";
+import { useCallback, useRef } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AlarmFrequencyInput } from "@/components/alarms/AlarmFrequencyInput";
@@ -10,34 +11,62 @@ import { Card } from "@/components/ux/Card";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { colors, spacing } from "@/theme";
 
+const PICKER_HEIGHT = 240;
+const SCROLL_PADDING = 16;
+
 export function AlarmsScreen() {
   const enabled = useAlarmStore((s) => s.enabled);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewContainerRef = useRef<View>(null);
+  const scrollOffsetRef = useRef(0);
+
+  const handlePickerOpen = useCallback((rowY: number, rowHeight: number) => {
+    scrollViewContainerRef.current?.measureInWindow((_x, sy, _w, sh) => {
+      const pickerBottom = rowY + rowHeight + PICKER_HEIGHT + SCROLL_PADDING;
+      const scrollViewBottom = sy + sh;
+      if (pickerBottom > scrollViewBottom) {
+        scrollViewRef.current?.scrollTo({
+          y: scrollOffsetRef.current + (pickerBottom - scrollViewBottom),
+          animated: true,
+        });
+      }
+    });
+  }, []);
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <AppText variant="title">Reminders</AppText>
+        <View ref={scrollViewContainerRef} style={styles.container}>
+          <ScrollView
+            ref={scrollViewRef}
+            contentContainerStyle={styles.content}
+            onScroll={(e) => {
+              scrollOffsetRef.current = e.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={16}
+          >
+            <AppText variant="title">Reminders</AppText>
 
-          <Card>
-            <AlarmSettingsSection />
-          </Card>
+            <Card>
+              <AlarmSettingsSection />
+            </Card>
 
-          <Card title="Frequency">
-            {!enabled && (
-              <AppText
-                variant="body"
-                color={colors.textSecondary}
-                style={{ marginBottom: spacing.sm }}
-              >
-                Enable reminders to edit frequency
-              </AppText>
-            )}
-            <AlarmFrequencyInput />
-          </Card>
+            <Card title="Frequency">
+              {!enabled && (
+                <AppText
+                  variant="body"
+                  color={colors.textSecondary}
+                  style={{ marginBottom: spacing.sm }}
+                >
+                  Enable reminders to edit frequency
+                </AppText>
+              )}
+              <AlarmFrequencyInput />
+            </Card>
 
-          <AlarmScheduleCard />
-        </ScrollView>
+            <AlarmScheduleCard onPickerOpen={handlePickerOpen} />
+          </ScrollView>
+        </View>
       </SafeAreaView>
     </ThemedView>
   );

@@ -30,6 +30,10 @@ export function AlarmFrequencyInput() {
     [setFrequencyValue],
   );
 
+  const handleBlur = useCallback(() => {
+    if (frequency < 1) setFrequencyValue(1);
+  }, [frequency, setFrequencyValue]);
+
   const handleUnitChange = useCallback(
     (item: { value: "minutes" | "hours" }) => {
       setFrequencyUnit(item.value);
@@ -44,6 +48,7 @@ export function AlarmFrequencyInput() {
         style={[styles.numberInput, !enabled && styles.inputDisabled]}
         value={frequency > 0 ? frequency.toString() : ""}
         onChangeText={handleValueChange}
+        onBlur={handleBlur}
         keyboardType="number-pad"
         placeholder="30"
         placeholderTextColor={colors.textSecondary}
