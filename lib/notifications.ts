@@ -4,6 +4,19 @@ import { SchedulableTriggerInputTypes } from "expo-notifications";
 import type { DaySchedule, Weekday } from "@/stores/useAlarmStore";
 import { NOTIFICATION_ACTIONS } from "@/utils/consts";
 
+function isInWindow(schedule: DaySchedule, cursorMinutes: number): boolean {
+  const [startH, startM] = schedule.startTime.split(":").map(Number);
+  const [endH, endM] = schedule.endTime.split(":").map(Number);
+  const startMinutes = startH * 60 + startM;
+  const endMinutes = endH * 60 + endM;
+
+  if (endMinutes <= startMinutes) {
+    // Midnight-crossing schedule (e.g. 9am–1am): valid after start OR before end
+    return cursorMinutes >= startMinutes || cursorMinutes < endMinutes;
+  }
+  return cursorMinutes >= startMinutes && cursorMinutes < endMinutes;
+}
+
 export type AlarmState = {
   enabled: boolean;
   mutedUntil: string | null;
@@ -68,25 +81,40 @@ export function computeFireTimes(
   let cursor = new Date(Math.ceil(from.getTime() / frequencyMs) * frequencyMs);
 
   while (cursor.getTime() < maxMs && results.length < limit) {
+    const cursorMinutes = cursor.getHours() * 60 + cursor.getMinutes();
     const weekday = DAY_INDEX_TO_WEEKDAY[cursor.getDay()];
     const daySchedule = state.schedule[weekday];
 
-    if (daySchedule?.active) {
-      const [startH, startM] = daySchedule.startTime.split(":").map(Number);
-      const [endH, endM] = daySchedule.endTime.split(":").map(Number);
+    let inWindow = daySchedule?.active
+      ? isInWindow(daySchedule, cursorMinutes)
+      : false;
 
-      const startMinutes = startH * 60 + startM;
-      const endMinutes = endH * 60 + endM;
-      const cursorMinutes = cursor.getHours() * 60 + cursor.getMinutes();
-
-      const afterStart = cursorMinutes >= startMinutes;
-      const beforeEnd = cursorMinutes < endMinutes;
-      const notMuted =
-        mutedUntilMs === null || cursor.getTime() >= mutedUntilMs;
-
-      if (afterStart && beforeEnd && notMuted) {
-        results.push(new Date(cursor));
+    // Check previous day's midnight-crossing schedule (e.g. Sat 9am–1am covers Sun 12am–1am)
+    if (!inWindow) {
+      const prevWeekday = DAY_INDEX_TO_WEEKDAY[(cursor.getDay() + 6) % 7];
+      const prevSchedule = state.schedule[prevWeekday];
+      if (prevSchedule?.active) {
+        const [prevEndH, prevEndM] = prevSchedule.endTime
+          .split(":")
+          .map(Number);
+        const [prevStartH, prevStartM] = prevSchedule.startTime
+          .split(":")
+          .map(Number);
+        const prevEndMinutes = prevEndH * 60 + prevEndM;
+        const prevStartMinutes = prevStartH * 60 + prevStartM;
+        if (
+          prevEndMinutes <= prevStartMinutes &&
+          cursorMinutes < prevEndMinutes
+        ) {
+          inWindow = true;
+        }
       }
+    }
+
+    const notMuted = mutedUntilMs === null || cursor.getTime() >= mutedUntilMs;
+
+    if (inWindow && notMuted) {
+      results.push(new Date(cursor));
     }
 
     cursor = new Date(cursor.getTime() + frequencyMs);
