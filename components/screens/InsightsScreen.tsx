@@ -18,6 +18,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { EmptyInsights } from "@/components/insights/EmptyInsights";
+import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { HourlyBarChart } from "@/components/insights/HourlyBarChart";
 import { InsightList } from "@/components/insights/InsightList";
 import { InsightsChip } from "@/components/insights/InsightsChip";
@@ -99,6 +100,7 @@ export function InsightsScreen() {
             showsVerticalScrollIndicator={false}
           >
             <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
+            <FreemiumBanner />
 
             <View style={styles.slideClip}>
             <Animated.View style={[styles.animatedContent, animatedStyle]}>

@@ -2,7 +2,7 @@ import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Keyboard, Pressable, StyleSheet, TextInput } from "react-native";
+import { Keyboard, Pressable, StyleSheet, TextInput, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,6 +11,8 @@ import { EventSheetHeader } from "@/components/activities/EventSheetHeader";
 import { TimePickerRow } from "@/components/activities/TimePickerRow";
 import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
+import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
+import { useBottomSheetSnapPoints } from "@/hooks/useBottomSheetSnapPoints";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
 import { colors, spacing } from "@/theme";
@@ -28,10 +30,7 @@ export function AddEventBottomSheet({
   const { top: topInset } = useSafeAreaInsets();
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
   const pickerFieldRef = useRef<"start" | "end" | null>(null);
-  const snapPoints = useMemo(
-    () => [pickerField !== null ? 520 : 300],
-    [pickerField],
-  );
+  const snapPoints = useBottomSheetSnapPoints(pickerField);
   const bottomSheetRef = useRef<BottomSheetModal>(null);
   const hasCalculatedPositions = useRef(false);
 
@@ -354,6 +353,9 @@ export function AddEventBottomSheet({
               </AppText>
             )}
           </Pressable>
+          <View style={styles.freemiumBanner}>
+            <FreemiumBanner />
+          </View>
           <TimePickerRow
             label="Start"
             time={startTime}
@@ -434,5 +436,8 @@ const styles = StyleSheet.create({
   form: {
     paddingTop: spacing.md,
     gap: spacing.md,
+  },
+  freemiumBanner: {
+    marginVertical: spacing.md,
   },
 });

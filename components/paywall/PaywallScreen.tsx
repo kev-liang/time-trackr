@@ -11,6 +11,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/ux/AppText";
 import { purchaseOffering, restorePurchases } from "@/lib/purchases";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 
 const FEATURES: { label: string; pro: boolean }[] = [
@@ -20,11 +21,13 @@ const FEATURES: { label: string; pro: boolean }[] = [
 
 export function PaywallScreen() {
   const [loading, setLoading] = useState<"purchase" | "restore" | null>(null);
+  const checkSubscription = useSubscriptionStore((s) => s.checkSubscription);
 
   async function handlePurchase() {
     setLoading("purchase");
     try {
       await purchaseOffering();
+      await checkSubscription();
       router.replace("/(tabs)");
     } catch (e: any) {
       if (!e?.userCancelled) {
@@ -40,6 +43,7 @@ export function PaywallScreen() {
     try {
       const active = await restorePurchases();
       if (active) {
+        await checkSubscription();
         router.replace("/(tabs)");
       } else {
         Alert.alert(
@@ -230,7 +234,12 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   secondaryButton: {
-    paddingVertical: spacing.xs,
+    width: "100%",
+    borderRadius: 14,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.border,
   },
   restoreButton: {
     paddingVertical: spacing.xs,

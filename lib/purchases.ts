@@ -31,3 +31,12 @@ export async function restorePurchases(): Promise<boolean> {
   const customerInfo = await Purchases.restorePurchases();
   return Object.keys(customerInfo.entitlements.active).length > 0;
 }
+
+export async function getIsPro(): Promise<boolean> {
+  try {
+    const info = await Purchases.getCustomerInfo();
+    return Object.keys(info.entitlements.active).length > 0;
+  } catch {
+    return false;
+  }
+}

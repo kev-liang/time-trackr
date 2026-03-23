@@ -1,5 +1,9 @@
 {
   "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.*)"
+    ],
     "allow": [
       "Bash(ls:*)",
       "Bash(npx expo install:*)",
