@@ -21,11 +21,13 @@ import { MS_PER_MINUTE } from "@/utils/activityTime";
 interface AddEventBottomSheetProps {
   animatedPosition: SharedValue<number>;
   onPositionsCalculated?: (minPosition: number, maxPosition: number) => void;
+  onSheetWillOpen?: (toPosition: number) => void;
 }
 
 export function AddEventBottomSheet({
   animatedPosition,
   onPositionsCalculated,
+  onSheetWillOpen,
 }: AddEventBottomSheetProps) {
   const { top: topInset } = useSafeAreaInsets();
   const [pickerField, setPickerField] = useState<"start" | "end" | null>(null);
@@ -281,10 +283,13 @@ export function AddEventBottomSheet({
   const handleAnimate = useCallback(
     (
       _fromIndex: number,
-      _toIndex: number,
+      toIndex: number,
       fromPosition: number,
       toPosition: number,
     ) => {
+      if (toIndex >= 0) {
+        onSheetWillOpen?.(toPosition);
+      }
       if (onPositionsCalculated && !hasCalculatedPositions.current) {
         onPositionsCalculated(
           Math.min(fromPosition, toPosition),
@@ -293,7 +298,7 @@ export function AddEventBottomSheet({
         hasCalculatedPositions.current = true;
       }
     },
-    [onPositionsCalculated],
+    [onPositionsCalculated, onSheetWillOpen],
   );
 
   const isEditing = !!editingEvent;

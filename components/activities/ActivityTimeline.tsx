@@ -24,7 +24,8 @@ import {
   useRef,
   useState,
 } from "react";
-import { Text } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Text, View } from "react-native";
 import type { GestureResponderEvent } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 
@@ -43,17 +44,19 @@ export type ActivityTimelineHandle = {
 };
 
 type Props = {
-  sheetSnapHeight?: number;
+  sheetTopY?: number | null;
   onDateChanged?: (date: string) => void;
   onLoad?: () => void;
 };
 
 export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
   function ActivityTimeline(
-    { sheetSnapHeight = 0, onDateChanged, onLoad },
+    { sheetTopY, onDateChanged, onLoad },
     ref,
   ) {
     const calendarRef = useRef<CalendarKitHandle>(null);
+    const { top: safeAreaTop } = useSafeAreaInsets();
+    const [calendarHeaderHeight, setCalendarHeaderHeight] = useState(0);
     const { events, today, theme } = useActivityTimeline();
     const [selectedDate, setSelectedDate] = useState(today);
 
@@ -120,15 +123,20 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
 
     // TODO: small bug when scrolling to end of day, hitting + FAB makes calendar scroll up then back down
     useEffect(() => {
-      if (!hasDraft) return;
+      if (!hasDraft || sheetTopY == null) return;
       const { draftStart } = useActivityEditStore.getState();
       if (!draftStart) return;
       const hour = draftStart.getHours() + draftStart.getMinutes() / 60;
       const hourHeight =
         calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
-      const hourOffset = sheetSnapHeight / hourHeight;
+      // Position the ghost 200px above the settled sheet top.
+      // sheetTopY is the Y of the sheet top from the screen top (provided by onAnimate toPosition).
+      // The calendar body starts at safeAreaTop + calendarHeaderHeight from the screen top.
+      const calendarBodyTop = safeAreaTop + calendarHeaderHeight;
+      const ghostFromCalendarTop = Math.max(0, sheetTopY - 200 - calendarBodyTop);
+      const hourOffset = ghostFromCalendarTop / hourHeight;
       calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
-    }, [hasDraft, sheetSnapHeight]);
+    }, [hasDraft, sheetTopY, safeAreaTop, calendarHeaderHeight]);
 
     const handlePressEvent = useCallback((event: OnEventResponse) => {
       const store = useActivityEditStore.getState();
@@ -290,13 +298,19 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         start={0}
         end={1440}
       >
-        <ActivityDatePicker
-          selectedDate={selectedDate}
-          open={pickerOpen}
-          onToggle={() => setPickerOpen((prev) => !prev)}
-          onSelectDate={handleSelectDate}
-        />
-        <CalendarHeader />
+        <View
+          onLayout={(e) =>
+            setCalendarHeaderHeight(e.nativeEvent.layout.height)
+          }
+        >
+          <ActivityDatePicker
+            selectedDate={selectedDate}
+            open={pickerOpen}
+            onToggle={() => setPickerOpen((prev) => !prev)}
+            onSelectDate={handleSelectDate}
+          />
+          <CalendarHeader />
+        </View>
         <CalendarBody
           showNowIndicator
           hourFormat="h A"

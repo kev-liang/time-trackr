@@ -69,6 +69,7 @@ export function ActivityScreen() {
   const sheetMinPosition = useSharedValue(0);
   const sheetMaxPosition = useSharedValue(0);
   const timelineHeight = useSharedValue(0);
+  const [sheetTopY, setSheetTopY] = useState<number | null>(null);
 
   const handlePositionsCalculated = useCallback(
     (minPosition: number, maxPosition: number) => {
@@ -107,7 +108,7 @@ export function ActivityScreen() {
           >
             <ActivityTimeline
               ref={timelineRef}
-              sheetSnapHeight={300}
+              sheetTopY={sheetTopY}
               onDateChanged={(date) => {
                 setSelectedDate(date.split("T")[0]);
               }}
@@ -122,6 +123,7 @@ export function ActivityScreen() {
       <AddEventBottomSheet
         animatedPosition={bottomSheetAnimatedPosition}
         onPositionsCalculated={handlePositionsCalculated}
+        onSheetWillOpen={setSheetTopY}
       />
     </BottomSheetModalProvider>
   );
