@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppText } from "@/components/ux/AppText";
 import { analytics } from "@/lib/analytics";
 import { purchaseOffering, restorePurchases } from "@/lib/purchases";
+import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 
@@ -23,6 +24,9 @@ const FEATURES: { label: string; pro: boolean }[] = [
 export function PaywallScreen() {
   const [loading, setLoading] = useState<"purchase" | "restore" | null>(null);
   const checkSubscription = useSubscriptionStore((s) => s.checkSubscription);
+  const { source } = useLocalSearchParams<{ source?: string }>();
+  const historyItems = useActivityHistoryStore((s) => s.items);
+  const showActivitiesBanner = source === "freemium" && historyItems.length > 0;
 
   useEffect(() => {
     analytics.capture("paywall_viewed");
@@ -94,6 +98,14 @@ export function PaywallScreen() {
             You can track up to 3 activities.{"\n"}Upgrade for unlimited.
           </AppText>
         </View>
+
+        {showActivitiesBanner && (
+          <View style={styles.activitiesBanner}>
+            <AppText variant="body" color={colors.tint} style={styles.activitiesBannerText}>
+              Your activities: {historyItems.map((i) => i.name).join(", ")}
+            </AppText>
+          </View>
+        )}
 
         <View style={styles.card}>
           {FEATURES.map((f, i) => (
@@ -261,5 +273,14 @@ const styles = StyleSheet.create({
   },
   freeFeature: {
     marginRight: spacing.sm,
+  },
+  activitiesBanner: {
+    backgroundColor: `${colors.tint}18`,
+    borderRadius: 10,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  activitiesBannerText: {
+    textAlign: "center",
   },
 });

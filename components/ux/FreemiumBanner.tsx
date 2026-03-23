@@ -19,7 +19,7 @@ export function FreemiumBanner() {
   return (
     <TouchableOpacity
       style={styles.banner}
-      onPress={() => router.push("/paywall")}
+      onPress={() => router.push({ pathname: "/paywall", params: { source: "freemium" } })}
       activeOpacity={0.7}
     >
       <AppText variant="body" color={colors.tint} style={styles.text}>

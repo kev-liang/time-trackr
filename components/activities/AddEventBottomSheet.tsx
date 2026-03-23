@@ -1,5 +1,4 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import { router } from "expo-router";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -12,7 +11,7 @@ import { EventSheetHeader } from "@/components/activities/EventSheetHeader";
 import { TimePickerRow } from "@/components/activities/TimePickerRow";
 import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
-import { FREE_LIMIT, FreemiumBanner } from "@/components/ux/FreemiumBanner";
+import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { useBottomSheetSnapPoints } from "@/hooks/useBottomSheetSnapPoints";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
@@ -238,10 +237,6 @@ export function AddEventBottomSheet({
         color: selectedColor,
       });
     } else {
-      if (!isPro && historyItems.length >= FREE_LIMIT) {
-        router.push("/paywall");
-        return;
-      }
       addActivity({
         title: selectedTitle,
         start: startTime.toISOString(),

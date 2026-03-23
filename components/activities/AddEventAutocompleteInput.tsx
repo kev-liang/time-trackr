@@ -1,4 +1,5 @@
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
 
 import { AppText } from "@/components/ux/AppText";
@@ -8,8 +9,10 @@ import {
 } from "@/components/ux/AutocompleteTextInput";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
 import { EditActivityModal } from "@/components/ux/EditActivityModal";
+import { FREE_LIMIT } from "@/components/ux/FreemiumBanner";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 
 type AddEventAutocompleteInputProps = {
   value: string;
@@ -25,6 +28,7 @@ export function AddEventAutocompleteInput({
   initialItem,
 }: AddEventAutocompleteInputProps) {
   const rawItems = useActivityHistoryStore((s) => s.items);
+  const isPro = useSubscriptionStore((s) => s.isPro);
   const addItem = useActivityHistoryStore((s) => s.addItem);
   const renameItem = useActivityHistoryStore((s) => s.renameItem);
   const removeItem = useActivityHistoryStore((s) => s.removeItem);
@@ -51,6 +55,10 @@ export function AddEventAutocompleteInput({
         (i) => i.name.toLowerCase() === label.toLowerCase(),
       );
       if (!exists) {
+        if (!isPro && rawItems.length >= FREE_LIMIT) {
+          router.push({ pathname: "/paywall", params: { source: "freemium" } });
+          return;
+        }
         addItem({
           name: label,
           pinned: false,
@@ -59,7 +67,7 @@ export function AddEventAutocompleteInput({
         });
       }
     },
-    [rawItems, addItem],
+    [rawItems, addItem, isPro],
   );
 
   const handleSelect = useCallback(
