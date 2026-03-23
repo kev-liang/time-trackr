@@ -26,9 +26,9 @@ import { useNotificationResponse } from "@/hooks/useNotificationResponse";
 import { hasPermissions, scheduleNotifications } from "@/lib/notifications";
 import { registerBackgroundReschedule } from "@/lib/notificationScheduler";
 import { initializePurchases, loginPurchases } from "@/lib/purchases";
-import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { useAlarmStore } from "@/stores/useAlarmStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 
 SplashScreen.preventAutoHideAsync();
 

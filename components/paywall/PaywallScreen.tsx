@@ -41,7 +41,7 @@ export function PaywallScreen() {
         analytics.capture("paywall_purchase_cancelled");
       } else {
         analytics.capture("paywall_purchase_error");
-        Alert.alert("Something went wrong", "Please try again.");
+        Alert.alert("Something went wrong", e?.message ?? "Please try again.");
       }
     } finally {
       setLoading(null);

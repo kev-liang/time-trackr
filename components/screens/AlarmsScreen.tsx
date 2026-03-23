@@ -9,6 +9,7 @@ import { ThemedView } from "@/components/themed-view";
 import { AppText } from "@/components/ux/AppText";
 import { Card } from "@/components/ux/Card";
 import { useAlarmStore } from "@/stores/useAlarmStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { colors, spacing } from "@/theme";
 
 const PICKER_HEIGHT = 240;
@@ -16,6 +17,8 @@ const SCROLL_PADDING = 16;
 
 export function AlarmsScreen() {
   const enabled = useAlarmStore((s) => s.enabled);
+  const session = useAuthStore((s) => s.session);
+  const supportId = session?.user.id.split("-")[0] ?? "—";
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollViewContainerRef = useRef<View>(null);
   const scrollOffsetRef = useRef(0);
@@ -45,9 +48,9 @@ export function AlarmsScreen() {
             }}
             scrollEventThrottle={16}
           >
-            <AppText variant="title">Reminders</AppText>
+            <AppText variant="title">Settings</AppText>
 
-            <Card>
+            <Card title="Reminders">
               <AlarmSettingsSection />
             </Card>
 
@@ -65,6 +68,10 @@ export function AlarmsScreen() {
             </Card>
 
             <AlarmScheduleCard onPickerOpen={handlePickerOpen} />
+
+            <AppText variant="body" color={colors.textSecondary}>
+              Customer Support ID: {supportId}
+            </AppText>
           </ScrollView>
         </View>
       </SafeAreaView>

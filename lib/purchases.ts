@@ -15,13 +15,14 @@ export async function loginPurchases(userId: string) {
   try {
     await Purchases.logIn(userId);
   } catch {
-    // Non-fatal — anonymous fallback remains
+    // Non-fatal
   }
 }
 
 export async function purchaseOffering(): Promise<boolean> {
   const offerings = await Purchases.getOfferings();
-  const pkg = offerings.current?.availablePackages[0];
+  const offering = offerings.current ?? offerings.all["default"];
+  const pkg = offering?.availablePackages[0];
   if (!pkg) throw new Error("No offering available");
   const { customerInfo } = await Purchases.purchasePackage(pkg);
   return Object.keys(customerInfo.entitlements.active).length > 0;
@@ -35,6 +36,7 @@ export async function restorePurchases(): Promise<boolean> {
 export async function getIsPro(): Promise<boolean> {
   try {
     const info = await Purchases.getCustomerInfo();
+    console.log({ info });
     return Object.keys(info.entitlements.active).length > 0;
   } catch {
     return false;

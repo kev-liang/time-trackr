@@ -26,6 +26,7 @@ const MAPPING = {
   'person.fill': 'person',
   'clock': 'schedule',
   'chart.bar': 'bar-chart',
+  'gearshape': 'settings',
 } as IconMapping;
 
 /**
