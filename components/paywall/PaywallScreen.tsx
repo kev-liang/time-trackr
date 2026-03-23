@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/ux/AppText";
+import { analytics } from "@/lib/analytics";
 import { purchaseOffering, restorePurchases } from "@/lib/purchases";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
@@ -23,14 +24,23 @@ export function PaywallScreen() {
   const [loading, setLoading] = useState<"purchase" | "restore" | null>(null);
   const checkSubscription = useSubscriptionStore((s) => s.checkSubscription);
 
+  useEffect(() => {
+    analytics.capture("paywall_viewed");
+  }, []);
+
   async function handlePurchase() {
+    analytics.capture("paywall_purchase_tapped");
     setLoading("purchase");
     try {
       await purchaseOffering();
       await checkSubscription();
+      analytics.capture("paywall_purchase_success");
       router.replace("/(tabs)");
     } catch (e: any) {
-      if (!e?.userCancelled) {
+      if (e?.userCancelled) {
+        analytics.capture("paywall_purchase_cancelled");
+      } else {
+        analytics.capture("paywall_purchase_error");
         Alert.alert("Something went wrong", "Please try again.");
       }
     } finally {
@@ -39,19 +49,23 @@ export function PaywallScreen() {
   }
 
   async function handleRestore() {
+    analytics.capture("paywall_restore_tapped");
     setLoading("restore");
     try {
       const active = await restorePurchases();
       if (active) {
         await checkSubscription();
+        analytics.capture("paywall_restore_success");
         router.replace("/(tabs)");
       } else {
+        analytics.capture("paywall_restore_not_found");
         Alert.alert(
           "No subscription found",
           "We couldn't find a previous purchase to restore.",
         );
       }
     } catch {
+      analytics.capture("paywall_restore_error");
       Alert.alert("Something went wrong", "Please try again.");
     } finally {
       setLoading(null);
@@ -59,6 +73,7 @@ export function PaywallScreen() {
   }
 
   function handleContinueFree() {
+    analytics.capture("paywall_continue_free");
     router.replace("/(tabs)");
   }
 

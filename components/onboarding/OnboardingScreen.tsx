@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { AppText } from "@/components/ux/AppText";
 import { PaginationDots } from "@/components/ux/PaginationDots";
+import { analytics } from "@/lib/analytics";
 import { markOnboardingDone } from "@/lib/onboarding";
 import { colors, spacing } from "@/theme";
 
@@ -28,6 +29,11 @@ export function OnboardingScreen() {
   const isFirst = currentIndex === 0;
   const currentPage = ONBOARDING_PAGES[currentIndex];
   const FooterComponent = currentPage.footerComponent;
+
+  useEffect(() => {
+    analytics.capture("onboarding_started");
+    analytics.capture("onboarding_page_viewed", { page: 0, title: ONBOARDING_PAGES[0].title });
+  }, []);
 
   const scrollTo = useCallback(
     (index: number) => {
@@ -46,6 +52,7 @@ export function OnboardingScreen() {
   }
 
   async function handleSkip() {
+    analytics.capture("onboarding_skipped", { page: currentIndex, title: currentPage.title });
     await markOnboardingDone();
     router.replace("/paywall");
   }
@@ -53,6 +60,7 @@ export function OnboardingScreen() {
   function handleMomentumScrollEnd(e: any) {
     const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setCurrentIndex(index);
+    analytics.capture("onboarding_page_viewed", { page: index, title: ONBOARDING_PAGES[index].title });
   }
 
   return (
