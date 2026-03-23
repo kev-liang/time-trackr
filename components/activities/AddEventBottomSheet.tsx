@@ -1,4 +1,5 @@
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -11,10 +12,12 @@ import { EventSheetHeader } from "@/components/activities/EventSheetHeader";
 import { TimePickerRow } from "@/components/activities/TimePickerRow";
 import { AppText } from "@/components/ux/AppText";
 import { ConfirmationModal } from "@/components/ux/ConfirmationModal";
-import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
+import { FREE_LIMIT, FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { useBottomSheetSnapPoints } from "@/hooks/useBottomSheetSnapPoints";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
+import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 
@@ -50,6 +53,9 @@ export function AddEventBottomSheet({
   const addActivity = useActivityStore((s) => s.addActivity);
   const updateActivity = useActivityStore((s) => s.updateActivity);
   const removeActivity = useActivityStore((s) => s.removeActivity);
+
+  const isPro = useSubscriptionStore((s) => s.isPro);
+  const historyItems = useActivityHistoryStore((s) => s.items);
 
   const editingEvent = editingEventId
     ? (activities.find((a) => a.id === editingEventId) ?? null)
@@ -232,6 +238,10 @@ export function AddEventBottomSheet({
         color: selectedColor,
       });
     } else {
+      if (!isPro && historyItems.length >= FREE_LIMIT) {
+        router.push("/paywall");
+        return;
+      }
       addActivity({
         title: selectedTitle,
         start: startTime.toISOString(),
@@ -252,6 +262,8 @@ export function AddEventBottomSheet({
     updateActivity,
     addActivity,
     clearEditing,
+    isPro,
+    historyItems,
   ]);
 
   const handleStartChange = useCallback(

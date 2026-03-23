@@ -6,7 +6,7 @@ import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 
-const FREE_LIMIT = 3;
+export const FREE_LIMIT = 3;
 
 export function FreemiumBanner() {
   const isPro = useSubscriptionStore((s) => s.isPro);
