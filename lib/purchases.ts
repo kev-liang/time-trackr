@@ -36,7 +36,6 @@ export async function restorePurchases(): Promise<boolean> {
 export async function getIsPro(): Promise<boolean> {
   try {
     const info = await Purchases.getCustomerInfo();
-    console.log({ info });
     return Object.keys(info.entitlements.active).length > 0;
   } catch {
     return false;

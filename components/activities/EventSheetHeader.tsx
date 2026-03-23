@@ -25,7 +25,7 @@ export function EventSheetHeader({
         </AppText>
       </Pressable>
       <AppText variant="bodySemiBold">
-        {isEditing ? "Edit Activity" : "Add Activity"}
+        {isEditing ? "Edit Entry" : "Add Entry"}
       </AppText>
       <View style={styles.headerActions}>
         {isEditing && (
