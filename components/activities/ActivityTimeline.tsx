@@ -120,23 +120,17 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
 
     // TODO: small bug when scrolling to end of day, hitting + FAB makes calendar scroll up then back down
     useEffect(() => {
-      if (!hasDraft || sheetTopY == null) return;
-      const { draftStart } = useActivityEditStore.getState();
-      if (!draftStart) return;
-      const hour = draftStart.getHours() + draftStart.getMinutes() / 60;
-      const hourHeight =
-        calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
-      const calendarBodyTop = safeAreaTop + calendarHeaderHeight;
-      const ghostFromCalendarTop = Math.max(0, sheetTopY - calendarBodyTop);
-      const hourOffset = ghostFromCalendarTop / hourHeight;
-      calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
-    }, [hasDraft, sheetTopY, safeAreaTop, calendarHeaderHeight]);
+      if (sheetTopY == null) return;
 
-    useEffect(() => {
-      if (!editingEventId || sheetTopY == null) return;
-      const event = events.find((e) => e.id === editingEventId);
-      if (!event?.start.dateTime) return;
-      const start = new Date(event.start.dateTime);
+      let start: Date | undefined;
+      if (hasDraft) {
+        start = useActivityEditStore.getState().draftStart ?? undefined;
+      } else if (editingEventId) {
+        const dt = events.find((e) => e.id === editingEventId)?.start.dateTime;
+        start = dt ? new Date(dt) : undefined;
+      }
+      if (!start) return;
+
       const hour = start.getHours() + start.getMinutes() / 60;
       const hourHeight =
         calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
@@ -144,7 +138,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       const ghostFromCalendarTop = Math.max(0, sheetTopY - calendarBodyTop);
       const hourOffset = ghostFromCalendarTop / hourHeight;
       calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
-    }, [editingEventId, sheetTopY, safeAreaTop, calendarHeaderHeight, events]);
+    }, [hasDraft, editingEventId, sheetTopY, safeAreaTop, calendarHeaderHeight, events]);
 
     const handlePressEvent = useCallback((event: OnEventResponse) => {
       const store = useActivityEditStore.getState();
