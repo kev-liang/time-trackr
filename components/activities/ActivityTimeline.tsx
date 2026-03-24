@@ -24,10 +24,10 @@ import {
   useRef,
   useState,
 } from "react";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Text, View } from "react-native";
 import type { GestureResponderEvent } from "react-native";
+import { Text, View } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ActivityDatePicker } from "@/components/activities/ActivityDatePicker";
 import { ActivityTimelineEvent } from "@/components/activities/ActivityTimelineEvent";
@@ -50,10 +50,7 @@ type Props = {
 };
 
 export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
-  function ActivityTimeline(
-    { sheetTopY, onDateChanged, onLoad },
-    ref,
-  ) {
+  function ActivityTimeline({ sheetTopY, onDateChanged, onLoad }, ref) {
     const calendarRef = useRef<CalendarKitHandle>(null);
     const { top: safeAreaTop } = useSafeAreaInsets();
     const [calendarHeaderHeight, setCalendarHeaderHeight] = useState(0);
@@ -129,14 +126,25 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       const hour = draftStart.getHours() + draftStart.getMinutes() / 60;
       const hourHeight =
         calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
-      // Position the ghost 200px above the settled sheet top.
-      // sheetTopY is the Y of the sheet top from the screen top (provided by onAnimate toPosition).
-      // The calendar body starts at safeAreaTop + calendarHeaderHeight from the screen top.
       const calendarBodyTop = safeAreaTop + calendarHeaderHeight;
-      const ghostFromCalendarTop = Math.max(0, sheetTopY - 200 - calendarBodyTop);
+      const ghostFromCalendarTop = Math.max(0, sheetTopY - calendarBodyTop);
       const hourOffset = ghostFromCalendarTop / hourHeight;
       calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
     }, [hasDraft, sheetTopY, safeAreaTop, calendarHeaderHeight]);
+
+    useEffect(() => {
+      if (!editingEventId || sheetTopY == null) return;
+      const event = events.find((e) => e.id === editingEventId);
+      if (!event?.start.dateTime) return;
+      const start = new Date(event.start.dateTime);
+      const hour = start.getHours() + start.getMinutes() / 60;
+      const hourHeight =
+        calendarRef.current?.getSizeByDuration(60)?.height ?? 60;
+      const calendarBodyTop = safeAreaTop + calendarHeaderHeight;
+      const ghostFromCalendarTop = Math.max(0, sheetTopY - calendarBodyTop);
+      const hourOffset = ghostFromCalendarTop / hourHeight;
+      calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
+    }, [editingEventId, sheetTopY, safeAreaTop, calendarHeaderHeight, events]);
 
     const handlePressEvent = useCallback((event: OnEventResponse) => {
       const store = useActivityEditStore.getState();
@@ -299,9 +307,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         end={1440}
       >
         <View
-          onLayout={(e) =>
-            setCalendarHeaderHeight(e.nativeEvent.layout.height)
-          }
+          onLayout={(e) => setCalendarHeaderHeight(e.nativeEvent.layout.height)}
         >
           <ActivityDatePicker
             selectedDate={selectedDate}
