@@ -73,7 +73,10 @@ export function InsightsScreen() {
   useFocusEffect(
     useCallback(() => {
       setSelectedDate(new Date());
-    }, [setSelectedDate]),
+      return () => {
+        clearHighlight();
+      };
+    }, [setSelectedDate, clearHighlight]),
   );
 
   const {

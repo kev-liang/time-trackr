@@ -12,6 +12,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AppText } from "@/components/ux/AppText";
 import { analytics } from "@/lib/analytics";
 import { purchaseOffering, restorePurchases } from "@/lib/purchases";
+import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
@@ -78,6 +79,7 @@ export function PaywallScreen() {
 
   function handleContinueFree() {
     analytics.capture("paywall_continue_free");
+    useActivityEditStore.getState().clearEditing();
     router.replace("/(tabs)");
   }
 
