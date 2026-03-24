@@ -122,7 +122,15 @@ export function AddEventBottomSheet({
     setTitleError(null);
     setTimeError(null);
     setPickerField(null);
-  }, [editingEvent, sheetOpen, draftStart, draftEnd]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editingEvent, sheetOpen]);
+
+  // When the ghost event is dragged, only update the time fields — not the title.
+  useEffect(() => {
+    if (!draftStart || !draftEnd) return;
+    setValue("startTime", draftStart);
+    setValue("endTime", draftEnd);
+  }, [draftStart, draftEnd]);
 
   useEffect(() => {
     pickerFieldRef.current = pickerField;

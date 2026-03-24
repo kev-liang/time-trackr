@@ -303,7 +303,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         onPressEvent={handlePressEvent}
         onPressBackground={handlePressBackground}
         onLongPressBackground={handleLongPressBackground}
-        onDragEventEnd={() => {}}
+        onDragEventEnd={handleDragEventEnd}
         onDragSelectedEventEnd={handleDragSelectedEventEnd}
         onDateChanged={handleDateChanged}
         onLoad={onLoad}
