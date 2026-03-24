@@ -50,7 +50,7 @@ function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onPress, on
       onLongPress={() => { longPressActive.current = true; onLongPress(); }}
       onPressOut={() => { if (longPressActive.current) { longPressActive.current = false; clearHighlight(); } }}
       hitSlop={{ top: 16, bottom: 16 }}
-      style={styles.barWrapper}
+      style={[styles.barWrapper, isHighlighted && { zIndex: 1 }]}
     >
       <View style={[styles.barContainer, { height: BAR_MAX_HEIGHT }]}>
         {slot.hour % 3 === 0 && <View style={styles.tickLine} />}
