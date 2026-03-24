@@ -76,29 +76,56 @@ function HourBar({ slot, isHighlighted, isDimmed, highlightedTitles, onPress, on
   );
 }
 
+const GRID_LINES = [15, 30, 45, 60];
+
 export function HourlyBarChart({ slots, highlightedTitles, setHighlightedTitles, clearHighlight }: Props) {
   return (
     <View>
-      <View style={styles.barsRow}>
-        {slots.map((slot) => {
-          const titlesInBar = new Set(slot.segments.map((s) => s.title));
-          const isHighlighted =
-            highlightedTitles !== null &&
-            [...highlightedTitles].some((t) => titlesInBar.has(t));
-          const isDimmed = highlightedTitles !== null && !isHighlighted;
-          return (
-            <HourBar
-              key={slot.hour}
-              slot={slot}
-              isHighlighted={isHighlighted}
-              isDimmed={isDimmed}
-              highlightedTitles={highlightedTitles}
-              onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
-              onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
-              clearHighlight={clearHighlight}
+      <View style={styles.chartRow}>
+        {/* Y-axis labels */}
+        <View style={{ width: 24, height: BAR_MAX_HEIGHT }}>
+          {GRID_LINES.map((min) => (
+            <Text
+              key={min}
+              pointerEvents="none"
+              style={[styles.gridLabel, { bottom: (min / 60) * BAR_MAX_HEIGHT - 5 }]}
+            >
+              {min === 60 ? "1h" : `${min}m`}
+            </Text>
+          ))}
+        </View>
+
+        {/* Bars + grid lines */}
+        <View style={{ flex: 1, position: "relative" }}>
+          {GRID_LINES.map((min) => (
+            <View
+              key={min}
+              pointerEvents="none"
+              style={[styles.gridLine, { bottom: (min / 60) * BAR_MAX_HEIGHT }]}
             />
-          );
-        })}
+          ))}
+          <View style={styles.barsRow}>
+            {slots.map((slot) => {
+              const titlesInBar = new Set(slot.segments.map((s) => s.title));
+              const isHighlighted =
+                highlightedTitles !== null &&
+                [...highlightedTitles].some((t) => titlesInBar.has(t));
+              const isDimmed = highlightedTitles !== null && !isHighlighted;
+              return (
+                <HourBar
+                  key={slot.hour}
+                  slot={slot}
+                  isHighlighted={isHighlighted}
+                  isDimmed={isDimmed}
+                  highlightedTitles={highlightedTitles}
+                  onPress={() => isHighlighted ? clearHighlight() : setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
+                  onLongPress={() => setHighlightedTitles(new Set(slot.segments.map((s) => s.title)))}
+                  clearHighlight={clearHighlight}
+                />
+              );
+            })}
+          </View>
+        </View>
       </View>
 
       <View style={styles.labelsRow}>
@@ -138,6 +165,25 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     flexDirection: "column",
     justifyContent: "flex-end",
+  },
+  chartRow: {
+    flexDirection: "row",
+    gap: 4,
+  },
+  gridLabel: {
+    position: "absolute",
+    right: 0,
+    ...textStyles.caption,
+    color: colors.textSecondary,
+    fontSize: 10,
+    lineHeight: 10,
+  },
+  gridLine: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: colors.border,
   },
   tickLine: {
     position: "absolute",
