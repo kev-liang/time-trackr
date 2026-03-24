@@ -138,7 +138,14 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       const ghostFromCalendarTop = Math.max(0, sheetTopY - calendarBodyTop);
       const hourOffset = ghostFromCalendarTop / hourHeight;
       calendarRef.current?.goToHour(Math.max(0, hour - hourOffset), true);
-    }, [hasDraft, editingEventId, sheetTopY, safeAreaTop, calendarHeaderHeight, events]);
+    }, [
+      hasDraft,
+      editingEventId,
+      sheetTopY,
+      safeAreaTop,
+      calendarHeaderHeight,
+      events,
+    ]);
 
     const handlePressEvent = useCallback((event: OnEventResponse) => {
       const store = useActivityEditStore.getState();
@@ -165,6 +172,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
     );
 
     const handleDragEventEnd = useCallback(async (event: OnEventResponse) => {
+      console.log("end drag event", event.start.dateTime, event.end.dateTime);
       if (!event.id) {
         // Draft ghost was resized — sync times back to the store
         const start = event.start.dateTime;
@@ -175,6 +183,9 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
           .updateDraft(new Date(start), new Date(end));
         return;
       }
+      // If this is the selected/editing event, onDragSelectedEventEnd handles it
+      // to avoid a race condition between two concurrent updateActivity calls.
+      if (event.id === useActivityEditStore.getState().editingEventId) return;
       const start = event.start.dateTime;
       const end = event.end.dateTime;
       if (!start || !end) return;
@@ -200,10 +211,11 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         const end = event.end.dateTime;
         if (!start || !end) return;
         useActivityEditStore.getState().clearPreview();
-        await useActivityStore.getState().updateActivity(event.id, {
+        useActivityStore.getState().updateActivity(event.id, {
           start: new Date(start).toISOString(),
           end: new Date(end).toISOString(),
         });
+        console.log("selected drag", new Date(start), new Date(end));
       },
       [],
     );
@@ -291,7 +303,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         onPressEvent={handlePressEvent}
         onPressBackground={handlePressBackground}
         onLongPressBackground={handleLongPressBackground}
-        onDragEventEnd={handleDragEventEnd}
+        onDragEventEnd={() => {}}
         onDragSelectedEventEnd={handleDragSelectedEventEnd}
         onDateChanged={handleDateChanged}
         onLoad={onLoad}

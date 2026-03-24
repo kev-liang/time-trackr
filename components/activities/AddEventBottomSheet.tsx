@@ -108,6 +108,7 @@ export function AddEventBottomSheet({
     const now = draftStart ?? new Date();
     const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
     if (editingEvent) {
+      console.log({ editingEvent });
       setLocalTitle("");
       reset({
         title: editingEvent.title,
@@ -122,31 +123,7 @@ export function AddEventBottomSheet({
     setTitleError(null);
     setTimeError(null);
     setPickerField(null);
-  }, [editingEvent, sheetOpen]);
-
-  // Sync times separately so drag-to-resize updates don't wipe the user's typed title.
-  // keepDirtyValues preserves user-typed fields while resetting the time baseline.
-  useEffect(() => {
-    if (editingEvent) {
-      reset(
-        {
-          title: editingEvent.title,
-          color: editingEvent.color,
-          startTime: new Date(editingEvent.start),
-          endTime: new Date(editingEvent.end),
-        },
-        { keepDirtyValues: true },
-      );
-    } else {
-      const now = draftStart ?? new Date();
-      const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
-      reset(
-        { title: "", color: colors.tint, startTime: now, endTime: later },
-        { keepDirtyValues: true },
-      );
-    }
-    setResetKey((k) => k + 1);
-  }, [editingEvent, draftStart, draftEnd]);
+  }, [editingEvent, sheetOpen, draftStart, draftEnd]);
 
   useEffect(() => {
     pickerFieldRef.current = pickerField;
@@ -228,6 +205,8 @@ export function AddEventBottomSheet({
       return;
     }
     setTitleError(null);
+    console.log("SAVING", startTime, endTime);
+    console.log("START", editingEvent?.start, editingEvent?.end);
     if (timeError) return;
     if (editingEventId) {
       updateActivity(editingEventId, {
