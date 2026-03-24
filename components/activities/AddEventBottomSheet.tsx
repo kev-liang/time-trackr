@@ -108,7 +108,6 @@ export function AddEventBottomSheet({
     const now = draftStart ?? new Date();
     const later = draftEnd ?? new Date(now.getTime() + 60 * MS_PER_MINUTE);
     if (editingEvent) {
-      console.log({ editingEvent });
       setLocalTitle("");
       reset({
         title: editingEvent.title,
@@ -205,14 +204,15 @@ export function AddEventBottomSheet({
       return;
     }
     setTitleError(null);
-    console.log("SAVING", startTime, endTime);
-    console.log("START", editingEvent?.start, editingEvent?.end);
+    const editingEvent = useActivityStore
+      .getState()
+      .activities.find((a) => a.id === editingEventId);
     if (timeError) return;
     if (editingEventId) {
       updateActivity(editingEventId, {
         title: selectedTitle,
-        start: startTime.toISOString(),
-        end: endTime.toISOString(),
+        start: editingEvent?.start,
+        end: editingEvent?.end,
         color: selectedColor,
       });
     } else {
