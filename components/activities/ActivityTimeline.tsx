@@ -172,7 +172,6 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
     );
 
     const handleDragEventEnd = useCallback(async (event: OnEventResponse) => {
-      console.log("end drag event", event.start.dateTime, event.end.dateTime);
       if (!event.id) {
         // Draft ghost was resized — sync times back to the store
         const start = event.start.dateTime;
@@ -215,7 +214,6 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
           start: new Date(start).toISOString(),
           end: new Date(end).toISOString(),
         });
-        console.log("selected drag", new Date(start), new Date(end));
       },
       [],
     );
