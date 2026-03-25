@@ -20,6 +20,7 @@ type InsightsStore = {
   setSelectedDate: (date: Date) => void;
   goToNext: () => void;
   goToPrev: () => void;
+  goToToday: () => void;
 };
 
 export const useInsightsStore = create<InsightsStore>((set, get) => ({
@@ -42,6 +43,8 @@ export const useInsightsStore = create<InsightsStore>((set, get) => ({
     d.setDate(d.getDate() - (period === "week" ? 7 : 1));
     set({ selectedDate: d });
   },
+
+  goToToday: () => set({ selectedDate: new Date() }),
 }));
 
 /** Combines insights navigation state with activity data to produce all derived values. */
@@ -124,6 +127,10 @@ export function useInsightsData() {
     period === "day" &&
     selectedDate.toDateString() === new Date().toDateString();
 
+  const isThisWeek =
+    period === "week" &&
+    weekStart.getTime() === getWeekStart(new Date()).getTime();
+
   return {
     todayActivities,
     hourSlots,
@@ -138,5 +145,6 @@ export function useInsightsData() {
     dateTitle,
     activityTotals,
     isToday,
+    isThisWeek,
   };
 }

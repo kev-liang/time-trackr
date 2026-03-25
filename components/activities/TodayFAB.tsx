@@ -6,14 +6,15 @@ import { colors, spacing } from "@/theme";
 
 type TodayFABProps = {
   onPress: () => void;
+  label?: string;
 };
 
-export function TodayFAB({ onPress }: TodayFABProps) {
+export function TodayFAB({ onPress, label = "Today" }: TodayFABProps) {
   return (
     <Pressable style={styles.fab} onPress={onPress}>
       <Ionicons name="chevron-back" size={20} color={colors.text} />
       <AppText variant="bodySemiBold" color={colors.text}>
-        Today
+        {label}
       </AppText>
     </Pressable>
   );

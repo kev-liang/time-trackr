@@ -17,6 +17,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { TodayFAB } from "@/components/activities/TodayFAB";
 import { EmptyInsights } from "@/components/insights/EmptyInsights";
 import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { HourlyBarChart } from "@/components/insights/HourlyBarChart";
@@ -32,7 +33,7 @@ import { colors, spacing, textStyles } from "@/theme";
 const SLIDE_DISTANCE = 350;
 
 export function InsightsScreen() {
-  const { period, setPeriod, goToPrev, goToNext, setSelectedDate } =
+  const { period, setPeriod, goToPrev, goToNext, goToToday, setSelectedDate } =
     useInsightsStore();
   const [highlightedTitles, setHighlightedTitles] = useState<Set<string> | null>(null);
   const clearHighlight = useCallback(() => setHighlightedTitles(null), []);
@@ -88,6 +89,7 @@ export function InsightsScreen() {
     dateTitle,
     activityTotals,
     isToday,
+    isThisWeek,
   } = useInsightsData();
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -156,6 +158,12 @@ export function InsightsScreen() {
             </View>
           </ScrollView>
         </GestureDetector>
+        {!isToday && !isThisWeek && (
+          <TodayFAB
+            label={period === "week" ? "This Week" : "Today"}
+            onPress={() => { clearHighlight(); goToToday(); }}
+          />
+        )}
       </SafeAreaView>
     </ThemedView>
   );
