@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { BottomSheetFlatList } from "@gorhom/bottom-sheet";
+import { FlatList } from "react-native-gesture-handler";
 import { Keyboard, Pressable, StyleSheet, View } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
@@ -28,7 +28,8 @@ export function AutocompleteDropdown({
   onDelete,
 }: AutocompleteDropdownProps) {
   return (
-    <BottomSheetFlatList<DropdownItem>
+    <FlatList<DropdownItem>
+      nestedScrollEnabled
       data={data}
       keyExtractor={(item) => item.id}
       keyboardShouldPersistTaps="handled"
@@ -80,6 +81,7 @@ export function AutocompleteDropdown({
     />
   );
 }
+
 
 function DropdownHeader() {
   return (
