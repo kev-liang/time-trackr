@@ -25,7 +25,7 @@ import {
   useState,
 } from "react";
 import type { GestureResponderEvent } from "react-native";
-import { Text, View } from "react-native";
+import { Text, View, useWindowDimensions } from "react-native";
 import type { SharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -53,6 +53,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
   function ActivityTimeline({ sheetTopY, onDateChanged, onLoad }, ref) {
     const calendarRef = useRef<CalendarKitHandle>(null);
     const { top: safeAreaTop } = useSafeAreaInsets();
+    const { height: windowHeight } = useWindowDimensions();
     const [calendarHeaderHeight, setCalendarHeaderHeight] = useState(0);
     const { events, today, theme } = useActivityTimeline();
     const [selectedDate, setSelectedDate] = useState(today);
@@ -290,6 +291,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       <CalendarContainer
         ref={calendarRef}
         numberOfDays={1}
+        spaceFromBottom={(sheetTopY != null ? Math.max(windowHeight - sheetTopY, 0) : 0) + 16}
         events={events}
         initialDate={today}
         scrollToNow

@@ -23,7 +23,7 @@ import { MS_PER_MINUTE } from "@/utils/activityTime";
 interface AddEventBottomSheetProps {
   animatedPosition: SharedValue<number>;
   onPositionsCalculated?: (minPosition: number, maxPosition: number) => void;
-  onSheetWillOpen?: (toPosition: number) => void;
+  onSheetWillOpen?: (toPosition: number | null) => void;
 }
 
 export function AddEventBottomSheet({
@@ -281,6 +281,8 @@ export function AddEventBottomSheet({
     ) => {
       if (toIndex >= 0) {
         onSheetWillOpen?.(toPosition);
+      } else {
+        onSheetWillOpen?.(null);
       }
       if (onPositionsCalculated && !hasCalculatedPositions.current) {
         onPositionsCalculated(
