@@ -50,12 +50,11 @@ export default function RootLayout() {
 
   useEffect(() => {
     initializePurchases();
-    checkSubscription();
   }, []);
 
   useEffect(() => {
     if (session?.user.id) {
-      loginPurchases(session.user.id);
+      loginPurchases(session.user.id).then(() => checkSubscription());
     }
   }, [session?.user.id]);
 
@@ -83,7 +82,6 @@ export default function RootLayout() {
     if (!fontsLoaded) return;
     async function handleOnboarding() {
       const forceOnboarding = process.env.EXPO_PUBLIC_FORCE_ONBOARDING === "1";
-      console.log("FORCE ONBOARDING", forceOnboarding);
       const onboarded = !forceOnboarding && (await hasCompletedOnboarding());
       if (!onboarded) {
         router.replace("/onboarding");

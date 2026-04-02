@@ -30,7 +30,7 @@ export const ONBOARDING_PAGES: OnboardingPageData[] = [
     image: require("@/assets/images/iphone-insights.png"),
   },
   {
-    title: "Stay on track with\nreminders",
+    title: "Stay on track with\ncustomizable reminders",
     description:
       "Get nudged at the right times so your activity log stays accurate. Set your own schedule.",
     iconName: "bell.fill",
