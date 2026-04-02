@@ -82,8 +82,9 @@ export default function RootLayout() {
   useEffect(() => {
     if (!fontsLoaded) return;
     async function handleOnboarding() {
-      const FORCE_ONBOARDING = true; // TODO: remove before release
-      const onboarded = !FORCE_ONBOARDING && (await hasCompletedOnboarding());
+      const forceOnboarding = process.env.EXPO_PUBLIC_FORCE_ONBOARDING === "1";
+      console.log("FORCE ONBOARDING", forceOnboarding);
+      const onboarded = !forceOnboarding && (await hasCompletedOnboarding());
       if (!onboarded) {
         router.replace("/onboarding");
       }

@@ -2,7 +2,7 @@
   "expo": {
     "name": "TimeTracer",
     "slug": "time-trackr",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "timetracer",
@@ -17,10 +17,7 @@
       "bundleIdentifier": "com.kliang.timetracer",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["fetch", "remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -51,9 +48,7 @@
           "defaultChannel": "default"
         }
       ],
-      [
-        "expo-task-manager"
-      ],
+      ["expo-task-manager"],
       [
         "expo-splash-screen",
         {
