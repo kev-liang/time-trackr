@@ -1,4 +1,4 @@
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { colors, spacing } from "@/theme";
@@ -16,7 +16,7 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
         onPress={onZoomIn}
         hitSlop={4}
       >
-        <MaterialIcons name="zoom-in" size={22} color={colors.text} />
+        <MaterialCommunityIcons name="magnify-plus" size={26} color={colors.text} />
       </Pressable>
       <View style={styles.divider} />
       <Pressable
@@ -24,7 +24,7 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
         onPress={onZoomOut}
         hitSlop={4}
       >
-        <MaterialIcons name="zoom-out" size={22} color={colors.text} />
+        <MaterialCommunityIcons name="magnify-minus" size={26} color={colors.text} />
       </Pressable>
     </View>
   );
@@ -32,9 +32,6 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
 
 const styles = StyleSheet.create({
   container: {
-    position: "absolute",
-    bottom: spacing.lg + 56 + spacing.md,
-    right: spacing.lg - (56 - 44) / 2,
     width: 44,
     backgroundColor: colors.background,
     borderRadius: 22,
@@ -54,7 +51,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.border,
   },
   divider: {
-    height: StyleSheet.hairlineWidth,
+    height: 2,
     backgroundColor: colors.border,
     marginHorizontal: spacing.sm,
   },

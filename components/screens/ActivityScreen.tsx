@@ -2,7 +2,7 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { useFocusEffect } from "expo-router";
 import moment from "moment";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -24,6 +24,7 @@ import { LoadingScreen } from "@/components/ux/LoadingScreen";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { spacing } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 
 const TRANSLATE_PERCENT = 0.3;
@@ -118,11 +119,13 @@ export function ActivityScreen() {
           </Animated.View>
           {showLoading && <LoadingScreen />}
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
-          <ZoomControls
-            onZoomIn={() => timelineRef.current?.zoom({ scale: 1.3 })}
-            onZoomOut={() => timelineRef.current?.zoom({ scale: 1 / 1.3 })}
-          />
-          <AddEventFAB onPress={handleOpen} />
+          <View style={styles.fabGroup}>
+            <ZoomControls
+              onZoomIn={() => timelineRef.current?.zoom({ scale: 1.3 })}
+              onZoomOut={() => timelineRef.current?.zoom({ scale: 1 / 1.3 })}
+            />
+            <AddEventFAB onPress={handleOpen} />
+          </View>
         </SafeAreaView>
       </ThemedView>
       <AddEventBottomSheet
@@ -137,5 +140,12 @@ export function ActivityScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  fabGroup: {
+    position: "absolute",
+    bottom: spacing.lg,
+    right: spacing.lg,
+    alignItems: "center",
+    gap: spacing.md,
   },
 });

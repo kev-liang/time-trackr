@@ -2,7 +2,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Pressable, StyleSheet } from "react-native";
 
 import { AppText } from "@/components/ux/AppText";
-import { colors, spacing } from "@/theme";
+import { colors } from "@/theme";
 
 type FabProps = {
   label?: string;
@@ -24,9 +24,6 @@ export function AddEventFAB({ label, onPress }: FabProps) {
 
 const styles = StyleSheet.create({
   fab: {
-    position: "absolute",
-    bottom: spacing.lg,
-    right: spacing.lg,
     alignItems: "center",
     justifyContent: "center",
     width: 56,
