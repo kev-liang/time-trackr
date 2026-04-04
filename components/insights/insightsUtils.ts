@@ -52,14 +52,22 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
     const startMs = start.getTime();
     const endMs = end.getTime();
 
-    for (let h = start.getHours(); h <= Math.min(end.getHours(), 23); h++) {
+    const startDay = new Date(start).setHours(0, 0, 0, 0);
+    const endDay = new Date(end).setHours(0, 0, 0, 0);
+    const endHour = endDay > startDay ? 24 : end.getHours();
+
+    for (let h = start.getHours(); h <= Math.min(endHour, 23); h++) {
       const slotStartMs = new Date(start).setHours(h, 0, 0, 0);
       const slotEndMs = new Date(start).setHours(h, 59, 59, 999);
       const overlapStart = Math.max(startMs, slotStartMs);
       const overlapEnd = Math.min(endMs, slotEndMs);
       const minutes = (overlapEnd - overlapStart) / 60000;
       if (minutes > 0.5) {
-        slots[h].segments.push({ color: activity.color, minutes, title: activity.title });
+        slots[h].segments.push({
+          color: activity.color,
+          minutes,
+          title: activity.title,
+        });
       }
     }
   }
@@ -115,7 +123,11 @@ export function buildDaySlots(
     if (existing) {
       existing.minutes += minutes;
     } else {
-      slot.segments.push({ color: activity.color, minutes, title: activity.title });
+      slot.segments.push({
+        color: activity.color,
+        minutes,
+        title: activity.title,
+      });
     }
   }
 
