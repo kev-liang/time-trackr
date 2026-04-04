@@ -225,6 +225,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
           id={event.id}
           title={event.title ?? ""}
           start={event.start.dateTime!}
+          end={event.end.dateTime!}
           color={event.color ?? colors.tint}
         />
       ),
@@ -242,6 +243,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
             id={event.id ?? ""}
             title={event.title ?? ""}
             start={event.start.dateTime!}
+            end={event.end.dateTime!}
             color={event.color ?? colors.tint}
           />
         );

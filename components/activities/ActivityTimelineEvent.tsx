@@ -11,6 +11,7 @@ type Props = {
   id: string;
   title: string;
   start: string;
+  end: string;
   color: string;
 };
 
@@ -18,6 +19,7 @@ export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
   id,
   title,
   start,
+  end,
   color,
 }: Props) {
   const handlePress = () => {
@@ -43,8 +45,8 @@ export const ActivityTimelineEvent = memo(function ActivityTimelineEvent({
         >
           {title}
         </AppText>
-        <AppText variant="caption" color={colors.textSecondary}>
-          {formatTime(start)}
+        <AppText variant="caption" color={colors.textSecondary} numberOfLines={1}>
+          {formatTime(start)} – {formatTime(end)}
         </AppText>
       </View>
     </Pressable>
