@@ -41,6 +41,7 @@ import { toLocalDateTimeString } from "@/utils/time";
 export type ActivityTimelineHandle = {
   goToToday: () => void;
   getSizeByDuration: (minutes: number) => { height: number } | undefined;
+  zoom: (props: { scale: number }) => void;
 };
 
 type Props = {
@@ -69,6 +70,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       },
       getSizeByDuration: (minutes: number) =>
         calendarRef.current?.getSizeByDuration(minutes),
+      zoom: (props: { scale: number }) => calendarRef.current?.zoom(props),
     }));
     const [pickerOpen, setPickerOpen] = useState(false);
 
@@ -313,6 +315,9 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
         rightEdgeSpacing={0}
         start={0}
         end={1440}
+        allowPinchToZoom
+        minTimeIntervalHeight={40}
+        maxTimeIntervalHeight={200}
       >
         <View
           onLayout={(e) => setCalendarHeaderHeight(e.nativeEvent.layout.height)}

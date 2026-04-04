@@ -18,6 +18,7 @@ import {
 import { AddEventBottomSheet } from "@/components/activities/AddEventBottomSheet";
 import { AddEventFAB } from "@/components/activities/AddEventFab";
 import { TodayFAB } from "@/components/activities/TodayFAB";
+import { ZoomControls } from "@/components/activities/ZoomControls";
 import { ThemedView } from "@/components/themed-view";
 import { LoadingScreen } from "@/components/ux/LoadingScreen";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
@@ -117,6 +118,10 @@ export function ActivityScreen() {
           </Animated.View>
           {showLoading && <LoadingScreen />}
           {!isToday && <TodayFAB onPress={handleGoToToday} />}
+          <ZoomControls
+            onZoomIn={() => timelineRef.current?.zoom({ scale: 1.3 })}
+            onZoomOut={() => timelineRef.current?.zoom({ scale: 1 / 1.3 })}
+          />
           <AddEventFAB onPress={handleOpen} />
         </SafeAreaView>
       </ThemedView>
