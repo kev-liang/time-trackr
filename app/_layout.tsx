@@ -1,5 +1,6 @@
 import "@/lib/notificationScheduler";
 
+import * as Sentry from "@sentry/react-native";
 import {
   Raleway_400Regular,
   Raleway_500Medium,
@@ -20,6 +21,11 @@ import {
 
 configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  enabled: !__DEV__,
+});
+
 import { hasCompletedOnboarding } from "@/components/screens/OnboardingScreen";
 import { useAlarmScheduler } from "@/hooks/useAlarmScheduler";
 import { useNotificationResponse } from "@/hooks/useNotificationResponse";
@@ -32,7 +38,7 @@ import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useFonts({
     Raleway_400Regular,
     Raleway_500Medium,
@@ -108,3 +114,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(RootLayout);

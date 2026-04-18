@@ -16,7 +16,11 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
         onPress={onZoomIn}
         hitSlop={4}
       >
-        <MaterialCommunityIcons name="magnify-plus" size={26} color={colors.text} />
+        <MaterialCommunityIcons
+          name="magnify-plus"
+          size={26}
+          color={colors.icon}
+        />
       </Pressable>
       <View style={styles.divider} />
       <Pressable
@@ -24,7 +28,11 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
         onPress={onZoomOut}
         hitSlop={4}
       >
-        <MaterialCommunityIcons name="magnify-minus" size={26} color={colors.text} />
+        <MaterialCommunityIcons
+          name="magnify-minus"
+          size={26}
+          color={colors.icon}
+        />
       </Pressable>
     </View>
   );
@@ -32,9 +40,9 @@ export function ZoomControls({ onZoomIn, onZoomOut }: ZoomControlsProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 44,
+    width: 52,
     backgroundColor: colors.background,
-    borderRadius: 22,
+    borderRadius: 26,
     shadowColor: colors.text,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
@@ -43,7 +51,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   button: {
-    height: 44,
+    height: 52,
     alignItems: "center",
     justifyContent: "center",
   },
