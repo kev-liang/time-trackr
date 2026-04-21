@@ -19,7 +19,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { TodayFAB } from "@/components/activities/TodayFAB";
 import { EmptyInsights } from "@/components/insights/EmptyInsights";
-import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { HourlyBarChart } from "@/components/insights/HourlyBarChart";
 import { InsightList } from "@/components/insights/InsightList";
 import { InsightsChip } from "@/components/insights/InsightsChip";
@@ -27,6 +26,7 @@ import { PeriodToggle } from "@/components/insights/PeriodToggle";
 import { WeeklyBarChart } from "@/components/insights/WeeklyBarChart";
 import { ThemedView } from "@/components/themed-view";
 import { Card } from "@/components/ux/Card";
+import { FreemiumBanner } from "@/components/ux/FreemiumBanner";
 import { useInsightsData, useInsightsStore } from "@/stores/useInsightsStore";
 import { colors, spacing, textStyles } from "@/theme";
 
@@ -35,7 +35,8 @@ const SLIDE_DISTANCE = 350;
 export function InsightsScreen() {
   const { period, setPeriod, goToPrev, goToNext, goToToday, setSelectedDate } =
     useInsightsStore();
-  const [highlightedTitles, setHighlightedTitles] = useState<Set<string> | null>(null);
+  const [highlightedTitles, setHighlightedTitles] =
+    useState<Set<string> | null>(null);
   const clearHighlight = useCallback(() => setHighlightedTitles(null), []);
 
   const translateX = useSharedValue(0);
@@ -47,12 +48,18 @@ export function InsightsScreen() {
       const inX = direction === "next" ? SLIDE_DISTANCE : -SLIDE_DISTANCE;
       const action = direction === "next" ? goToNext : goToPrev;
       clearHighlight();
-      translateX.value = withTiming(outX, { duration: 180, easing: Easing.in(Easing.cubic) });
+      translateX.value = withTiming(outX, {
+        duration: 180,
+        easing: Easing.in(Easing.cubic),
+      });
       setTimeout(() => {
         action();
         translateX.value = inX;
         requestAnimationFrame(() => {
-          translateX.value = withTiming(0, { duration: 180, easing: Easing.out(Easing.cubic) });
+          translateX.value = withTiming(0, {
+            duration: 180,
+            easing: Easing.out(Easing.cubic),
+          });
         });
       }, 180);
     },
@@ -104,64 +111,81 @@ export function InsightsScreen() {
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
           >
-            <PeriodToggle value={period} onChange={(p) => { clearHighlight(); setPeriod(p); }} />
+            <PeriodToggle
+              value={period}
+              onChange={(p) => {
+                clearHighlight();
+                setPeriod(p);
+              }}
+            />
             <FreemiumBanner />
 
             <View style={styles.slideClip}>
-            <Animated.View style={[styles.animatedContent, animatedStyle]}>
-              <View style={styles.dateNav}>
-                <TouchableOpacity onPress={() => navigate("prev")}>
-                  <Ionicons name="chevron-back" size={24} color={colors.text} />
-                </TouchableOpacity>
-                <View style={styles.dateTitleContainer}>
-                  <Text style={styles.dateTitle}>{dateTitle}</Text>
-                  {isToday && <InsightsChip label="Today" />}
+              <Animated.View style={[styles.animatedContent, animatedStyle]}>
+                <View style={styles.dateNav}>
+                  <TouchableOpacity onPress={() => navigate("prev")}>
+                    <Ionicons
+                      name="chevron-back"
+                      size={24}
+                      color={colors.text}
+                    />
+                  </TouchableOpacity>
+                  <View style={styles.dateTitleContainer}>
+                    <Text style={styles.dateTitle}>{dateTitle}</Text>
+                    {isToday && <InsightsChip label="Today" />}
+                  </View>
+                  <TouchableOpacity onPress={() => navigate("next")}>
+                    <Ionicons
+                      name="chevron-forward"
+                      size={24}
+                      color={colors.text}
+                    />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={() => navigate("next")}>
-                  <Ionicons name="chevron-forward" size={24} color={colors.text} />
-                </TouchableOpacity>
-              </View>
 
-              {isEmpty ? (
-                <EmptyInsights />
-              ) : (
-                <>
-                  {period === "week" ? (
-                    <WeeklyBarChart
-                      slots={daySlots}
-                      maxMinutes={maxMinutes}
-                      todayDayIndex={todayDayIndex}
-                      highlightedTitles={highlightedTitles}
-                      setHighlightedTitles={setHighlightedTitles}
-                      clearHighlight={clearHighlight}
-                    />
-                  ) : (
-                    <HourlyBarChart
-                      slots={hourSlots}
-                      highlightedTitles={highlightedTitles}
-                      setHighlightedTitles={setHighlightedTitles}
-                      clearHighlight={clearHighlight}
-                    />
-                  )}
+                {isEmpty ? (
+                  <EmptyInsights />
+                ) : (
+                  <>
+                    {period === "week" ? (
+                      <WeeklyBarChart
+                        slots={daySlots}
+                        maxMinutes={maxMinutes}
+                        todayDayIndex={todayDayIndex}
+                        highlightedTitles={highlightedTitles}
+                        setHighlightedTitles={setHighlightedTitles}
+                        clearHighlight={clearHighlight}
+                      />
+                    ) : (
+                      <HourlyBarChart
+                        slots={hourSlots}
+                        highlightedTitles={highlightedTitles}
+                        setHighlightedTitles={setHighlightedTitles}
+                        clearHighlight={clearHighlight}
+                      />
+                    )}
 
-                  <Card title="Activities">
-                    <InsightList
-                      items={activityTotals}
-                      highlightedTitles={highlightedTitles}
-                      setHighlightedTitles={setHighlightedTitles}
-                      clearHighlight={clearHighlight}
-                    />
-                  </Card>
-                </>
-              )}
-            </Animated.View>
+                    <Card title="Activities">
+                      <InsightList
+                        items={activityTotals}
+                        highlightedTitles={highlightedTitles}
+                        setHighlightedTitles={setHighlightedTitles}
+                        clearHighlight={clearHighlight}
+                      />
+                    </Card>
+                  </>
+                )}
+              </Animated.View>
             </View>
           </ScrollView>
         </GestureDetector>
         {!isToday && !isThisWeek && (
           <TodayFAB
             label={period === "week" ? "This Week" : "Today"}
-            onPress={() => { clearHighlight(); goToToday(); }}
+            onPress={() => {
+              clearHighlight();
+              goToToday();
+            }}
           />
         )}
       </SafeAreaView>

@@ -23,7 +23,7 @@ configureReanimatedLogger({ level: ReanimatedLogLevel.warn, strict: false });
 
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
-  enabled: !__DEV__,
+  enabled: true,
 });
 
 import { hasCompletedOnboarding } from "@/components/screens/OnboardingScreen";

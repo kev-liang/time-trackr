@@ -17,10 +17,7 @@
       "bundleIdentifier": "com.kliang.timetracer",
       "infoPlist": {
         "NSUserNotificationUsageDescription": "TimeTracer uses notifications to remind you to log your activities.",
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
-        ],
+        "UIBackgroundModes": ["fetch", "remote-notification"],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -42,7 +39,14 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "@sentry/react-native/expo",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "react-native",
+          "organization": "modaptic-llc"
+        }
+      ],
       "expo-router",
       [
         "expo-notifications",
@@ -52,9 +56,7 @@
           "defaultChannel": "default"
         }
       ],
-      [
-        "expo-task-manager"
-      ],
+      ["expo-task-manager"],
       [
         "expo-splash-screen",
         {
