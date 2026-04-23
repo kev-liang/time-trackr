@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
     ...textStyles.body,
     color: colors.text,
     flex: 1,
+    fontWeight: "bold",
   },
   duration: {
     ...textStyles.body,
