@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { AppText } from "@/components/ux/AppText";
+import { FREE_LIMIT } from "@/components/ux/FreemiumBanner";
 import { analytics } from "@/lib/analytics";
 import { purchaseOffering, restorePurchases } from "@/lib/purchases";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
@@ -17,8 +18,10 @@ import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 
+const PURCHASE_PRICE = "$2.99";
+
 const FEATURES: { label: string; pro: boolean }[] = [
-  { label: "Track up to 3 activities", pro: false },
+  { label: `Track up to ${FREE_LIMIT} activities`, pro: false },
   { label: "Unlimited activities", pro: true },
 ];
 
@@ -27,7 +30,6 @@ export function PaywallScreen() {
   const checkSubscription = useSubscriptionStore((s) => s.checkSubscription);
   const { source } = useLocalSearchParams<{ source?: string }>();
   const historyItems = useActivityHistoryStore((s) => s.items);
-  const showActivitiesBanner = source === "freemium" && historyItems.length > 0;
 
   useEffect(() => {
     analytics.capture("paywall_viewed");
@@ -90,24 +92,29 @@ export function PaywallScreen() {
       <View style={styles.content}>
         <View style={styles.textBlock}>
           <AppText variant="title" style={styles.title}>
-            TimeTracer Free
+            TimeTracer Pro
           </AppText>
           <AppText
             variant="body"
             color={colors.textSecondary}
             style={styles.subtitle}
           >
-            You can track up to 3 activities.{"\n"}Upgrade for unlimited.
+            Track all your events
           </AppText>
         </View>
 
-        {showActivitiesBanner && (
-          <View style={styles.activitiesBanner}>
-            <AppText variant="body" color={colors.tint} style={styles.activitiesBannerText}>
-              Your activities: {historyItems.map((i) => i.name).join(", ")}
-            </AppText>
-          </View>
-        )}
+        <View style={styles.pricingBox}>
+          <AppText
+            variant="bodySemiBold"
+            color={colors.tint}
+            style={styles.pricingPrice}
+          >
+            {PURCHASE_PRICE}
+          </AppText>
+          <AppText variant="body" color={colors.textSecondary}>
+            One-time Purchase
+          </AppText>
+        </View>
 
         <View style={styles.card}>
           {FEATURES.map((f, i) => (
@@ -135,7 +142,7 @@ export function PaywallScreen() {
               <ActivityIndicator color={colors.background} />
             ) : (
               <AppText variant="bodySemiBold" color={colors.background}>
-                Get Pro for $3
+                Get Pro for {PURCHASE_PRICE}
               </AppText>
             )}
           </TouchableOpacity>
@@ -284,5 +291,17 @@ const styles = StyleSheet.create({
   },
   activitiesBannerText: {
     textAlign: "center",
+  },
+  pricingBox: {
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: colors.tint,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xl,
+    alignItems: "center",
+    gap: spacing.xs,
+  },
+  pricingPrice: {
+    fontSize: 24,
   },
 });

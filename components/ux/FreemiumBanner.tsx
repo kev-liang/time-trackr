@@ -6,7 +6,7 @@ import { useActivityHistoryStore } from "@/stores/useActivityHistoryStore";
 import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors, spacing } from "@/theme";
 
-export const FREE_LIMIT = 3;
+export const FREE_LIMIT = 5;
 
 export function FreemiumBanner() {
   const isPro = useSubscriptionStore((s) => s.isPro);
@@ -19,7 +19,9 @@ export function FreemiumBanner() {
   return (
     <TouchableOpacity
       style={styles.banner}
-      onPress={() => router.push({ pathname: "/paywall", params: { source: "freemium" } })}
+      onPress={() =>
+        router.push({ pathname: "/paywall", params: { source: "freemium" } })
+      }
       activeOpacity={0.7}
     >
       <AppText variant="body" color={colors.tint} style={styles.text}>

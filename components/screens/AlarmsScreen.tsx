@@ -18,7 +18,7 @@ const SCROLL_PADDING = 16;
 export function AlarmsScreen() {
   const enabled = useAlarmStore((s) => s.enabled);
   const session = useAuthStore((s) => s.session);
-  const supportId = session?.user.id.split("-")[0] ?? "—";
+  const supportId = session ? session.user.id.split("-").slice(0, 2).join("-") : "—";
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollViewContainerRef = useRef<View>(null);
   const scrollOffsetRef = useRef(0);

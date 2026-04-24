@@ -10,6 +10,7 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "build:ios-preview": "eas build --platform ios --profile preview",
+    "build:ios-production": "eas build --platform ios --profile production",
     "build:android-development": "eas build --platform android --profile development"
   },
   "dependencies": {
