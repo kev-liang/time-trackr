@@ -11,7 +11,8 @@
     "lint": "expo lint",
     "build:ios-preview": "eas build --platform ios --profile preview",
     "build:ios-production": "eas build --platform ios --profile production",
-    "build:android-development": "eas build --platform android --profile development"
+    "build:android-development": "eas build --platform android --profile development",
+    "submit:ios": "eas submit -p ios --latest"
   },
   "dependencies": {
     "@expo-google-fonts/raleway": "^0.4.2",

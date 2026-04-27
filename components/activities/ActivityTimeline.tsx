@@ -34,6 +34,7 @@ import { ActivityTimelineEvent } from "@/components/activities/ActivityTimelineE
 import { useActivityTimeline } from "@/hooks/useActivityTimeline";
 import { useActivityEditStore } from "@/stores/useActivityEditStore";
 import { useActivityStore } from "@/stores/useActivityStore";
+import { useSubscriptionStore } from "@/stores/useSubscriptionStore";
 import { colors } from "@/theme";
 import { MS_PER_MINUTE } from "@/utils/activityTime";
 import { toLocalDateTimeString } from "@/utils/time";
@@ -58,6 +59,7 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
     const [calendarHeaderHeight, setCalendarHeaderHeight] = useState(0);
     const { events, today, theme } = useActivityTimeline();
     const [selectedDate, setSelectedDate] = useState(today);
+    const isPro = useSubscriptionStore((s) => s.isPro);
 
     useImperativeHandle(ref, () => ({
       goToToday: () => {
@@ -291,11 +293,14 @@ export const ActivityTimeline = forwardRef<ActivityTimelineHandle, Props>(
       calendarRef.current?.goToDate({ date });
     }, []);
 
+    const spaceFromBottom =
+      sheetTopY != null && !isPro ? 150 : sheetTopY != null && isPro ? 120 : 0;
+
     return (
       <CalendarContainer
         ref={calendarRef}
         numberOfDays={1}
-        spaceFromBottom={(sheetTopY != null ? Math.max(windowHeight - sheetTopY, 0) : 0) + 16}
+        spaceFromBottom={spaceFromBottom}
         events={events}
         initialDate={today}
         scrollToNow

@@ -77,7 +77,7 @@ export function buildHourSlots(activities: Activity[]): HourSlot[] {
 export function getWeekStart(date: Date): Date {
   const d = new Date(date);
   const day = d.getDay(); // 0=Sun, 1=Mon ... 6=Sat
-  const diff = day === 0 ? -6 : 1 - day; // shift to Monday
+  const diff = -day; // shift to Sunday
   d.setDate(d.getDate() + diff);
   d.setHours(0, 0, 0, 0);
   return d;
@@ -100,7 +100,7 @@ export function buildDaySlots(
   weekStart: Date,
   activities: Activity[],
 ): DaySlot[] {
-  const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const DAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const slots: DaySlot[] = Array.from({ length: 7 }, (_, i) => ({
     dayIndex: i,
     dayLabel: DAY_LABELS[i],

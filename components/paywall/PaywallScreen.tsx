@@ -142,7 +142,7 @@ export function PaywallScreen() {
               <ActivityIndicator color={colors.background} />
             ) : (
               <AppText variant="bodySemiBold" color={colors.background}>
-                Get Pro for {PURCHASE_PRICE}
+                Get Pro
               </AppText>
             )}
           </TouchableOpacity>
